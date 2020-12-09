@@ -1,1 +1,1 @@
-# ppcgi
+# ppcurses
