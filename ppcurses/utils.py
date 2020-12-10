@@ -3,6 +3,9 @@ import requests
 from collections import defaultdict
 from ppcurses import token, domain
 from ppcurses.errors import CallFailure
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 TIMING = defaultdict(list)
@@ -23,6 +26,7 @@ def get(endpoint):
     url = 'https://' + domain + endpoint
     r = requests.get(url, headers={'Authorization': 'Bearer ' + token})
     if not r.ok:
+        logger.error("Failed calling %s, [%s]", (endpoint, r.status_code))
         raise CallFailure(r.status_code, endpoint)
     else:
         return r.json()

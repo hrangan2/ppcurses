@@ -12,6 +12,7 @@ class TestState(unittest.TestCase):
                 {'id': 5, 'name': 'fifth'}
                 ]
         self.state = State(lambda *args, **kwargs: data)
+        self.state.update()
         link(self.state)
 
     def test_next(self):
@@ -46,24 +47,25 @@ class TestEmptyState(unittest.TestCase):
         data = [
                 ]
         self.state = State(lambda *args, **kwargs: data)
+        self.state.update()
         link(self.state)
 
     def test_current_with_no_data(self):
         self.assertEqual(self.state.index, 0)
-        self.assertEqual(self.state.current_id, State.zerostate['id'])
-        self.assertEqual(self.state.current_item, State.zerostate)
+        self.assertEqual(self.state.current_id, State.zerostate[0]['id'])
+        self.assertEqual(self.state.current_item, State.zerostate[0])
 
     def test_next_with_no_data(self):
         self.state.next()
         self.assertEqual(self.state.index, 0)
-        self.assertEqual(self.state.current_id, State.zerostate['id'])
-        self.assertEqual(self.state.current_item, State.zerostate)
+        self.assertEqual(self.state.current_id, State.zerostate[0]['id'])
+        self.assertEqual(self.state.current_item, State.zerostate[0])
 
     def test_prev_with_no_data(self):
         self.state.prev()
         self.assertEqual(self.state.index, 0)
-        self.assertEqual(self.state.current_id, State.zerostate['id'])
-        self.assertEqual(self.state.current_item, State.zerostate)
+        self.assertEqual(self.state.current_id, State.zerostate[0]['id'])
+        self.assertEqual(self.state.current_item, State.zerostate[0])
 
 
 class Tracker:
@@ -88,6 +90,9 @@ class TestStateLink(unittest.TestCase):
         self.state1 = State(Tracker(data), prev_argf=lambda x: [])
         self.state2 = State(Tracker(data), prev_argf=lambda x: [])
         self.state3 = State(Tracker(data), prev_argf=lambda x: [])
+        self.state1.update()
+        self.state2.update()
+        self.state3.update()
         link(self.state1, self.state2, self.state3)
 
     def test_linking(self):
@@ -126,6 +131,7 @@ class TestSurroundings(unittest.TestCase):
                 {'id': 8, 'name': 'eighth'}
                 ]
         self.state = State(lambda *args, **kwargs: data)
+        self.state.update()
 
     def test_even_surrounding_items(self):
         self.state.current_id = 5
@@ -166,6 +172,7 @@ class TestSurroundings(unittest.TestCase):
                 {'id': 1, 'name': 'first'}
                 ]
         state = State(lambda *args, **kwargs: data)
+        state.update()
         items, highlight_index = state.surrounding(4)
         self.assertEqual([each['id'] for each in items], [1])
         self.assertEqual(highlight_index, 0)
@@ -177,6 +184,7 @@ class TestSurroundings(unittest.TestCase):
                 ]
 
         state = State(lambda *args, **kwargs: data)
+        state.update()
         items, highlight_index = state.surrounding(4)
         self.assertEqual([each['id'] for each in items], [1, 2])
         self.assertEqual(highlight_index, 0)
@@ -188,6 +196,7 @@ class TestSurroundings(unittest.TestCase):
                 ]
 
         state = State(lambda *args, **kwargs: data)
+        state.update()
         state.current_id = 2
         items, highlight_index = state.surrounding(4)
         self.assertEqual([each['id'] for each in items], [1, 2])

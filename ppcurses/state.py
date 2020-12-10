@@ -1,29 +1,30 @@
-class State:
-    zerostate = {'id': None, 'name': 'No items to show'}
+import logging
 
-    def __init__(self, updatef, prev_argf=lambda x: [x['id']], id=None):
-        self.id = id
+logger = logging.getLogger(__name__)
+
+
+class State:
+    zerostate = [{'id': None, 'name': 'No items to show'}]
+
+    def __init__(self, updatef, prev_argf=lambda x: [x['id']]):
         self.updatef = updatef
         self.prev_argf = prev_argf
-        self.update()
-        if not self.data:
-            self.data = [self.zerostate]
-
+        self.data = self.zerostate
         self.current_id = self.data[0]['id']
 
-    def __repr__(self):
-        if self.id is not None:
-            return 'StateObj: %s' % str(self.id)
-        else:
-            return super().__repr__()
+    def attach_window(self, window):
+        self.window = window
 
     def update(self):
         if hasattr(self, 'pstate'):
-            self.data = self.updatef(*self.prev_argf(self.pstate.current_item))
+            self.data = self.updatef(*self.prev_argf(self.pstate.current_item)) or self.zerostate
         else:
-            self.data = self.updatef()
+            self.data = self.updatef() or self.zerostate
         self.ids = [each['id'] for each in self.data]
+        if hasattr(self, 'window'):
+            self.window.draw(self)
         if hasattr(self, 'nstate'):
+            logger.info('Chain updating state for %s', self.nstate)
             self.nstate.update()
 
     def prev(self):
@@ -100,10 +101,10 @@ class State:
 
 def link(*states):
     """ You need to pass a list of states to this function before they can work """
+    logger.info('linking %s states', len(states))
     for n, each in enumerate(states):
         if n:
             each.pstate = states[n-1]
-
         try:
             each.nstate = states[n+1]
         except IndexError:
