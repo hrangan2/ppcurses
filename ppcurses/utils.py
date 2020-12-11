@@ -1,7 +1,7 @@
 import time
 import requests
 from collections import defaultdict
-from ppcurses import token, domain
+from ppcurses import token, domain, api_domain
 from ppcurses.errors import CallFailure
 import logging
 
@@ -24,7 +24,7 @@ def timeit(func):
 @timeit
 def get(endpoint):
     logger.info('Calling endpoint %s', endpoint)
-    url = 'https://' + domain + endpoint
+    url = 'https://' + api_domain + endpoint
     r = requests.get(url, headers={'Authorization': 'Bearer ' + token})
 
     if not r.ok:
@@ -32,3 +32,13 @@ def get(endpoint):
         raise CallFailure(r.status_code, endpoint)
     else:
         return r.json()
+
+
+def direct_card_link():
+    if global_state['card_id'] is not None:
+        return f"https://{domain}/#direct/card/{global_state['card_id']}"
+    else:
+        return ''
+
+
+global_state = {}

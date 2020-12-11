@@ -1,5 +1,8 @@
 import ppcurses.errors
+import ppcurses.state
+import ppcurses.utils
 import logging
+import subprocess
 
 logger = logging.getLogger(__name__)
 
@@ -62,6 +65,12 @@ def navright(state):
 @key('r')
 def refresh(state):
     state.update()
+    return state
+
+
+@key('y')
+def yank_card_url(state):
+    subprocess.run("pbcopy", universal_newlines=True, input=ppcurses.utils.direct_card_link())
     return state
 
 
