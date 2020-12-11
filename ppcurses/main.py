@@ -47,9 +47,12 @@ def interactable(stdscr):
         )
     ppcurses.state.link(initstate, planletstate, columnstate)
 
-    initstate.update()
     keylistener = curses.newwin(0, curses.COLS-1, 0, curses.COLS-1)
+
     state = planletstate
+    state.active = True
+
+    initstate.update()
     while True:
         key = keylistener.getkey()
         state = ppcurses.keymap.do(state, key)

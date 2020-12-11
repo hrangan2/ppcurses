@@ -40,14 +40,23 @@ def navdown(state):
 @key('h')
 def navleft(state):
     pstate = getattr(state, 'pstate', state)
+    state.active = False
+    state.window.draw()
     if pstate._name != 'header':
         state = pstate
+    state.active = True
+    state.window.draw()
     return state
 
 
 @key('l')
 def navright(state):
-    return getattr(state, 'nstate', state)
+    state.active = False
+    state.window.draw()
+    state = getattr(state, 'nstate', state)
+    state.active = True
+    state.window.draw()
+    return state
 
 
 @key('r')

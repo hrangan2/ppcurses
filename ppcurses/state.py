@@ -15,6 +15,7 @@ class State:
     zerostate = [Zero('No items to show')]
 
     def __init__(self, updatef, prev_argf=lambda x: [x['id']], name=None):
+        self.active = False
         self._name = name
         self.updatef = updatef
         self.prev_argf = prev_argf
