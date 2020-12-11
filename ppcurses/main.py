@@ -17,10 +17,6 @@ code = locale.getpreferredencoding()
 
 
 def interactable(stdscr):
-    logger.info('')
-    logger.info('#'*25 + '  Restarting ppcurses  ' + '#'*25)
-    logger.info('')
-    ppcurses.api.quickfail_dns()
     stdscr.clear()
     curses.curs_set(0)
     # height_y, width_x, begin_y, begin_x
@@ -79,6 +75,9 @@ def interactable(stdscr):
 
 
 def main():
+    logger.info('')
+    logger.info('#'*25 + '  Restarting ppcurses  ' + '#'*25)
+    logger.info('')
     try:
         curses.wrapper(interactable)
     except ppcurses.errors.GracefulExit:

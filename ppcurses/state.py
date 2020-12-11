@@ -173,7 +173,7 @@ class SingleCard:
             self.card = self.zerostate
         else:
             self.card = self.model(prev_args) or self.zerostate
-        ppcurses.utils.global_state['card_id'] = self.card.id
+        ppcurses.utils.global_state['card'] = self.card
 
         self.lines_of_text = self.generate_lines_of_text()
 

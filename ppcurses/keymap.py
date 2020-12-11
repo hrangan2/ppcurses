@@ -15,6 +15,7 @@ def key(k):
         if k in REGISTERED:
             raise ppcurses.errors.DuplicateKeyDefined(k, func.__name__)
         REGISTERED[k] = func
+        REGISTERED[k.upper()] = func
 
         def inner2(state):
             return func(state)
@@ -65,6 +66,12 @@ def navright(state):
 @key('r')
 def refresh(state):
     state.update()
+    return state
+
+
+@key('i')
+def add_comment(state):
+    state.add_comment()
     return state
 
 

@@ -35,8 +35,8 @@ def get(endpoint):
 
 
 def direct_card_link():
-    if global_state['card_id'] is not None:
-        return f"https://{domain}/#direct/card/{global_state['card_id']}"
+    if global_state['card'].id is not None:
+        return f"https://{domain}/#direct/card/{global_state['card'].id}"
     else:
         return ''
 

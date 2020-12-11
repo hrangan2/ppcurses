@@ -1,4 +1,5 @@
 import curses
+import curses.textpad
 import textwrap
 import logging
 
@@ -87,3 +88,8 @@ class CommentPad(Window):
         items, highlight_index = self.state.surrounding()
 
         self.window.refresh()
+
+
+class Text(Window):
+    def __init__(self, y, x, maxy, maxx):
+        self.textpad = curses.textpad.rectangle(y, x, maxy, maxx)
