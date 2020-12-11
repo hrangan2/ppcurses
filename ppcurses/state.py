@@ -138,3 +138,7 @@ def link(*states):
 
 class CommentPad:
     pass
+
+
+class CardPane:
+    pass

@@ -34,10 +34,10 @@ def interactable(stdscr):
         ppcurses.window.SimpleListPane((curses.LINES - 2)//2, (curses.COLS-1)//3, 2, 0)
         )
 
-    columnstate = ppcurses.state.State(ppcurses.api.columns)
+    columnstate = ppcurses.state.State(ppcurses.api.columns, lambda x: [x['board_id']])
     columnstate.set_name('columns')
     columnstate.attach_window(
-        ppcurses.window.SimpleListPane((curses.LINES - 2)//2, 2*(curses.COLS-1)//3, 2, (curses.COLS-1)//3)
+        ppcurses.window.SimpleListPane((curses.LINES - 2)//2, ((curses.COLS-1))//3, 2, (curses.COLS-1)//3)
         )
 
     cardstate = ppcurses.state.State(ppcurses.api.cards)
@@ -45,7 +45,7 @@ def interactable(stdscr):
     cardstate.attach_window(
         ppcurses.window.SimpleListPane((curses.LINES - 2)//2, curses.COLS-1, 2, 2*(curses.COLS-1)//3)
         )
-    ppcurses.state.link(initstate, planletstate)
+    ppcurses.state.link(initstate, planletstate, columnstate)
 
     initstate.update()
     keylistener = curses.newwin(0, curses.COLS-1, 0, curses.COLS-1)

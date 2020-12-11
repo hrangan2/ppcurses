@@ -45,7 +45,7 @@ def boards(project_id):
 
 def planlets(board_id):
     endpoint = f'/1/boards/{board_id}/planlets'
-    data = [{'id': each['id'], 'name': each['name']} for each in get(endpoint)[str(board_id)]]
+    data = [{'id': each['id'], 'name': each['name'], 'board_id': board_id} for each in get(endpoint)[str(board_id)]]
     data.sort(key=lambda x: x['name'])
     return data
 
@@ -59,10 +59,6 @@ def cards(board_id, planlet_id, column_id):
     data = [{'id': each['id'], 'name': each['title']} for each in get(endpoint) if each['planlet_id'] in (None, planlet_id)]
     data.sort(key=lambda x: x['name'])
     return data
-
-
-def card(card_id):
-    return ppcurses.model.Card(card_id)
 
 
 if __name__ == '__main__':

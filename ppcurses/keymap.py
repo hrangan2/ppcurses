@@ -60,5 +60,5 @@ def do(state, key):
     try:
         state = REGISTERED[key](state)
     except KeyError:
-        logger.warning('Unregistered key press detected - %s', key)
+        logger.warning('Unregistered key press detected - %s', repr(key))
     return state
