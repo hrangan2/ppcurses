@@ -118,7 +118,18 @@ class State:
                     before_count += 1
                     after_count -= 1
         highlight_index = [each['id'] for each in items].index(self.current_id)
-        return items, highlight_index
+
+        scroll_up = True
+        scroll_down = True
+
+        if (self.index - highlight_index) <= 0:
+            scroll_up = False
+        if len(self.data) <= n:
+            scroll_down = False
+        if (self.index + (n+highlight_index)) > len(self.data):
+            scroll_down = False
+
+        return items, highlight_index, scroll_up, scroll_down
 
     @property
     def index(self):
@@ -210,9 +221,21 @@ class SingleCard:
 
     def surrounding(self):
         if self.lines_needed > self.window.maxy-2:
-            return self.lines_of_text[self.index: self.index + self.window.maxy-2], None
+            if self.index == 0:
+                scroll_up = False
+            else:
+                scroll_up = True
+
+            if (self.lines_needed - self.index) < self.window.maxy-1:
+                scroll_down = False
+            else:
+                scroll_down = True
+
+            return self.lines_of_text[self.index: self.index + self.window.maxy-2], scroll_up, scroll_down
         else:
-            return self.lines_of_text, None
+            scroll_up = False
+            scroll_down = False
+            return self.lines_of_text, scroll_up, scroll_down
 
     def prev(self):
         if self.index == 0:

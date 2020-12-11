@@ -6,7 +6,6 @@ import ppcurses.keymap
 import locale
 import logging
 
-# TODO implement scrollbars
 # TODO highlight cards assigned to me in the list view
 
 
