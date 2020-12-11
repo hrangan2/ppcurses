@@ -33,9 +33,17 @@ def staticinit():
             }]
 
 
+def me():
+    endpoint = '/1/user/me/profile'
+    data = get(endpoint)
+    return {'id': data['id'],
+            'name': data['sort_name'],
+            'user_id': data['id']
+            }
+
+
 def projects():
     endpoint = '/1/user/me/projects'
-    logger.info('Calling endpoint %s', endpoint)
     data = [{'id': each['id'], 'name': each['name']} for each in get(endpoint)]
     data.sort(key=lambda x: x['name'])
     return data
@@ -43,7 +51,6 @@ def projects():
 
 def boards(project_id):
     endpoint = f"/1/projects/{project_id}/boards"
-    logger.info('Calling endpoint %s', endpoint)
     data = [{
         'id': each['id'],
         'name': each['name'],
@@ -56,7 +63,6 @@ def boards(project_id):
 
 def planlets(kwargs):
     endpoint = f"/1/boards/{kwargs['board_id']}/planlets"
-    logger.info('Calling endpoint %s', endpoint)
     data = [{
         'id': each['id'],
         'name': each['name'],
@@ -76,8 +82,6 @@ def planlets(kwargs):
 
 
 def columns(kwargs):
-    internal_endpoint = f"/1/boards/{kwargs['board_id']}/properties"
-    logger.info('Calling endpoint %s', internal_endpoint)
     return [{
         'id': each['id'],
         'name': each['name'],
@@ -90,8 +94,6 @@ def columns(kwargs):
 
 def cards(kwargs):
     endpoint = f"/1/boards/{kwargs['board_id']}/cards"
-    logger.info('Calling endpoint %s', endpoint)
-    logger.error(kwargs['planlet_id'])
     data = [{
         'id': each['id'],
         'name': each['title'],
@@ -108,5 +110,4 @@ def cards(kwargs):
 
 
 if __name__ == '__main__':
-    import doctest
-    doctest.testmod()
+    me()

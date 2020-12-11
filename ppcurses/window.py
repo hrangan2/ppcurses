@@ -1,4 +1,5 @@
 import curses
+import textwrap
 import logging
 
 
@@ -12,20 +13,16 @@ class Window:
     def __init__(self, y, x, endy, endx):
         self.window = curses.newwin(y, x, endy, endx)
         self.window.touchwin()
-
-    def refresh(self):
-        self.window.refresh()
+        self.maxy, self.maxx = self.window.getmaxyx()
 
 
 class ProjectBoardPane(Window):
     def draw(self):
         logger.info('redrawing window of state %s', str(self.state))
         self.window.clear()
-        self.window.box()
         items, _ = self.state.surrounding()
-        self.window.addstr(
-                0, 0, ' / '.join([str(items[0]['project_name']), str(items[0]['board_name'])]),
-                curses.A_STANDOUT)
+        title = ' %s - %s ' % (items[0]['project_name'].upper(), items[0]['board_name'].upper())
+        self.window.addstr(0, 5, title, curses.A_STANDOUT)
         self.window.refresh()
 
 
@@ -37,14 +34,45 @@ class SimpleListPane(Window):
             self.window.border(*ACTIVE_WINDOW)
         else:
             self.window.border(*INACTIVE_WINDOW)
+        self.window.addstr(0, 2, self.state.name)
 
-        maxy, maxx = self.window.getmaxyx()
-        items, highlight_index = self.state.surrounding(maxy//3)
+        items, highlight_index = self.state.surrounding(self.maxy//3)
         for n, each in enumerate(items):
             if n == highlight_index:
                 prefix = '> '
             else:
                 prefix = '  '
-            self.window.addstr(n*2+1, 1, prefix + each['name'])
-            self.window.addstr(n*2+2, 1, ''.join(['-']*(maxx-2)))
+            self.window.addstr(n*2+1, 1, prefix + textwrap.shorten(each['name'], width=self.maxx-2, placeholder='...'))
+            self.window.addstr(n*2+2, 1, ''.join(['-']*(self.maxx-2)))
+        self.window.refresh()
+
+
+class CardPane(Window):
+    def draw(self):
+        logger.info('redrawing card pane')
+        self.window.clear()
+        if self.state.active:
+            self.window.border(*ACTIVE_WINDOW)
+        else:
+            self.window.border(*INACTIVE_WINDOW)
+        self.window.addstr(0, 2, 'card details')
+        lines, _ = self.state.surrounding()
+        for n, line in enumerate(lines):
+            logger.error(line)
+            self.window.addstr(n+1, 1, textwrap.shorten(line, width=self.maxx))
+        self.window.refresh()
+
+
+class CommentPad(Window):
+    def draw(self):
+        logger.info('redrawing comments pane')
+        self.window.clear()
+        if self.state.active:
+            self.window.border(*ACTIVE_WINDOW)
+        else:
+            self.window.border(*INACTIVE_WINDOW)
+        self.window.addstr(0, 2, 'comments')
+
+        items, highlight_index = self.state.surrounding()
+
         self.window.refresh()

@@ -1,4 +1,5 @@
 import logging
+import textwrap
 
 logger = logging.getLogger(__name__)
 
@@ -10,25 +11,28 @@ class Zero:
     def __getitem__(self, key):
         return self.text if key == 'name' else None
 
+    def __getattr__(self, key):
+        return super().__getattr__(self, 'text') if key == 'name' else None
+
 
 class State:
     zerostate = [Zero('No items to show')]
 
     def __init__(self, updatef, name=None):
         self.active = False
-        self._name = name
+        self.name = name
         self.updatef = updatef
         self.data = self.zerostate
         self.current_id = self.data[0]['id']
 
     def __repr__(self):
-        if hasattr(self, '_name') and self._name:
-            return '<namedstate: %s>' % self._name
+        if hasattr(self, 'name') and self.name:
+            return '<namedstate: %s>' % self.name
         else:
             return super().__repr__()
 
     def set_name(self, name):
-        self._name = name
+        self.name = name
 
     def attach_window(self, window):
         self.window = window
@@ -124,9 +128,6 @@ class State:
             self.current_id = self.data[0]['id']
             return 0
 
-    def resetzero(self):
-        self.current_id = self.data[0]['id']
-
 
 def link(*states):
     """ You need to pass a list of states to this function before they can work """
@@ -140,9 +141,119 @@ def link(*states):
             pass
 
 
+class SingleCard:
+    zerostate = Zero('No card selected')
+
+    def __init__(self, model):
+        self.active = False
+        self.model = model
+        self.card = self.zerostate
+        self.index = 0
+
+    def attach_window(self, window):
+        self.window = window
+        self.window.state = self
+
+    def update(self):
+        prev_args = self.pstate.current_item
+        if prev_args['id'] is None:
+            self.card = self.zerostate
+        else:
+            self.card = self.model(prev_args) or self.zerostate
+
+        self.lines_of_text = self.generate_lines_of_text()
+
+        if hasattr(self, 'window'):
+            self.window.draw()
+
+        if hasattr(self, 'nstate'):
+            logger.info('updating linked state %s of %s', self.nstate, self)
+            self.nstate.update()
+
+    def generate_lines_of_text(self):
+        if self.card.id is None:
+            return [self.card.text]
+
+        contents = []
+        contents.extend(textwrap.wrap(self.card.title, width=self.window.maxx))
+        contents.append(' ')
+        if self.card.description:
+            contents.append('Description:')
+            for line in self.card.description.split('\n'):
+                contents.extend(textwrap.wrap(line, width=self.window.maxx))
+            contents.append(' ')
+        contents.append('Assignee: %s' % str(self.card.assignee['name'] if self.card.assignee else None))
+        contributors = ','.join([each['name'] for each in self.card.contributors]) or str(None)
+        contents.append('Co-Assignees: %s' % contributors)
+        contents.append(' ')
+        if self.card.label:
+            contents.append('Label: %s' % str(self.card.label['name'] if self.card.label else None))
+        if self.card.estimate:
+            contents.append('Points: %s' % str(self.card.estimate))
+        if self.card.tags:
+            tags = ','.join([each['name'] for each in self.card.tags]) or str(None)
+            contents.append('Tags: %s' % str(tags))
+
+        if self.card.checklist:
+            contents.append(' ')
+            contents.append('Checklist:')
+            for each in self.card.checklist:
+                if each['done']:
+                    contents.append('[X] %s' % each['title'])
+                else:
+                    contents.append('[ ] %s' % each['title'])
+        return contents
+
+    @property
+    def lines_needed(self):
+        return len(self.lines_of_text)
+
+    def surrounding(self):
+        if self.lines_needed > self.window.maxy-2:
+            return self.lines_of_text[self.index: self.index + self.window.maxy-2], None
+        else:
+            return self.lines_of_text, None
+
+    def prev(self):
+        if self.index == 0:
+            return
+        self.index -= 1
+        self.window.draw()
+
+    def next(self):
+        if (self.lines_needed - self.index) < self.window.maxy-1:
+            return
+        self.index += 1
+        self.window.draw()
+
+
 class CommentPad:
-    pass
+    zerostate = Zero('No comments to show')
 
+    def __init__(self, model):
+        self.active = False
+        self.model = model
+        self.comments = self.zerostate
 
-class CardPane:
-    pass
+    def attach_window(self, window):
+        self.window = window
+        self.window.state = self
+
+    def update(self):
+        prev_args = self.pstate.current_item
+        if prev_args['id'] is None:
+            self.card = [self.zerostate]
+        else:
+            self.card = self.model(prev_args) or self.zerostate
+
+        if hasattr(self, 'window'):
+            self.window.draw()
+        if hasattr(self, 'nstate'):
+            logger.info('updating linked state %s of %s', self.nstate, self)
+            self.nstate.update()
+
+    def prev(self):
+        pass
+
+    def next(self):
+        pass

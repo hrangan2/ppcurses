@@ -23,7 +23,8 @@ class Base:
 
 
 class Card(Base):
-    def __init__(self, card_id):
+    def __init__(self, kwargs):
+        card_id = kwargs['card_id']
         self.load_card(card_id)
         self.load_comments(card_id)
 

@@ -23,6 +23,7 @@ def timeit(func):
 
 @timeit
 def get(endpoint):
+    logger.info('Calling endpoint %s', endpoint)
     url = 'https://' + domain + endpoint
     r = requests.get(url, headers={'Authorization': 'Bearer ' + token})
 
