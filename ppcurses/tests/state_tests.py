@@ -2,6 +2,16 @@ from ppcurses.state import State, link
 import unittest
 
 
+class Tracker:
+    def __init__(self, retval):
+        self.count = 0
+        self.retval = retval
+
+    def __call__(self, *args, **kwargs):
+        self.count += 1
+        return self.retval
+
+
 class TestState(unittest.TestCase):
     def setUp(self):
         data = [
@@ -66,16 +76,6 @@ class TestEmptyState(unittest.TestCase):
         self.assertEqual(self.state.index, 0)
         self.assertEqual(self.state.current_id, State.zerostate[0]['id'])
         self.assertEqual(self.state.current_item, State.zerostate[0])
-
-
-class Tracker:
-    def __init__(self, retval):
-        self.count = 0
-        self.retval = retval
-
-    def __call__(self, *args, **kwargs):
-        self.count += 1
-        return self.retval
 
 
 class TestStateLink(unittest.TestCase):

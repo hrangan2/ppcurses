@@ -25,6 +25,7 @@ def timeit(func):
 def get(endpoint):
     url = 'https://' + domain + endpoint
     r = requests.get(url, headers={'Authorization': 'Bearer ' + token})
+
     if not r.ok:
         logger.error("Failed calling %s, [%s]", (endpoint, r.status_code))
         raise CallFailure(r.status_code, endpoint)

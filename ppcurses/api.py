@@ -1,6 +1,22 @@
 #!/usr/bin/env python
+import ppcurses.model
+from ppcurses import domain
 from ppcurses.utils import get
-from ppcurses.model import Board, Card
+from ppcurses.errors import CallFailure
+
+
+def quickfail_dns():
+    """Fail quickly when encountering a DNS issue"""
+    import socket
+    import signal
+
+    def callback():
+        raise CallFailure('DNS_TIMEOUT')
+
+    signal.signal(signal.SIGALRM, callback)
+    signal.alarm(1)
+    socket.gethostbyname(domain)
+    signal.alarm(0)
 
 
 def staticinit():
@@ -35,7 +51,7 @@ def planlets(board_id):
 
 
 def columns(board_id):
-    return Board(board_id).progresses
+    return ppcurses.model.Board(board_id).progresses
 
 
 def cards(board_id, planlet_id, column_id):
@@ -46,7 +62,7 @@ def cards(board_id, planlet_id, column_id):
 
 
 def card(card_id):
-    return Card(card_id)
+    return ppcurses.model.Card(card_id)
 
 
 if __name__ == '__main__':

@@ -3,28 +3,51 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class State:
-    zerostate = [{'id': None, 'name': 'No items to show'}]
+class Zero:
+    def __init__(self, text):
+        self.text = text
 
-    def __init__(self, updatef, prev_argf=lambda x: [x['id']]):
+    def __getitem__(self, key):
+        return self.text if key == 'name' else None
+
+
+class State:
+    zerostate = [Zero('No items to show')]
+
+    def __init__(self, updatef, prev_argf=lambda x: [x['id']], name=None):
+        self._name = name
         self.updatef = updatef
         self.prev_argf = prev_argf
         self.data = self.zerostate
         self.current_id = self.data[0]['id']
 
+    def __repr__(self):
+        if hasattr(self, '_name') and self._name:
+            return '<namedstate: %s>' % self._name
+        else:
+            return super().__repr__()
+
+    def set_name(self, name):
+        self._name = name
+
     def attach_window(self, window):
         self.window = window
+        self.window.state = self
 
     def update(self):
         if hasattr(self, 'pstate'):
-            self.data = self.updatef(*self.prev_argf(self.pstate.current_item)) or self.zerostate
+            prev_args = self.prev_argf(self.pstate.current_item)
+            if prev_args and prev_args == ([None] * len(prev_args)):
+                self.data = self.zerostate
+            else:
+                self.data = self.updatef(*prev_args) or self.zerostate
         else:
             self.data = self.updatef() or self.zerostate
         self.ids = [each['id'] for each in self.data]
         if hasattr(self, 'window'):
-            self.window.draw(self)
+            self.window.draw()
         if hasattr(self, 'nstate'):
-            logger.info('Chain updating state for %s', self.nstate)
+            logger.info('updating linked state %s of %s', self.nstate, self)
             self.nstate.update()
 
     def prev(self):
@@ -32,6 +55,7 @@ class State:
             return
 
         self.current_id = self.data[self.index - 1]['id']
+        self.window.draw()
 
     def next(self):
         if len(self.data) == 1:
@@ -40,6 +64,7 @@ class State:
             return
 
         self.current_id = self.data[self.index + 1]['id']
+        self.window.draw()
 
     @property
     def current_item(self):
@@ -109,3 +134,7 @@ def link(*states):
             each.nstate = states[n+1]
         except IndexError:
             pass
+
+
+class CommentPad:
+    pass
