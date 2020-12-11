@@ -70,7 +70,6 @@ class CardPane(Window):
             self.window.addch(self.maxy-2, self.maxx-3, curses.ACS_DARROW)
 
         for n, line in enumerate(lines):
-            logger.error(line)
             self.window.addstr(n+1, 1, textwrap.shorten(line, width=self.maxx-3))
         self.window.refresh()
 

@@ -166,6 +166,7 @@ class SingleCard:
         self.window.state = self
 
     def update(self):
+        self.index = 0
         prev_args = self.pstate.current_item
         if prev_args['id'] is None:
             self.card = self.zerostate
@@ -191,7 +192,7 @@ class SingleCard:
         if self.card.description:
             contents.append('Description:')
             for line in self.card.description.split('\n'):
-                contents.extend(textwrap.wrap(line, width=self.window.maxx))
+                contents.extend(textwrap.wrap(line, width=self.window.maxx-5))
             contents.append(' ')
         contents.append('Assignee: %s' % str(self.card.assignee['name'] if self.card.assignee else None))
         contributors = ','.join([each['name'] for each in self.card.contributors]) or str(None)
@@ -240,13 +241,14 @@ class SingleCard:
     def prev(self):
         if self.index == 0:
             return
-        self.index -= 1
+        self.index -= (self.window.maxy//2)
+        self.index = max(self.index, 0)
         self.window.draw()
 
     def next(self):
         if (self.lines_needed - self.index) < self.window.maxy-1:
             return
-        self.index += 1
+        self.index += (self.window.maxy//2)
         self.window.draw()
 
 
