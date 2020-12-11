@@ -12,6 +12,11 @@ class Tracker:
         return self.retval
 
 
+class MockWindow:
+    def draw(self):
+        pass
+
+
 class TestState(unittest.TestCase):
     def setUp(self):
         data = [
@@ -26,6 +31,7 @@ class TestState(unittest.TestCase):
         link(self.state)
 
     def test_next(self):
+        self.state.attach_window(MockWindow())
         self.state.next()
         self.assertEqual(self.state.index, 1)
         self.assertEqual(self.state.current_id, 2)
@@ -40,6 +46,7 @@ class TestState(unittest.TestCase):
 
     def test_prev(self):
         self.state.current_id = 2
+        self.state.attach_window(MockWindow())
         self.state.prev()
         self.assertEqual(self.state.index, 0)
         self.assertEqual(self.state.current_id, 1)
@@ -87,9 +94,9 @@ class TestStateLink(unittest.TestCase):
                 {'id': 4, 'name': 'fourth'},
                 {'id': 5, 'name': 'fifth'}
                 ]
-        self.state1 = State(Tracker(data), prev_argf=lambda x: [])
-        self.state2 = State(Tracker(data), prev_argf=lambda x: [])
-        self.state3 = State(Tracker(data), prev_argf=lambda x: [])
+        self.state1 = State(Tracker(data))
+        self.state2 = State(Tracker(data))
+        self.state3 = State(Tracker(data))
         self.state1.update()
         self.state2.update()
         self.state3.update()

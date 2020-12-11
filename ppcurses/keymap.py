@@ -66,8 +66,8 @@ def refresh(state):
 
 
 def do(state, key):
-    try:
-        state = REGISTERED[key](state)
-    except KeyError:
+    if key not in REGISTERED:
         logger.warning('Unregistered key press detected - %s', repr(key))
+    else:
+        state = REGISTERED[key](state)
     return state

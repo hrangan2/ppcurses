@@ -20,6 +20,7 @@ def interactable(stdscr):
     logger.info('')
     ppcurses.api.quickfail_dns()
     stdscr.clear()
+    curses.curs_set(0)
     # height_y, width_x, begin_y, begin_x
 
     initstate = ppcurses.state.State(ppcurses.api.staticinit)
@@ -28,13 +29,13 @@ def interactable(stdscr):
         ppcurses.window.ProjectBoardPane(1, curses.COLS-1, 0, 0),
         )
 
-    planletstate = ppcurses.state.State(ppcurses.api.planlets, lambda x: [x['board_id']])
+    planletstate = ppcurses.state.State(ppcurses.api.planlets)
     planletstate.set_name('planlets')
     planletstate.attach_window(
         ppcurses.window.SimpleListPane((curses.LINES - 2)//2, (curses.COLS-1)//3, 2, 0)
         )
 
-    columnstate = ppcurses.state.State(ppcurses.api.columns, lambda x: [x['board_id']])
+    columnstate = ppcurses.state.State(ppcurses.api.columns)
     columnstate.set_name('columns')
     columnstate.attach_window(
         ppcurses.window.SimpleListPane((curses.LINES - 2)//2, ((curses.COLS-1))//3, 2, (curses.COLS-1)//3)
@@ -45,7 +46,7 @@ def interactable(stdscr):
     cardstate.attach_window(
         ppcurses.window.SimpleListPane((curses.LINES - 2)//2, curses.COLS-1, 2, 2*(curses.COLS-1)//3)
         )
-    ppcurses.state.link(initstate, planletstate, columnstate)
+    ppcurses.state.link(initstate, planletstate, columnstate, cardstate)
 
     keylistener = curses.newwin(0, curses.COLS-1, 0, curses.COLS-1)
 

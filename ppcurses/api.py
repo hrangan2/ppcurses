@@ -1,8 +1,12 @@
 #!/usr/bin/env python
+import logging
 import ppcurses.model
 from ppcurses import domain
 from ppcurses.utils import get
 from ppcurses.errors import CallFailure
+
+
+logger = logging.getLogger(__name__)
 
 
 def quickfail_dns():
@@ -31,32 +35,74 @@ def staticinit():
 
 def projects():
     endpoint = '/1/user/me/projects'
+    logger.info('Calling endpoint %s', endpoint)
     data = [{'id': each['id'], 'name': each['name']} for each in get(endpoint)]
     data.sort(key=lambda x: x['name'])
     return data
 
 
 def boards(project_id):
-    endpoint = f'/1/projects/{project_id}/boards'
-    data = [{'id': each['id'], 'name': each['name']} for each in get(endpoint)]
+    endpoint = f"/1/projects/{project_id}/boards"
+    logger.info('Calling endpoint %s', endpoint)
+    data = [{
+        'id': each['id'],
+        'name': each['name'],
+        'project_id': project_id,
+        'board_id': each['id']
+        } for each in get(endpoint)]
     data.sort(key=lambda x: x['name'])
     return data
 
 
-def planlets(board_id):
-    endpoint = f'/1/boards/{board_id}/planlets'
-    data = [{'id': each['id'], 'name': each['name'], 'board_id': board_id} for each in get(endpoint)[str(board_id)]]
+def planlets(kwargs):
+    endpoint = f"/1/boards/{kwargs['board_id']}/planlets"
+    logger.info('Calling endpoint %s', endpoint)
+    data = [{
+        'id': each['id'],
+        'name': each['name'],
+        'project_id': kwargs['project_id'],
+        'board_id': kwargs['board_id'],
+        'planlet_id': each['id']
+        } for each in get(endpoint)[str(kwargs['board_id'])]]
     data.sort(key=lambda x: x['name'])
+    data.append({
+        'id': -1,
+        'name': 'No Activity',
+        'project_id': kwargs['project_id'],
+        'board_id': kwargs['board_id'],
+        'planlet_id': -1
+        })
     return data
 
 
-def columns(board_id):
-    return ppcurses.model.Board(board_id).progresses
+def columns(kwargs):
+    internal_endpoint = f"/1/boards/{kwargs['board_id']}/properties"
+    logger.info('Calling endpoint %s', internal_endpoint)
+    return [{
+        'id': each['id'],
+        'name': each['name'],
+        'project_id': kwargs['project_id'],
+        'board_id': kwargs['board_id'],
+        'planlet_id': kwargs['planlet_id'],
+        'column_id': each['id']
+        } for each in ppcurses.model.Board(kwargs['board_id']).progresses]
 
 
-def cards(board_id, planlet_id, column_id):
-    endpoint = '/1/boards/%s/cards' % board_id
-    data = [{'id': each['id'], 'name': each['title']} for each in get(endpoint) if each['planlet_id'] in (None, planlet_id)]
+def cards(kwargs):
+    endpoint = f"/1/boards/{kwargs['board_id']}/cards"
+    logger.info('Calling endpoint %s', endpoint)
+    logger.error(kwargs['planlet_id'])
+    data = [{
+        'id': each['id'],
+        'name': each['title'],
+        'project_id': kwargs['project_id'],
+        'board_id': kwargs['board_id'],
+        'planlet_id': kwargs['planlet_id'],
+        'column_id': kwargs['column_id'],
+        'card_id': each['id']
+        } for each in get(endpoint)
+        if ((each['planlet_id'] or -1) == kwargs['planlet_id'])
+        and each['column_id'] == kwargs['column_id']]
     data.sort(key=lambda x: x['name'])
     return data
 

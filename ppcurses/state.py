@@ -14,11 +14,10 @@ class Zero:
 class State:
     zerostate = [Zero('No items to show')]
 
-    def __init__(self, updatef, prev_argf=lambda x: [x['id']], name=None):
+    def __init__(self, updatef, name=None):
         self.active = False
         self._name = name
         self.updatef = updatef
-        self.prev_argf = prev_argf
         self.data = self.zerostate
         self.current_id = self.data[0]['id']
 
@@ -37,11 +36,11 @@ class State:
 
     def update(self):
         if hasattr(self, 'pstate'):
-            prev_args = self.prev_argf(self.pstate.current_item)
-            if prev_args and prev_args == ([None] * len(prev_args)):
+            prev_args = self.pstate.current_item
+            if prev_args['id'] is None:
                 self.data = self.zerostate
             else:
-                self.data = self.updatef(*prev_args) or self.zerostate
+                self.data = self.updatef(prev_args) or self.zerostate
         else:
             self.data = self.updatef() or self.zerostate
         self.ids = [each['id'] for each in self.data]
@@ -57,6 +56,8 @@ class State:
 
         self.current_id = self.data[self.index - 1]['id']
         self.window.draw()
+        if hasattr(self, 'nstate'):
+            self.nstate.update()
 
     def next(self):
         if len(self.data) == 1:
@@ -66,6 +67,8 @@ class State:
 
         self.current_id = self.data[self.index + 1]['id']
         self.window.draw()
+        if hasattr(self, 'nstate'):
+            self.nstate.update()
 
     @property
     def current_item(self):
