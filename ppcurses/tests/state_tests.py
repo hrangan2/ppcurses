@@ -142,34 +142,34 @@ class TestSurroundings(unittest.TestCase):
 
     def test_even_surrounding_items(self):
         self.state.current_id = 5
-        items, highlight_index = self.state.surrounding(4)
+        items, highlight_index, _, _ = self.state.surrounding(4)
         self.assertEqual([each['id'] for each in items], [3, 4, 5, 6, 7])
         self.assertEqual(len(items), 5)
         self.assertEqual(highlight_index, 2)
 
     def test_even_surrounding_items_at_start(self):
-        items, highlight_index = self.state.surrounding(4)
+        items, highlight_index, _, _ = self.state.surrounding(4)
         self.assertEqual([each['id'] for each in items], [1, 2, 3, 4, 5])
         self.assertEqual(len(items), 5)
         self.assertEqual(highlight_index, 0)
 
     def test_even_surrounding_items_near_start(self):
         self.state.current_id = 2
-        items, highlight_index = self.state.surrounding(4)
+        items, highlight_index, _, _ = self.state.surrounding(4)
         self.assertEqual([each['id'] for each in items], [1, 2, 3, 4, 5])
         self.assertEqual(len(items), 5)
         self.assertEqual(highlight_index, 1)
 
     def test_even_surrounding_items_near_end(self):
         self.state.current_id = 7
-        items, highlight_index = self.state.surrounding(4)
+        items, highlight_index, _, _ = self.state.surrounding(4)
         self.assertEqual([each['id'] for each in items], [4, 5, 6, 7, 8])
         self.assertEqual(len(items), 5)
         self.assertEqual(highlight_index, 3)
 
     def test_even_surrounding_items_at_end(self):
         self.state.current_id = 8
-        items, highlight_index = self.state.surrounding(4)
+        items, highlight_index, _, _ = self.state.surrounding(4)
         self.assertEqual([each['id'] for each in items], [4, 5, 6, 7, 8])
         self.assertEqual(len(items), 5)
         self.assertEqual(highlight_index, 4)
@@ -180,7 +180,7 @@ class TestSurroundings(unittest.TestCase):
                 ]
         state = State(lambda *args, **kwargs: data)
         state.update()
-        items, highlight_index = state.surrounding(4)
+        items, highlight_index, _, _ = state.surrounding(4)
         self.assertEqual([each['id'] for each in items], [1])
         self.assertEqual(highlight_index, 0)
 
@@ -192,7 +192,7 @@ class TestSurroundings(unittest.TestCase):
 
         state = State(lambda *args, **kwargs: data)
         state.update()
-        items, highlight_index = state.surrounding(4)
+        items, highlight_index, _, _ = state.surrounding(4)
         self.assertEqual([each['id'] for each in items], [1, 2])
         self.assertEqual(highlight_index, 0)
 
@@ -205,13 +205,13 @@ class TestSurroundings(unittest.TestCase):
         state = State(lambda *args, **kwargs: data)
         state.update()
         state.current_id = 2
-        items, highlight_index = state.surrounding(4)
+        items, highlight_index, _, _ = state.surrounding(4)
         self.assertEqual([each['id'] for each in items], [1, 2])
         self.assertEqual(highlight_index, 1)
 
     def test_massive_surrounding_items(self):
         self.state.current_id = 4
-        items, highlight_index = self.state.surrounding(99)
+        items, highlight_index, _, _ = self.state.surrounding(99)
         self.assertEqual([each['id'] for each in items], [1, 2, 3, 4, 5, 6, 7, 8])
         self.assertEqual(highlight_index, 3)
 
