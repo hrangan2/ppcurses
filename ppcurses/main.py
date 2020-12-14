@@ -8,8 +8,6 @@ import ppcurses.keymap
 import locale
 import logging
 
-# TODO highlight cards assigned to me in the list view
-
 
 logging.basicConfig(filename='ppcurses.log', level=logging.WARNING)
 logger = logging.getLogger(__name__)
@@ -22,7 +20,6 @@ def interactable(stdscr):
     stdscr.clear()
     ppcurses.data.whoami()
     curses.curs_set(0)
-    # height_y, width_x, begin_y, begin_x
 
     # Project & Board Header Configuration
     headerstate = ppcurses.state.State('header', ppcurses.data.fileinit)
