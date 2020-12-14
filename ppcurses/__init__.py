@@ -14,10 +14,24 @@ logger = logging.getLogger(__name__)
 
 
 internaldir = os.path.join(os.path.expanduser('~'), '.ppcurses')
+configfile = os.path.join(internaldir, 'config')
+if not os.path.exists(internaldir):
+    os.mkdir(internaldir)
+if not os.path.exists(configfile):
+    with open(configfile, 'w') as f:
+        f.write("""\
+[ppcurses]
+token=ADD_USER_TOKEN
+domain=local.rnd.projectplace.com
+api_domain=api-local.rnd.projectplace.com
+""")
 
 parser = configparser.ConfigParser()
-parser.read_file(open(os.path.join(internaldir, 'config')))
+parser.read_file(open(configfile))
 token = parser.get('ppcurses', 'token')
+if token == 'ADD_USER_TOKEN':
+    print('Add your projectplace token to %s' % configfile)
+    exit()
 domain = parser.get('ppcurses', 'domain')
 api_domain = parser.get('ppcurses', 'api_domain')
 
