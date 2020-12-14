@@ -61,3 +61,5 @@ def select_project_board():
                 exit()
             else:
                 break
+    win.clear()
+    win.refresh()

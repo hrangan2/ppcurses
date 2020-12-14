@@ -37,15 +37,15 @@ class State:
         self.window = window
         self.window.state = self
 
-    def update(self, reset_position=False):
+    def update(self, reset_position=False, refetch=False):
         if hasattr(self, 'pstate'):
             prev_args = self.pstate.current_item
             if prev_args['id'] is None:
                 self.data = self.zerostate
             else:
-                self.data = self.updater(prev_args) or self.zerostate
+                self.data = self.updater(prev_args, refetch=refetch) or self.zerostate
         else:
-            self.data = self.updater() or self.zerostate
+            self.data = self.updater(refetch=refetch) or self.zerostate
         self.ids = [each['id'] for each in self.data]
         if reset_position:
             self.current_id = self.data[0]['id']
@@ -53,7 +53,7 @@ class State:
             self.window.draw()
         if hasattr(self, 'nstate'):
             logger.info('updating linked state %s of %s', self.nstate, self)
-            self.nstate.update(reset_position)
+            self.nstate.update(reset_position=reset_position, refetch=refetch)
 
     def prev(self):
         if self.index == 0:
@@ -157,13 +157,13 @@ class Pager:
         self.window = window
         self.window.state = self
 
-    def update(self, reset_position=False):
+    def update(self, reset_position=False, refetch=False):
         self.index = 0
         prev_args = self.pstate.current_item
         if prev_args['id'] is None:
             self.data = self.zerostate
         else:
-            self.data = self.updater(prev_args) or self.zerostate
+            self.data = self.updater(prev_args, refetch=refetch) or self.zerostate
         if reset_position:
             self.index = 0
         self.lines_of_text = self.generate_lines_of_text()
@@ -172,7 +172,7 @@ class Pager:
 
         if hasattr(self, 'nstate'):
             logger.info('updating linked state %s of %s', self.nstate, self)
-            self.nstate.update()
+            self.nstate.update(reset_position=reset_position, refetch=refetch)
 
     @property
     def lines_needed(self):
@@ -213,8 +213,8 @@ class Pager:
 class SingleCard(Pager):
     zerostate = Zero('No card selected')
 
-    def update(self, reset_position=False):
-        super().update(reset_position)
+    def update(self, reset_position=False, refetch=False):
+        super().update(reset_position=reset_position, refetch=refetch)
         ppcurses.memstore['card_id'] = self.data.id
 
     def generate_lines_of_text(self):

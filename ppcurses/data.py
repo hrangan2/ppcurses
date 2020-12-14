@@ -21,7 +21,7 @@ def whoami():
     signal.alarm(0)
 
 
-def fileinit():
+def fileinit(refetch=False):
     if ppcurses.dbstore['project_id'] is None or ppcurses.dbstore['board_id'] is None:
         ppcurses.start.select_project_board()
     return [{
@@ -33,7 +33,7 @@ def fileinit():
             }]
 
 
-def projects():
+def projects(refetch=False):
     endpoint = '/api/v1/user/me/projects'
     data = [{'id': each['id'],
              'name': each['name'],
@@ -42,7 +42,7 @@ def projects():
     return data
 
 
-def boards(kwargs):
+def boards(kwargs, refetch=False):
     endpoint = f"/api/v1/projects/{kwargs['project_id']}/boards"
     data = [{
         'id': each['id'],
@@ -54,15 +54,18 @@ def boards(kwargs):
     return data
 
 
-def planlets(kwargs):
+def planlets(kwargs, refetch=False):
     endpoint = f"/api/v1/boards/{kwargs['board_id']}/planlets"
+    ppcurses.memstore['planlets'] = ppcurses.get(endpoint, refetch=refetch)[str(kwargs['board_id'])]
+
     data = [{
         'id': each['id'],
         'name': each['name'],
         'project_id': kwargs['project_id'],
         'board_id': kwargs['board_id'],
         'planlet_id': each['id']
-        } for each in ppcurses.get(endpoint)[str(kwargs['board_id'])]]
+        } for each in ppcurses.get(endpoint, refetch=refetch)[str(kwargs['board_id'])]
+        if not each['achieved']]
     data.sort(key=lambda x: x['name'])
     data.append({
         'id': -1,
@@ -74,8 +77,8 @@ def planlets(kwargs):
     return data
 
 
-def columns(kwargs):
-    columns = Board(kwargs['board_id']).progresses
+def columns(kwargs, refetch=False):
+    columns = Board(kwargs['board_id'], refetch=refetch).progresses
     ppcurses.memstore['columns'] = columns
     return [{
         'id': each['id'],
@@ -87,7 +90,7 @@ def columns(kwargs):
         } for each in columns]
 
 
-def cards(kwargs):
+def cards(kwargs, refetch=False):
     endpoint = f"/api/v1/boards/{kwargs['board_id']}/cards"
     data = [{
         'id': each['id'],
@@ -97,16 +100,16 @@ def cards(kwargs):
         'planlet_id': kwargs['planlet_id'],
         'column_id': kwargs['column_id'],
         'card_id': each['id']
-        } for each in ppcurses.get(endpoint)
+        } for each in ppcurses.get(endpoint, refetch=refetch)
         if ((each['planlet_id'] or -1) == kwargs['planlet_id'])
         and each['column_id'] == kwargs['column_id']]
     data.sort(key=lambda x: x['name'])
     return data
 
 
-def comments(kwargs):
+def comments(kwargs, refetch=False):
     endpoint = f"/api/v3/conversations/comments?item_id={kwargs['card_id']}&item_name=card&count=100&offset=0"
-    return [Comment(each) for each in ppcurses.get(endpoint)['data']]
+    return [Comment(each) for each in ppcurses.get(endpoint, refetch=refetch)['data']]
 
 
 class Serializer:
@@ -129,13 +132,13 @@ class Serializer:
 
 
 class Card(Serializer):
-    def __init__(self, kwargs):
+    def __init__(self, kwargs, refetch=False):
         card_id = kwargs['card_id']
-        self.load_card(card_id)
+        self.load_card(card_id, refetch)
 
-    def load_card(self, card_id):
-        card = ppcurses.get(f'/api/v1/cards/{card_id}')
-        tags = ppcurses.get(f'/api/v1/tags/cards/{card_id}')
+    def load_card(self, card_id, refetch=False):
+        card = ppcurses.get(f'/api/v1/cards/{card_id}', refetch=refetch)
+        tags = ppcurses.get(f'/api/v1/tags/cards/{card_id}', refetch=refetch)
 
         self.id = card['id']
         self.title = card['title']
@@ -179,7 +182,7 @@ class Card(Serializer):
 
 
 class Comment(Serializer):
-    def __init__(self, comment):
+    def __init__(self, comment, refetch=False):
         self.id = comment['id']
         self.text = comment['text']
         self.created_at = comment['created_at']
@@ -191,11 +194,11 @@ class Comment(Serializer):
 
 
 class Board(Serializer):
-    def __init__(self, board_id):
-        self.load_board(board_id)
+    def __init__(self, board_id, refetch=False):
+        self.load_board(board_id, refetch=False)
 
-    def load_board(self, board_id):
-        board = ppcurses.get(f'/api/v1/boards/{board_id}/properties')
+    def load_board(self, board_id, refetch=False):
+        board = ppcurses.get(f'/api/v1/boards/{board_id}/properties', refetch=refetch)
 
         self.id = board['id']
         self.name = board['name']

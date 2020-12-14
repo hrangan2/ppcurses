@@ -35,8 +35,8 @@ if token == 'ADD_USER_TOKEN':
 domain = parser.get('ppcurses', 'domain')
 
 
-def get(endpoint='/'):
-    logger.info('Calling endpoint %s', endpoint)
+def _get(endpoint):
+    logger.error('Calling endpoint %s', endpoint)
     url = 'https://' + domain + endpoint
     r = requests.get(url, headers={'Authorization': 'Bearer ' + token})
 
@@ -45,6 +45,12 @@ def get(endpoint='/'):
         raise CallFailure(r.status_code, endpoint)
     else:
         return r.json()
+
+
+def get(endpoint='/', refetch=False):
+    if refetch or (endpoint not in memstore):
+        memstore[endpoint] = _get(endpoint)
+    return memstore[endpoint]
 
 
 def epoch_to_datetime(epoch_ts):
@@ -67,6 +73,15 @@ def link(*states):
             each.nstate = states[n+1]
         except IndexError:
             pass
+
+
+def memoize(func):
+    def inner(kwargs):
+        key = str(sorted(kwargs.items(), key=lambda x: x[0]))
+        if key not in memstore:
+            memstore[key] = func(kwargs)
+        return memstore[key]
+    return inner
 
 
 class KeyValueDB:

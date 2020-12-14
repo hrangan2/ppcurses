@@ -83,13 +83,13 @@ def navright(state):
 
 @key('r')
 def refresh(state):
-    state.update()
+    state.update(refetch=True)
     return state
 
 
 @key('R')
 def refresh_all(state):
-    ppcurses.memstore['header'].update()
+    ppcurses.memstore['header'].update(refetch=True)
     return state
 
 
