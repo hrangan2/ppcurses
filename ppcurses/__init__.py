@@ -48,9 +48,9 @@ def _get(endpoint):
 
 
 def get(endpoint='/', refetch=False):
-    if refetch or (endpoint not in memstore):
-        memstore[endpoint] = _get(endpoint)
-    return memstore[endpoint]
+    if refetch or (endpoint not in dbstore):
+        dbstore[endpoint] = _get(endpoint)
+    return dbstore[endpoint]
 
 
 def epoch_to_datetime(epoch_ts):
@@ -111,6 +111,9 @@ class KeyValueDB:
                 """, (key, pickle.dumps(value)))
         self.__class__._cache[key] = value
         self.conn.commit()
+
+    def __contains__(self, key):
+        return key in self.__class__._cache
 
     def __getitem__(self, key):
         try:

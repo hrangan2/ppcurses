@@ -27,7 +27,7 @@ def select_project_board():
 
     ppcurses.link(projects, boards)
 
-    projects.active = True
+    projects.activate()
     projects.update()
 
     keylistener = curses.newwin(0, curses.COLS-1, 0, curses.COLS-1)
@@ -49,6 +49,7 @@ def select_project_board():
                 'j', chr(curses.KEY_DOWN),
                 'k', chr(curses.KEY_UP),
                 'l', chr(curses.KEY_RIGHT),
+                'r',
                 'q'])
         except ppcurses.errors.GracefulExit:
             # Remove any characters printed by these windows in the gaps

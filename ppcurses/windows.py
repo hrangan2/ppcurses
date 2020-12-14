@@ -31,7 +31,7 @@ class SimpleList(Window):
     def draw(self):
         logger.info('redrawing window of state %s', str(self.state))
         self.window.clear()
-        if self.state.active:
+        if self.state._active:
             self.window.border(*ACTIVE_WINDOW)
         else:
             self.window.border(*INACTIVE_WINDOW)
@@ -58,7 +58,7 @@ class Pageable(Window):
     def draw(self):
         logger.info('redrawing window of state %s', self.state.name)
         self.window.clear()
-        if self.state.active:
+        if self.state._active:
             self.window.border(*ACTIVE_WINDOW)
         else:
             self.window.border(*INACTIVE_WINDOW)

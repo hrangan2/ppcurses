@@ -47,11 +47,11 @@ def quit(state):
 @key(chr(curses.KEY_LEFT))
 def navleft(state):
     pstate = getattr(state, 'pstate', state)
-    state.active = False
+    state.deactivate()
     state.window.draw()
     if getattr(pstate, 'name') != 'header':
         state = pstate
-    state.active = True
+    state.activate()
     state.window.draw()
     return state
 
@@ -73,10 +73,10 @@ def navup(state):
 @key('l')
 @key(chr(curses.KEY_RIGHT))
 def navright(state):
-    state.active = False
+    state.deactivate()
     state.window.draw()
     state = getattr(state, 'nstate', state)
-    state.active = True
+    state.activate()
     state.window.draw()
     return state
 

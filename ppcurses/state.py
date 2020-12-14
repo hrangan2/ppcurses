@@ -22,7 +22,7 @@ class State:
 
     def __init__(self, name, updater):
         self.name = name
-        self.active = False
+        self._active = False
         self.updater = updater
         self.data = self.zerostate
         self.current_id = self.data[0]['id']
@@ -32,6 +32,12 @@ class State:
             return '<namedstate: %s>' % self.name
         else:
             return super().__repr__()
+
+    def activate(self):
+        self._active = True
+
+    def deactivate(self):
+        self._active = False
 
     def attach_window(self, window):
         self.window = window
@@ -144,10 +150,16 @@ class State:
 class Pager:
     def __init__(self, name, updater):
         self.name = name
-        self.active = False
+        self._active = False
         self.updater = updater
         self.data = self.zerostate
         self.index = 0
+
+    def activate(self):
+        self._active = True
+
+    def deactivate(self):
+        self._active = False
 
     @property
     def current_item(self):

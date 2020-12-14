@@ -64,8 +64,8 @@ def interactable(stdscr):
     keylistener.keypad(True)
 
     state = planletstate
-    state.active = True
-    headerstate.update()
+    state.activate()
+    headerstate.update(refetch=True)
 
     while True:
         key = keylistener.getch()
