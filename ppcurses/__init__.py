@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import time
 import pickle
 import sqlite3
 import os
@@ -93,22 +94,38 @@ class KeyValueDB:
         cursor.execute("""
                 CREATE TABLE IF NOT EXISTS keyval (
                     key text UNIQUE NOT NULL,
-                    value text
+                    value text,
+                    timestamp integer
                 )
                 """)
+        age_7days = int(time.time()) - 7*24*60*60
+        cursor.execute("DELETE FROM keyval WHERE timestamp < ?", (age_7days, ))
         r = cursor.execute("SELECT key, value FROM keyval""")
         for row in r.fetchall():
             self.__class__._cache[row[0]] = pickle.loads(row[1])
 
-    def __setitem__(self, key, value):
+    def set_forever(self, key, value):
         cursor = self.conn.cursor()
         res = cursor.execute("""
-                UPDATE keyval SET value=? WHERE key=?
+                UPDATE keyval SET value=?, timestamp=null WHERE key=?
                 """, (pickle.dumps(value), key))
         if not res.rowcount:
             cursor.execute("""
                 INSERT INTO keyval(key, value) VALUES (?, ?)
                 """, (key, pickle.dumps(value)))
+        self.__class__._cache[key] = value
+        self.conn.commit()
+
+    def __setitem__(self, key, value):
+        cursor = self.conn.cursor()
+        timestamp = int(time.time())
+        res = cursor.execute("""
+                UPDATE keyval SET value=?, timestamp=? WHERE key=?
+                """, (pickle.dumps(value), timestamp, key))
+        if not res.rowcount:
+            cursor.execute("""
+                INSERT INTO keyval(key, value, timestamp) VALUES (?, ?, ?)
+                """, (key, pickle.dumps(value), timestamp))
         self.__class__._cache[key] = value
         self.conn.commit()
 

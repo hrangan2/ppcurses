@@ -112,6 +112,11 @@ def comments(kwargs, refetch=False):
     return [Comment(each) for each in ppcurses.get(endpoint, refetch=refetch)['data']]
 
 
+def card(kwargs, refetch=False):
+    endpoint = f"/api/v1/cards/{kwargs['card_id']}"
+    return Card(ppcurses.get(endpoint, refetch=refetch))
+
+
 class Serializer:
     def __setattr__(self, key, value):
         if not hasattr(self, '_fields'):
@@ -132,14 +137,7 @@ class Serializer:
 
 
 class Card(Serializer):
-    def __init__(self, kwargs, refetch=False):
-        card_id = kwargs['card_id']
-        self.load_card(card_id, refetch)
-
-    def load_card(self, card_id, refetch=False):
-        card = ppcurses.get(f'/api/v1/cards/{card_id}', refetch=refetch)
-        tags = ppcurses.get(f'/api/v1/tags/cards/{card_id}', refetch=refetch)
-
+    def __init__(self, card):
         self.id = card['id']
         self.title = card['title']
 
@@ -177,8 +175,6 @@ class Card(Serializer):
             self.checklist.sort(key=lambda x: x['order'])
         else:
             self.checklist = None
-
-        self.tags = tags
 
 
 class Comment(Serializer):

@@ -249,9 +249,6 @@ class SingleCard(Pager):
             contents.append('Label: %s' % str(self.data.label['name'] if self.data.label else None))
         if self.data.estimate:
             contents.append('Points: %s' % str(self.data.estimate))
-        if self.data.tags:
-            tags = ','.join([each['name'] for each in self.data.tags]) or str(None)
-            contents.append('Tags: %s' % str(tags))
 
         if self.data.checklist:
             contents.append(' ')

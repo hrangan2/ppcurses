@@ -38,10 +38,10 @@ def select_project_board():
         key = keylistener.getch()
         if key == curses.ascii.NL:
             if projects.current_item['id'] is not None and boards.current_item['id']:
-                ppcurses.dbstore['project_id'] = projects.current_item['id']
-                ppcurses.dbstore['project_name'] = projects.current_item['name']
-                ppcurses.dbstore['board_id'] = boards.current_item['id']
-                ppcurses.dbstore['board_name'] = boards.current_item['name']
+                ppcurses.dbstore.set_forever('project_id', projects.current_item['id'])
+                ppcurses.dbstore.set_forever('project_name', projects.current_item['name'])
+                ppcurses.dbstore.set_forever('board_id', boards.current_item['id'])
+                ppcurses.dbstore.set_forever('board_name', boards.current_item['name'])
                 break
         try:
             state = ppcurses.keymap.do(state, key, allowed_keys=[
