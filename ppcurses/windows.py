@@ -1,5 +1,4 @@
 import curses
-import curses.textpad
 import textwrap
 import logging
 
@@ -17,7 +16,7 @@ class Window:
         self.maxy, self.maxx = self.window.getmaxyx()
 
 
-class ProjectBoardPane(Window):
+class ProjectBoard(Window):
     def draw(self):
         logger.info('redrawing window of state %s', str(self.state))
         self.window.clear()
@@ -27,7 +26,7 @@ class ProjectBoardPane(Window):
         self.window.refresh()
 
 
-class SimpleListPane(Window):
+class SimpleList(Window):
     def draw(self):
         logger.info('redrawing window of state %s', str(self.state))
         self.window.clear()

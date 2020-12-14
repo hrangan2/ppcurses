@@ -1,5 +1,5 @@
 import logging
-import ppcurses.utils
+from ppcurses import global_state, epoch_to_datetime
 import textwrap
 
 logger = logging.getLogger(__name__)
@@ -222,7 +222,7 @@ class SingleCard(Pager):
 
     def update(self):
         super().update()
-        ppcurses.utils.global_state['card'] = self.data
+        global_state['card'] = self.data
 
     def generate_lines_of_text(self):
         if self.data.id is None:
@@ -268,7 +268,7 @@ class Comments(Pager):
             if comment.id is None:
                 contents.append(comment.text)
                 continue
-            contents.append(ppcurses.utils.epoch_to_datetime(comment.created_at))
+            contents.append(epoch_to_datetime(comment.created_at))
             contents.append('By: %s' % comment.created_by['name'])
             if comment.attachments:
                 contents.append('Attachments: %s' % comment.attachments)

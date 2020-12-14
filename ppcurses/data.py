@@ -1,9 +1,117 @@
 #!/usr/bin/env python
-from ppcurses.utils import get
 import json
+import signal
+import logging
+from ppcurses import get, global_state
+from ppcurses.errors import CallFailure
 
 
-class Base:
+logger = logging.getLogger(__name__)
+
+
+def network_quickfail():
+    def handler(signum, frame):
+        raise CallFailure('NETWORK QUICKFAIL')
+    signal.signal(signal.SIGALRM, handler)
+    signal.alarm(2)
+    me()
+    signal.alarm(0)
+
+
+def staticinit():
+    return [{
+            "id": "148:1",
+            "project_id": 148,
+            "project_name": 'meetings',
+            "board_id": 1,
+            "board_name": 'board 1'
+            }]
+
+
+def me():
+    endpoint = '/1/user/me/profile'
+    data = get(endpoint)
+    return {'id': data['id'],
+            'name': data['sort_name'],
+            'user_id': data['id']
+            }
+
+
+def projects():
+    endpoint = '/1/user/me/projects'
+    data = [{'id': each['id'], 'name': each['name']} for each in get(endpoint)]
+    data.sort(key=lambda x: x['name'])
+    return data
+
+
+def boards(project_id):
+    endpoint = f"/1/projects/{project_id}/boards"
+    data = [{
+        'id': each['id'],
+        'name': each['name'],
+        'project_id': project_id,
+        'board_id': each['id']
+        } for each in get(endpoint)]
+    data.sort(key=lambda x: x['name'])
+    return data
+
+
+def planlets(kwargs):
+    endpoint = f"/1/boards/{kwargs['board_id']}/planlets"
+    data = [{
+        'id': each['id'],
+        'name': each['name'],
+        'project_id': kwargs['project_id'],
+        'board_id': kwargs['board_id'],
+        'planlet_id': each['id']
+        } for each in get(endpoint)[str(kwargs['board_id'])]]
+    data.sort(key=lambda x: x['name'])
+    data.append({
+        'id': -1,
+        'name': 'No Activity',
+        'project_id': kwargs['project_id'],
+        'board_id': kwargs['board_id'],
+        'planlet_id': -1
+        })
+    return data
+
+
+def columns(kwargs):
+    columns = Board(kwargs['board_id']).progresses
+    global_state['columns'] = columns
+    return [{
+        'id': each['id'],
+        'name': each['name'],
+        'project_id': kwargs['project_id'],
+        'board_id': kwargs['board_id'],
+        'planlet_id': kwargs['planlet_id'],
+        'column_id': each['id']
+        } for each in columns]
+
+
+def cards(kwargs):
+    endpoint = f"/1/boards/{kwargs['board_id']}/cards"
+    data = [{
+        'id': each['id'],
+        'name': each['title'],
+        'project_id': kwargs['project_id'],
+        'board_id': kwargs['board_id'],
+        'planlet_id': kwargs['planlet_id'],
+        'column_id': kwargs['column_id'],
+        'card_id': each['id']
+        } for each in get(endpoint)
+        if ((each['planlet_id'] or -1) == kwargs['planlet_id'])
+        and each['column_id'] == kwargs['column_id']]
+    data.sort(key=lambda x: x['name'])
+    return data
+
+
+def comments(kwargs):
+    endpoint = f"/3/conversations/comments?item_id={kwargs['card_id']}&item_name=card&count=100&offset=0"
+    return [Comment(each) for each in get(endpoint)['data']]
+
+
+class Serializer:
     def __setattr__(self, key, value):
         if not hasattr(self, '_fields'):
             super().__setattr__('_fields', set())
@@ -22,7 +130,7 @@ class Base:
         return json.dumps(self.serialize(), indent=4, default=lambda x: x.serialize())
 
 
-class Card(Base):
+class Card(Serializer):
     def __init__(self, kwargs):
         card_id = kwargs['card_id']
         self.load_card(card_id)
@@ -77,12 +185,7 @@ class Card(Base):
         self.comments = [Comment(each) for each in comments['data']]
 
 
-def comments(kwargs):
-    comments = get(f"/3/conversations/comments?item_id={kwargs['card_id']}&item_name=card&count=100&offset=0")
-    return [Comment(each) for each in comments['data']]
-
-
-class Comment(Base):
+class Comment(Serializer):
     def __init__(self, comment):
         self.id = comment['id']
         self.text = comment['text']
@@ -94,7 +197,7 @@ class Comment(Base):
         self.attachments = len(comment.get('attachments', []))
 
 
-class Board(Base):
+class Board(Serializer):
     def __init__(self, board_id):
         self.load_board(board_id)
 
@@ -117,8 +220,3 @@ class Board(Base):
                 'id': each['id'],
                 'name': each['name']
                 })
-
-
-if __name__ == '__main__':
-    Card(30123)
-    print(Board(4))

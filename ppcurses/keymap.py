@@ -1,6 +1,6 @@
 import ppcurses.errors
 import ppcurses.state
-import ppcurses.utils
+from ppcurses import global_state, domain
 import logging
 import subprocess
 
@@ -77,7 +77,11 @@ def add_comment(state):
 
 @key('y')
 def yank_card_url(state):
-    subprocess.run("pbcopy", universal_newlines=True, input=ppcurses.utils.direct_card_link())
+    if global_state['card'].id is not None:
+        direct_link = f"https://{domain}/#direct/card/{global_state['card'].id}"
+    else:
+        direct_link = ''
+    subprocess.run("pbcopy", universal_newlines=True, input=direct_link)
     return state
 
 

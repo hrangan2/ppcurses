@@ -1,7 +1,7 @@
 import curses
 import ppcurses.state
-import ppcurses.window
-import ppcurses.api
+import ppcurses.windows
+import ppcurses.data
 import ppcurses.keymap
 import locale
 import logging
@@ -18,45 +18,45 @@ code = locale.getpreferredencoding()
 
 def interactable(stdscr):
     stdscr.clear()
-    ppcurses.api.network_quickfail()
+    ppcurses.data.network_quickfail()
     curses.curs_set(0)
     # height_y, width_x, begin_y, begin_x
 
     # Project & Board Header Configuration
-    initstate = ppcurses.state.State('header', ppcurses.api.staticinit)
+    initstate = ppcurses.state.State('header', ppcurses.data.staticinit)
     initstate.attach_window(
-        ppcurses.window.ProjectBoardPane(2, curses.COLS-1, 0, 0),
+        ppcurses.windows.ProjectBoard(2, curses.COLS-1, 0, 0),
         )
 
     # Planlet List Configuration
-    planletstate = ppcurses.state.State('planlet', ppcurses.api.planlets)
+    planletstate = ppcurses.state.State('planlet', ppcurses.data.planlets)
     planletstate.attach_window(
-        ppcurses.window.SimpleListPane((curses.LINES - 2)//3+1, (curses.COLS-1)//3, 1, 0)
+        ppcurses.windows.SimpleList((curses.LINES - 2)//3+1, (curses.COLS-1)//3, 1, 0)
         )
 
     # Column List Configuration
-    columnstate = ppcurses.state.State('column', ppcurses.api.columns)
+    columnstate = ppcurses.state.State('column', ppcurses.data.columns)
     columnstate.attach_window(
-        ppcurses.window.SimpleListPane((curses.LINES - 2)//3+1, (curses.COLS-1)//3, 1, (curses.COLS-1)//3)
+        ppcurses.windows.SimpleList((curses.LINES - 2)//3+1, (curses.COLS-1)//3, 1, (curses.COLS-1)//3)
         )
 
     # Card List Configuration
-    cardstate = ppcurses.state.State('card', ppcurses.api.cards)
+    cardstate = ppcurses.state.State('card', ppcurses.data.cards)
     cardstate.attach_window(
-        ppcurses.window.SimpleListPane((curses.LINES - 2)//3+1, (curses.COLS-1)//3, 1, 2*(curses.COLS-1)//3)
+        ppcurses.windows.SimpleList((curses.LINES - 2)//3+1, (curses.COLS-1)//3, 1, 2*(curses.COLS-1)//3)
         )
     ppcurses.state.link(initstate, planletstate, columnstate, cardstate)
 
     # Card Pane Configuration
-    carddetails = ppcurses.state.SingleCard('card details', ppcurses.model.Card)
+    carddetails = ppcurses.state.SingleCard('card details', ppcurses.data.Card)
     carddetails.attach_window(
-        ppcurses.window.Pageable(2*(curses.LINES - 2)//3, (curses.COLS-1)//2, (curses.LINES - 2)//3 + 2, 0)
+        ppcurses.windows.Pageable(2*(curses.LINES - 2)//3, (curses.COLS-1)//2, (curses.LINES - 2)//3 + 2, 0)
         )
 
     # Comment List Configuration
-    comments = ppcurses.state.Comments('comments', ppcurses.model.comments)
+    comments = ppcurses.state.Comments('comments', ppcurses.data.comments)
     comments.attach_window(
-        ppcurses.window.Pageable(2*(curses.LINES - 2)//3, (curses.COLS-1)//2, (curses.LINES - 2)//3 + 2, (curses.COLS-1)//2)
+        ppcurses.windows.Pageable(2*(curses.LINES - 2)//3, (curses.COLS-1)//2, (curses.LINES - 2)//3 + 2, (curses.COLS-1)//2)
         )
 
     # Link the state objects together
