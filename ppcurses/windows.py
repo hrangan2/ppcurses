@@ -49,7 +49,7 @@ class SimpleList(Window):
                 prefix = '> '
             else:
                 prefix = '  '
-            self.window.addstr(n*2+1, 1, prefix + textwrap.shorten(each['name'], width=self.maxx-2, placeholder='...'))
+            self.window.addstr(n*2+1, 1, prefix + textwrap.shorten(each['name'], width=self.maxx-7, placeholder='...'))
             self.window.addstr(n*2+2, 1, ''.join(['-']*(self.maxx-5)))
         self.window.refresh()
 

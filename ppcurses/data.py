@@ -9,12 +9,14 @@ from ppcurses.errors import CallFailure
 logger = logging.getLogger(__name__)
 
 
-def network_quickfail():
+def whoami():
     def handler(signum, frame):
         raise CallFailure('NETWORK QUICKFAIL')
     signal.signal(signal.SIGALRM, handler)
     signal.alarm(2)
-    me()
+    endpoint = '/1/user/me/profile'
+    data = ppcurses.get(endpoint)
+    ppcurses.memstore['user_id'] = data['id']
     signal.alarm(0)
 
 
@@ -26,15 +28,6 @@ def fileinit():
             "board_id": ppcurses.dbstore['board_id'],
             "board_name": ppcurses.dbstore['board_name']
             }]
-
-
-def me():
-    endpoint = '/1/user/me/profile'
-    data = ppcurses.get(endpoint)
-    return {'id': data['id'],
-            'name': data['sort_name'],
-            'user_id': data['id']
-            }
 
 
 def projects():
@@ -95,7 +88,7 @@ def cards(kwargs):
     endpoint = f"/1/boards/{kwargs['board_id']}/cards"
     data = [{
         'id': each['id'],
-        'name': each['title'],
+        'name': {0: '  ', 1: '(*) '}[each['assignee_id'] == ppcurses.memstore['user_id']] + each['title'],
         'project_id': kwargs['project_id'],
         'board_id': kwargs['board_id'],
         'planlet_id': kwargs['planlet_id'],

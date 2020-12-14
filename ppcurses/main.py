@@ -20,7 +20,7 @@ code = locale.getpreferredencoding()
 
 def interactable(stdscr):
     stdscr.clear()
-    ppcurses.data.network_quickfail()
+    ppcurses.data.whoami()
     curses.curs_set(0)
     # height_y, width_x, begin_y, begin_x
 
