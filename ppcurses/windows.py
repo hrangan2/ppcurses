@@ -14,6 +14,7 @@ class Window:
         self.window = curses.newwin(y, x, endy, endx)
         self.window.touchwin()
         self.maxy, self.maxx = self.window.getmaxyx()
+        self.window.keypad(True)
 
 
 class ProjectBoard(Window):

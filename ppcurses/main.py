@@ -1,4 +1,6 @@
 import curses
+import ppcurses
+import ppcurses.start
 import ppcurses.state
 import ppcurses.windows
 import ppcurses.data
@@ -9,7 +11,7 @@ import logging
 # TODO highlight cards assigned to me in the list view
 
 
-logging.basicConfig(filename='ppcurses.log', level=logging.INFO)
+logging.basicConfig(filename='ppcurses.log', level=logging.WARNING)
 logger = logging.getLogger(__name__)
 
 locale.setlocale(locale.LC_ALL, '')
@@ -23,10 +25,14 @@ def interactable(stdscr):
     # height_y, width_x, begin_y, begin_x
 
     # Project & Board Header Configuration
-    initstate = ppcurses.state.State('header', ppcurses.data.staticinit)
-    initstate.attach_window(
+    headerstate = ppcurses.state.State('header', ppcurses.data.fileinit)
+    headerstate.attach_window(
         ppcurses.windows.ProjectBoard(2, curses.COLS-1, 0, 0),
         )
+    ppcurses.memstore['header'] = headerstate
+
+    if ppcurses.dbstore['project_id'] is None or ppcurses.dbstore['board_id'] is None:
+        ppcurses.start.select_project_board()
 
     # Planlet List Configuration
     planletstate = ppcurses.state.State('planlet', ppcurses.data.planlets)
@@ -45,8 +51,6 @@ def interactable(stdscr):
     cardstate.attach_window(
         ppcurses.windows.SimpleList((curses.LINES - 2)//3+1, (curses.COLS-1)//3, 1, 2*(curses.COLS-1)//3)
         )
-    ppcurses.state.link(initstate, planletstate, columnstate, cardstate)
-
     # Card Pane Configuration
     carddetails = ppcurses.state.SingleCard('card details', ppcurses.data.Card)
     carddetails.attach_window(
@@ -60,7 +64,7 @@ def interactable(stdscr):
         )
 
     # Link the state objects together
-    ppcurses.state.link(initstate, planletstate, columnstate, cardstate, carddetails, comments)
+    ppcurses.link(headerstate, planletstate, columnstate, cardstate, carddetails, comments)
 
     # 1 pixel window to listen for keypresses
     keylistener = curses.newwin(0, curses.COLS-1, 0, curses.COLS-1)
@@ -68,7 +72,7 @@ def interactable(stdscr):
     state = planletstate
     state.active = True
 
-    initstate.update()
+    headerstate.update()
 
     while True:
         key = keylistener.getkey()
@@ -77,7 +81,7 @@ def interactable(stdscr):
 
 def main():
     logger.info('')
-    logger.info('#'*25 + '  Restarting ppcurses  ' + '#'*25)
+    logger.critical('#'*25 + '  Restarting ppcurses  ' + '#'*25)
     logger.info('')
     try:
         curses.wrapper(interactable)

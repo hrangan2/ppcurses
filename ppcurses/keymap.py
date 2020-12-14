@@ -1,6 +1,7 @@
 import ppcurses.errors
+import ppcurses.start
 import ppcurses.state
-from ppcurses import global_state, domain
+import ppcurses
 import logging
 import subprocess
 
@@ -21,6 +22,13 @@ def key(k):
             return func(state)
         return inner2
     return inner
+
+
+@key('c')
+def change_project_board(state):
+    ppcurses.start.select_project_board()
+    ppcurses.memstore['header'].update()
+    return state
 
 
 @key('q')
@@ -69,16 +77,10 @@ def refresh(state):
     return state
 
 
-@key('i')
-def add_comment(state):
-    state.add_comment()
-    return state
-
-
 @key('y')
 def yank_card_url(state):
-    if global_state['card'].id is not None:
-        direct_link = f"https://{domain}/#direct/card/{global_state['card'].id}"
+    if ppcurses.storage['card_id'] is not None:
+        direct_link = f"https://{ppcurses.domain}/#direct/card/{ppcurses.storage['card_id']}"
     else:
         direct_link = ''
     subprocess.run("pbcopy", universal_newlines=True, input=direct_link)

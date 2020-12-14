@@ -1,4 +1,5 @@
-from ppcurses.state import State, link
+from ppcurses.state import State
+from ppcurses import link
 import unittest
 
 
@@ -26,7 +27,7 @@ class TestState(unittest.TestCase):
                 {'id': 4, 'name': 'fourth'},
                 {'id': 5, 'name': 'fifth'}
                 ]
-        self.state = State(lambda *args, **kwargs: data)
+        self.state = State("testcase", lambda *args, **kwargs: data)
         self.state.update()
         link(self.state)
 
@@ -63,7 +64,7 @@ class TestEmptyState(unittest.TestCase):
     def setUp(self):
         data = [
                 ]
-        self.state = State(lambda *args, **kwargs: data)
+        self.state = State("testcase", lambda *args, **kwargs: data)
         self.state.update()
         link(self.state)
 
@@ -94,9 +95,9 @@ class TestStateLink(unittest.TestCase):
                 {'id': 4, 'name': 'fourth'},
                 {'id': 5, 'name': 'fifth'}
                 ]
-        self.state1 = State(Tracker(data))
-        self.state2 = State(Tracker(data))
-        self.state3 = State(Tracker(data))
+        self.state1 = State("testcase", Tracker(data))
+        self.state2 = State("testcase", Tracker(data))
+        self.state3 = State("testcase", Tracker(data))
         self.state1.update()
         self.state2.update()
         self.state3.update()
@@ -114,15 +115,15 @@ class TestStateLink(unittest.TestCase):
 
     def test_update_triggers_descendents(self):
         self.state1.update()
-        self.assertEqual(self.state1.updatef.count, 2)
-        self.assertEqual(self.state2.updatef.count, 2)
-        self.assertEqual(self.state3.updatef.count, 2)
+        self.assertEqual(self.state1.updater.count, 2)
+        self.assertEqual(self.state2.updater.count, 2)
+        self.assertEqual(self.state3.updater.count, 2)
 
     def test_middle_update_skips_parents(self):
         self.state2.update()
-        self.assertEqual(self.state1.updatef.count, 1)
-        self.assertEqual(self.state2.updatef.count, 2)
-        self.assertEqual(self.state3.updatef.count, 2)
+        self.assertEqual(self.state1.updater.count, 1)
+        self.assertEqual(self.state2.updater.count, 2)
+        self.assertEqual(self.state3.updater.count, 2)
 
 
 class TestSurroundings(unittest.TestCase):
@@ -137,7 +138,7 @@ class TestSurroundings(unittest.TestCase):
                 {'id': 7, 'name': 'seventh'},
                 {'id': 8, 'name': 'eighth'}
                 ]
-        self.state = State(lambda *args, **kwargs: data)
+        self.state = State("testcase", lambda *args, **kwargs: data)
         self.state.update()
 
     def test_even_surrounding_items(self):
@@ -178,7 +179,7 @@ class TestSurroundings(unittest.TestCase):
         data = [
                 {'id': 1, 'name': 'first'}
                 ]
-        state = State(lambda *args, **kwargs: data)
+        state = State("testcase", lambda *args, **kwargs: data)
         state.update()
         items, highlight_index, _, _ = state.surrounding(4)
         self.assertEqual([each['id'] for each in items], [1])
@@ -190,7 +191,7 @@ class TestSurroundings(unittest.TestCase):
                 {'id': 2, 'name': 'second'}
                 ]
 
-        state = State(lambda *args, **kwargs: data)
+        state = State("testcase", lambda *args, **kwargs: data)
         state.update()
         items, highlight_index, _, _ = state.surrounding(4)
         self.assertEqual([each['id'] for each in items], [1, 2])
@@ -202,7 +203,7 @@ class TestSurroundings(unittest.TestCase):
                 {'id': 2, 'name': 'second'}
                 ]
 
-        state = State(lambda *args, **kwargs: data)
+        state = State("testcase", lambda *args, **kwargs: data)
         state.update()
         state.current_id = 2
         items, highlight_index, _, _ = state.surrounding(4)

@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+import pickle
+import sqlite3
+import os
 import requests
 from datetime import datetime
 from dateutil import tz
@@ -6,14 +9,17 @@ from ppcurses.errors import CallFailure
 import logging
 import configparser
 
-parser = configparser.ConfigParser()
-parser.read_file(open('/Users/hrangan/.secrets/keys'))
-token = parser.get('ppcli', 'token')
-domain = parser.get('ppcli', 'domain')
-api_domain = parser.get('ppcli', 'api_domain')
-
 
 logger = logging.getLogger(__name__)
+
+
+internaldir = os.path.join(os.path.expanduser('~'), '.ppcurses')
+
+parser = configparser.ConfigParser()
+parser.read_file(open(os.path.join(internaldir, 'config')))
+token = parser.get('ppcurses', 'token')
+domain = parser.get('ppcurses', 'domain')
+api_domain = parser.get('ppcurses', 'api_domain')
 
 
 def get(endpoint='/'):
@@ -38,4 +44,52 @@ def epoch_to_datetime(epoch_ts):
     return dest.strftime('%c')
 
 
-global_state = {}
+def link(*states):
+    """ You need to pass a list of states to this function before they can work """
+    logger.info('linking %s states', len(states))
+    for n, each in enumerate(states):
+        if n:
+            each.pstate = states[n-1]
+        try:
+            each.nstate = states[n+1]
+        except IndexError:
+            pass
+
+
+class KeyValueDB:
+    _cache = {}
+
+    def __init__(self):
+        self.conn = sqlite3.connect(os.path.join(internaldir, 'ppcurses.db'))
+        cursor = self.conn.cursor()
+        cursor.execute("""
+                CREATE TABLE IF NOT EXISTS keyval (
+                    key text UNIQUE NOT NULL,
+                    value text
+                )
+                """)
+        r = cursor.execute("SELECT key, value FROM keyval""")
+        for row in r.fetchall():
+            self.__class__._cache[row[0]] = pickle.loads(row[1])
+
+    def __setitem__(self, key, value):
+        cursor = self.conn.cursor()
+        res = cursor.execute("""
+                UPDATE keyval SET value=? WHERE key=?
+                """, (pickle.dumps(value), key))
+        if not res.rowcount:
+            cursor.execute("""
+                INSERT INTO keyval(key, value) VALUES (?, ?)
+                """, (key, pickle.dumps(value)))
+        self.__class__._cache[key] = value
+        self.conn.commit()
+
+    def __getitem__(self, key):
+        try:
+            return self.__class__._cache[key]
+        except KeyError:
+            return None
+
+
+dbstore = KeyValueDB()
+memstore = {}

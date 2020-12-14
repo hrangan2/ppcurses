@@ -1,28 +1,30 @@
+import curses
 import logging
-from ppcurses import global_state, epoch_to_datetime
+import ppcurses
 import textwrap
 
 logger = logging.getLogger(__name__)
 
 
 class Zero:
-    def __init__(self, text):
-        self.text = text
+    def __init__(self, name):
+        self.name = name
+        self.text = name
 
     def __getitem__(self, key):
-        return self.text if key == 'name' else None
+        return self.name if key == 'name' else None
 
     def __getattr__(self, key):
-        return super().__getattr__(self, 'text') if key == 'name' else None
+        return None
 
 
 class State:
     zerostate = [Zero('No items to show')]
 
-    def __init__(self, name, updatef):
+    def __init__(self, name, updater):
         self.name = name
         self.active = False
-        self.updatef = updatef
+        self.updater = updater
         self.data = self.zerostate
         self.current_id = self.data[0]['id']
 
@@ -42,9 +44,9 @@ class State:
             if prev_args['id'] is None:
                 self.data = self.zerostate
             else:
-                self.data = self.updatef(prev_args) or self.zerostate
+                self.data = self.updater(prev_args) or self.zerostate
         else:
-            self.data = self.updatef() or self.zerostate
+            self.data = self.updater() or self.zerostate
         self.ids = [each['id'] for each in self.data]
         if hasattr(self, 'window'):
             self.window.draw()
@@ -138,18 +140,6 @@ class State:
             return 0
 
 
-def link(*states):
-    """ You need to pass a list of states to this function before they can work """
-    logger.info('linking %s states', len(states))
-    for n, each in enumerate(states):
-        if n:
-            each.pstate = states[n-1]
-        try:
-            each.nstate = states[n+1]
-        except IndexError:
-            pass
-
-
 class Pager:
     def __init__(self, name, updater):
         self.name = name
@@ -222,19 +212,19 @@ class SingleCard(Pager):
 
     def update(self):
         super().update()
-        global_state['card'] = self.data
+        ppcurses.memstore['card_id'] = self.data.id
 
     def generate_lines_of_text(self):
         if self.data.id is None:
             return [self.data.text]
 
         contents = []
-        contents.extend(textwrap.wrap(self.data.title, width=self.window.maxx))
+        contents.extend(textwrap.wrap(self.data.title, width=self.window.maxx-3))
         contents.append(' ')
         if self.data.description:
             contents.append('Description:')
             for line in self.data.description.split('\n'):
-                contents.extend(textwrap.wrap(line, width=self.window.maxx-5))
+                contents.extend(textwrap.wrap(line, width=self.window.maxx-3))
             contents.append(' ')
         contents.append('Assignee: %s' % str(self.data.assignee['name'] if self.data.assignee else None))
         contributors = ','.join([each['name'] for each in self.data.contributors]) or str(None)
@@ -268,7 +258,7 @@ class Comments(Pager):
             if comment.id is None:
                 contents.append(comment.text)
                 continue
-            contents.append(epoch_to_datetime(comment.created_at))
+            contents.append(ppcurses.epoch_to_datetime(comment.created_at))
             contents.append('By: %s' % comment.created_by['name'])
             if comment.attachments:
                 contents.append('Attachments: %s' % comment.attachments)

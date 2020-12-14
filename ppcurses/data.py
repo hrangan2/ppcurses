@@ -2,7 +2,7 @@
 import json
 import signal
 import logging
-from ppcurses import get, global_state
+import ppcurses
 from ppcurses.errors import CallFailure
 
 
@@ -18,19 +18,19 @@ def network_quickfail():
     signal.alarm(0)
 
 
-def staticinit():
+def fileinit():
     return [{
-            "id": "148:1",
-            "project_id": 148,
-            "project_name": 'meetings',
-            "board_id": 1,
-            "board_name": 'board 1'
+            "id": '%s: %s' % (ppcurses.dbstore['project_id'], ppcurses.dbstore['board_id']),
+            "project_id": ppcurses.dbstore['project_id'],
+            "project_name": ppcurses.dbstore['project_name'],
+            "board_id": ppcurses.dbstore['board_id'],
+            "board_name": ppcurses.dbstore['board_name']
             }]
 
 
 def me():
     endpoint = '/1/user/me/profile'
-    data = get(endpoint)
+    data = ppcurses.get(endpoint)
     return {'id': data['id'],
             'name': data['sort_name'],
             'user_id': data['id']
@@ -39,19 +39,21 @@ def me():
 
 def projects():
     endpoint = '/1/user/me/projects'
-    data = [{'id': each['id'], 'name': each['name']} for each in get(endpoint)]
+    data = [{'id': each['id'],
+             'name': each['name'],
+             'project_id': each['id']} for each in ppcurses.get(endpoint)]
     data.sort(key=lambda x: x['name'])
     return data
 
 
-def boards(project_id):
-    endpoint = f"/1/projects/{project_id}/boards"
+def boards(kwargs):
+    endpoint = f"/1/projects/{kwargs['project_id']}/boards"
     data = [{
         'id': each['id'],
         'name': each['name'],
-        'project_id': project_id,
+        'project_id': kwargs['project_id'],
         'board_id': each['id']
-        } for each in get(endpoint)]
+        } for each in ppcurses.get(endpoint)]
     data.sort(key=lambda x: x['name'])
     return data
 
@@ -64,7 +66,7 @@ def planlets(kwargs):
         'project_id': kwargs['project_id'],
         'board_id': kwargs['board_id'],
         'planlet_id': each['id']
-        } for each in get(endpoint)[str(kwargs['board_id'])]]
+        } for each in ppcurses.get(endpoint)[str(kwargs['board_id'])]]
     data.sort(key=lambda x: x['name'])
     data.append({
         'id': -1,
@@ -78,7 +80,7 @@ def planlets(kwargs):
 
 def columns(kwargs):
     columns = Board(kwargs['board_id']).progresses
-    global_state['columns'] = columns
+    ppcurses.memstore['columns'] = columns
     return [{
         'id': each['id'],
         'name': each['name'],
@@ -99,7 +101,7 @@ def cards(kwargs):
         'planlet_id': kwargs['planlet_id'],
         'column_id': kwargs['column_id'],
         'card_id': each['id']
-        } for each in get(endpoint)
+        } for each in ppcurses.get(endpoint)
         if ((each['planlet_id'] or -1) == kwargs['planlet_id'])
         and each['column_id'] == kwargs['column_id']]
     data.sort(key=lambda x: x['name'])
@@ -108,7 +110,7 @@ def cards(kwargs):
 
 def comments(kwargs):
     endpoint = f"/3/conversations/comments?item_id={kwargs['card_id']}&item_name=card&count=100&offset=0"
-    return [Comment(each) for each in get(endpoint)['data']]
+    return [Comment(each) for each in ppcurses.get(endpoint)['data']]
 
 
 class Serializer:
@@ -137,8 +139,8 @@ class Card(Serializer):
         self.load_comments(card_id)
 
     def load_card(self, card_id):
-        card = get(f'/1/cards/{card_id}')
-        tags = get(f'/1/tags/cards/{card_id}')
+        card = ppcurses.get(f'/1/cards/{card_id}')
+        tags = ppcurses.get(f'/1/tags/cards/{card_id}')
 
         self.id = card['id']
         self.title = card['title']
@@ -181,7 +183,7 @@ class Card(Serializer):
         self.tags = tags
 
     def load_comments(self, card_id):
-        comments = get(f'/3/conversations/comments?item_id={card_id}&item_name=card&count=100&offset=0')
+        comments = ppcurses.get(f'/3/conversations/comments?item_id={card_id}&item_name=card&count=100&offset=0')
         self.comments = [Comment(each) for each in comments['data']]
 
 
@@ -202,7 +204,7 @@ class Board(Serializer):
         self.load_board(board_id)
 
     def load_board(self, board_id):
-        board = get(f'/1/boards/{board_id}/properties')
+        board = ppcurses.get(f'/1/boards/{board_id}/properties')
 
         self.id = board['id']
         self.name = board['name']

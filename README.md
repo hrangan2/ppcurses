@@ -11,7 +11,7 @@ $ pip install -e ppcurses
 
 Add a bit of configuration to `~/.secrets/keys`
 ```
-$ cat ~/.secrets/keys
+$ cat ~/.ppcurses/config
 [ppcli]
 token={{PROJECTPLACE_ACCESS_TOKEN}}
 domain=api-service.projectplace.com
