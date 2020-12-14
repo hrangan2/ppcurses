@@ -1,4 +1,5 @@
 import curses
+import curses.ascii
 import logging
 import ppcurses
 import ppcurses.state
@@ -24,11 +25,12 @@ def select_project_board():
     projects.update()
 
     keylistener = curses.newwin(0, curses.COLS-1, 0, curses.COLS-1)
+    keylistener.keypad(True)
     state = projects
 
     while True:
-        key = keylistener.getkey()
-        if key == '\n':
+        key = keylistener.getch()
+        if key == curses.ascii.NL:
             if projects.current_item['id'] is not None and boards.current_item['id']:
                 ppcurses.dbstore['project_id'] = projects.current_item['id']
                 ppcurses.dbstore['project_name'] = projects.current_item['name']
@@ -36,7 +38,12 @@ def select_project_board():
                 ppcurses.dbstore['board_name'] = boards.current_item['name']
                 break
         try:
-            state = ppcurses.keymap.do(state, key, allowed_keys=['h', 'j', 'k', 'l', 'q'])
+            state = ppcurses.keymap.do(state, key, allowed_keys=[
+                'h', chr(curses.KEY_LEFT),
+                'j', chr(curses.KEY_DOWN),
+                'k', chr(curses.KEY_UP),
+                'l', chr(curses.KEY_RIGHT),
+                'q'])
         except ppcurses.errors.GracefulExit:
             # Remove any characters printed by these windows in the gaps
             # between existing windows

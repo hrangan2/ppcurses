@@ -68,14 +68,14 @@ def interactable(stdscr):
 
     # 1 pixel window to listen for keypresses
     keylistener = curses.newwin(0, curses.COLS-1, 0, curses.COLS-1)
+    keylistener.keypad(True)
 
     state = planletstate
     state.active = True
-
     headerstate.update()
 
     while True:
-        key = keylistener.getkey()
+        key = keylistener.getch()
         state = ppcurses.keymap.do(state, key, allowed_keys=['*'])
 
 

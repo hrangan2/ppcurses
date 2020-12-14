@@ -1,3 +1,4 @@
+import curses
 import ppcurses.errors
 import ppcurses.start
 import ppcurses.state
@@ -15,8 +16,7 @@ def key(k):
     def inner(func):
         if k in REGISTERED:
             raise ppcurses.errors.DuplicateKeyDefined(k, func.__name__)
-        REGISTERED[k] = func
-        REGISTERED[k.upper()] = func
+        REGISTERED[ord(k)] = func
 
         def inner2(state):
             return func(state)
@@ -37,19 +37,8 @@ def quit(state):
     raise ppcurses.errors.GracefulExit
 
 
-@key('k')
-def navup(state):
-    state.prev()
-    return state
-
-
-@key('j')
-def navdown(state):
-    state.next()
-    return state
-
-
 @key('h')
+@key(chr(curses.KEY_LEFT))
 def navleft(state):
     pstate = getattr(state, 'pstate', state)
     state.active = False
@@ -61,7 +50,22 @@ def navleft(state):
     return state
 
 
+@key('j')
+@key(chr(curses.KEY_DOWN))
+def navdown(state):
+    state.next()
+    return state
+
+
+@key('k')
+@key(chr(curses.KEY_UP))
+def navup(state):
+    state.prev()
+    return state
+
+
 @key('l')
+@key(chr(curses.KEY_RIGHT))
 def navright(state):
     state.active = False
     state.window.draw()
@@ -88,7 +92,7 @@ def yank_card_url(state):
 
 
 def do(state, key, allowed_keys=['*']):
-    if ('*' not in allowed_keys) and (key not in allowed_keys):
+    if ('*' not in allowed_keys) and (key not in [ord(c) for c in allowed_keys]):
         logger.info('Skipping blocked key - %s', repr(key))
         return state
     if key not in REGISTERED:

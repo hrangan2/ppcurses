@@ -1,4 +1,3 @@
-import curses
 import logging
 import ppcurses
 import textwrap
