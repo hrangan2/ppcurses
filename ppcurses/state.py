@@ -133,7 +133,7 @@ class State:
             scroll_up = False
         if len(self.data) <= n:
             scroll_down = False
-        if (self.index + (n+highlight_index)) > len(self.data):
+        if (self.index + 2+(n-highlight_index)) > len(self.data):
             scroll_down = False
 
         return items, highlight_index, scroll_up, scroll_down
