@@ -1,6 +1,5 @@
 import curses
 import ppcurses
-import ppcurses.start
 import ppcurses.state
 import ppcurses.windows
 import ppcurses.data
@@ -27,9 +26,6 @@ def interactable(stdscr):
         ppcurses.windows.ProjectBoard(2, curses.COLS-1, 0, 0),
         )
     ppcurses.memstore['header'] = headerstate
-
-    if ppcurses.dbstore['project_id'] is None or ppcurses.dbstore['board_id'] is None:
-        ppcurses.start.select_project_board()
 
     # Planlet List Configuration
     planletstate = ppcurses.state.State('planlet', ppcurses.data.planlets)

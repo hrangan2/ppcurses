@@ -3,6 +3,7 @@ import json
 import signal
 import logging
 import ppcurses
+import ppcurses.start
 from ppcurses.errors import CallFailure
 
 
@@ -21,6 +22,8 @@ def whoami():
 
 
 def fileinit():
+    if ppcurses.dbstore['project_id'] is None or ppcurses.dbstore['board_id'] is None:
+        ppcurses.start.select_project_board()
     return [{
             "id": '%s: %s' % (ppcurses.dbstore['project_id'], ppcurses.dbstore['board_id']),
             "project_id": ppcurses.dbstore['project_id'],

@@ -87,6 +87,12 @@ def refresh(state):
     return state
 
 
+@key('R')
+def refresh_all(state):
+    ppcurses.memstore['header'].update()
+    return state
+
+
 @key('y')
 def yank_card_url(state):
     if ppcurses.storage['card_id'] is not None:
