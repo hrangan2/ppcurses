@@ -10,10 +10,11 @@ import logging
 import configparser
 
 
+logging.basicConfig(filename='ppcurses.log', level=logging.WARNING)
 logger = logging.getLogger(__name__)
 
-
 internaldir = os.path.join(os.path.expanduser('~'), '.ppcurses')
+
 configfile = os.path.join(internaldir, 'config')
 if not os.path.exists(internaldir):
     os.mkdir(internaldir)
@@ -23,7 +24,6 @@ if not os.path.exists(configfile):
 [ppcurses]
 token=ADD_USER_TOKEN
 domain=local.rnd.projectplace.com
-api_domain=api-local.rnd.projectplace.com
 """)
 
 parser = configparser.ConfigParser()
@@ -33,12 +33,11 @@ if token == 'ADD_USER_TOKEN':
     print('Add your projectplace token to %s' % configfile)
     exit()
 domain = parser.get('ppcurses', 'domain')
-api_domain = parser.get('ppcurses', 'api_domain')
 
 
 def get(endpoint='/'):
     logger.info('Calling endpoint %s', endpoint)
-    url = 'https://' + api_domain + endpoint
+    url = 'https://' + domain + endpoint
     r = requests.get(url, headers={'Authorization': 'Bearer ' + token})
 
     if not r.ok:

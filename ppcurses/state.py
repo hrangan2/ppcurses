@@ -53,7 +53,7 @@ class State:
             self.window.draw()
         if hasattr(self, 'nstate'):
             logger.info('updating linked state %s of %s', self.nstate, self)
-            self.nstate.update()
+            self.nstate.update(reset_position)
 
     def prev(self):
         if self.index == 0:

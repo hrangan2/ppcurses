@@ -14,7 +14,7 @@ def whoami():
         raise CallFailure('NETWORK QUICKFAIL')
     signal.signal(signal.SIGALRM, handler)
     signal.alarm(2)
-    endpoint = '/1/user/me/profile'
+    endpoint = '/api/v1/user/me/profile'
     data = ppcurses.get(endpoint)
     ppcurses.memstore['user_id'] = data['id']
     signal.alarm(0)
@@ -31,7 +31,7 @@ def fileinit():
 
 
 def projects():
-    endpoint = '/1/user/me/projects'
+    endpoint = '/api/v1/user/me/projects'
     data = [{'id': each['id'],
              'name': each['name'],
              'project_id': each['id']} for each in ppcurses.get(endpoint)]
@@ -40,7 +40,7 @@ def projects():
 
 
 def boards(kwargs):
-    endpoint = f"/1/projects/{kwargs['project_id']}/boards"
+    endpoint = f"/api/v1/projects/{kwargs['project_id']}/boards"
     data = [{
         'id': each['id'],
         'name': each['name'],
@@ -52,7 +52,7 @@ def boards(kwargs):
 
 
 def planlets(kwargs):
-    endpoint = f"/1/boards/{kwargs['board_id']}/planlets"
+    endpoint = f"/api/v1/boards/{kwargs['board_id']}/planlets"
     data = [{
         'id': each['id'],
         'name': each['name'],
@@ -85,7 +85,7 @@ def columns(kwargs):
 
 
 def cards(kwargs):
-    endpoint = f"/1/boards/{kwargs['board_id']}/cards"
+    endpoint = f"/api/v1/boards/{kwargs['board_id']}/cards"
     data = [{
         'id': each['id'],
         'name': {0: '  ', 1: '(*) '}[each['assignee_id'] == ppcurses.memstore['user_id']] + each['title'],
@@ -102,7 +102,7 @@ def cards(kwargs):
 
 
 def comments(kwargs):
-    endpoint = f"/3/conversations/comments?item_id={kwargs['card_id']}&item_name=card&count=100&offset=0"
+    endpoint = f"/api/v3/conversations/comments?item_id={kwargs['card_id']}&item_name=card&count=100&offset=0"
     return [Comment(each) for each in ppcurses.get(endpoint)['data']]
 
 
@@ -129,11 +129,10 @@ class Card(Serializer):
     def __init__(self, kwargs):
         card_id = kwargs['card_id']
         self.load_card(card_id)
-        self.load_comments(card_id)
 
     def load_card(self, card_id):
-        card = ppcurses.get(f'/1/cards/{card_id}')
-        tags = ppcurses.get(f'/1/tags/cards/{card_id}')
+        card = ppcurses.get(f'/api/v1/cards/{card_id}')
+        tags = ppcurses.get(f'/api/v1/tags/cards/{card_id}')
 
         self.id = card['id']
         self.title = card['title']
@@ -175,10 +174,6 @@ class Card(Serializer):
 
         self.tags = tags
 
-    def load_comments(self, card_id):
-        comments = ppcurses.get(f'/3/conversations/comments?item_id={card_id}&item_name=card&count=100&offset=0')
-        self.comments = [Comment(each) for each in comments['data']]
-
 
 class Comment(Serializer):
     def __init__(self, comment):
@@ -197,7 +192,7 @@ class Board(Serializer):
         self.load_board(board_id)
 
     def load_board(self, board_id):
-        board = ppcurses.get(f'/1/boards/{board_id}/properties')
+        board = ppcurses.get(f'/api/v1/boards/{board_id}/properties')
 
         self.id = board['id']
         self.name = board['name']
