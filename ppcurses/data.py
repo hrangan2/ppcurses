@@ -92,19 +92,23 @@ def columns(kwargs, refetch=False):
 
 def cards(kwargs, refetch=False):
     endpoint = f"/api/v1/boards/{kwargs['board_id']}/cards"
-    data = [{
+    filtered_cards = [{
         'id': each['id'],
-        'name': {0: '  ', 1: '(*) '}[each['assignee_id'] == ppcurses.memstore['user_id']] + each['title'],
+        'name': each['title'],
         'project_id': kwargs['project_id'],
         'board_id': kwargs['board_id'],
         'planlet_id': kwargs['planlet_id'],
         'column_id': kwargs['column_id'],
-        'card_id': each['id']
+        'card_id': each['id'],
+        'assignee_id': each['assignee_id']
         } for each in ppcurses.get(endpoint, refetch=refetch)
-        if ((each['planlet_id'] or -1) == kwargs['planlet_id'])
-        and each['column_id'] == kwargs['column_id']]
-    data.sort(key=lambda x: x['name'])
-    return data
+            if ((each['planlet_id'] or -1) == kwargs['planlet_id'])
+            and each['column_id'] == kwargs['column_id']
+        ]
+
+    mine = [{**each, **{'name': '(*) '+each['name']}} for each in filtered_cards if each['assignee_id'] == ppcurses.memstore['user_id']]
+    others = [{**each, **{'name': each['name']}} for each in filtered_cards if each['assignee_id'] != ppcurses.memstore['user_id']]
+    return sorted(mine, key=lambda x: x['name']) + sorted(others, key=lambda x: x['name'])
 
 
 def comments(kwargs, refetch=False):
