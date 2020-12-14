@@ -37,7 +37,7 @@ class SimpleList(Window):
             self.window.border(*INACTIVE_WINDOW)
         self.window.addstr(0, 2, self.state.name)
 
-        items, highlight_index, scroll_up, scroll_down = self.state.surrounding(self.maxy//3)
+        items, highlight_index, scroll_up, scroll_down = self.state.surrounding(self.maxy//2-2)
 
         if scroll_up:
             self.window.addch(1, self.maxx-3, curses.ACS_UARROW)

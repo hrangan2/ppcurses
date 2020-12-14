@@ -24,6 +24,12 @@ def key(k):
     return inner
 
 
+@key(chr(curses.KEY_RESIZE))
+def resize_term(state):
+    logger.warning("Terminal resize detected")
+    return state
+
+
 @key('c')
 def change_project_board(state):
     ppcurses.start.select_project_board()
