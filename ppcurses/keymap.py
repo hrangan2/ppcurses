@@ -33,7 +33,7 @@ def resize_term(state):
 @key('c')
 def change_project_board(state):
     ppcurses.start.select_project_board()
-    ppcurses.memstore['header'].update()
+    ppcurses.memstore['header'].update(reset_position=True)
     return state
 
 
