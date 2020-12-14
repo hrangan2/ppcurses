@@ -9,19 +9,25 @@ logger = logging.getLogger(__name__)
 
 
 def select_project_board():
+    win = curses.newwin(curses.LINES-1, curses.COLS-1, 0, 0)
+    win.clear()
+    win.addstr(2, 6, 'Choose a project and a board:')
+    win.refresh()
+    border = 5
+
     projects = ppcurses.state.State('project', ppcurses.data.projects)
     projects.attach_window(
-        ppcurses.windows.SimpleList(curses.LINES - 1, (curses.COLS-1)//2, 1, 0)
+        ppcurses.windows.SimpleList(curses.LINES - 1-(2*border), (curses.COLS-1)//2-border, 1+border, 0+border)
         )
 
-    # Column List Configuration
     boards = ppcurses.state.State('board', ppcurses.data.boards)
     boards.attach_window(
-        ppcurses.windows.SimpleList(curses.LINES - 1, (curses.COLS-1)//2, 1, (curses.COLS-1)//2)
+        ppcurses.windows.SimpleList(curses.LINES - 1-(2*border), (curses.COLS-1)//2-border, 1+border, (curses.COLS-1)//2)
         )
 
     ppcurses.link(projects, boards)
 
+    projects.active = True
     projects.update()
 
     keylistener = curses.newwin(0, curses.COLS-1, 0, curses.COLS-1)
