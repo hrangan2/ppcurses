@@ -10,8 +10,8 @@ ACTIVE_WINDOW = []
 
 
 class Window:
-    def __init__(self, y, x, endy, endx):
-        self.window = curses.newwin(y, x, endy, endx)
+    def __init__(self, nlines, ncols, begin_y, begin_x):
+        self.window = curses.newwin(nlines, ncols, begin_y, begin_x)
         self.window.touchwin()
         self.maxy, self.maxx = self.window.getmaxyx()
         self.window.keypad(True)
@@ -73,3 +73,17 @@ class Pageable(Window):
         for n, line in enumerate(lines):
             self.window.addstr(n+1, 1, textwrap.shorten(line, width=self.maxx-3))
         self.window.refresh()
+
+
+class Status(Window):
+    def set(self, text):
+        self.window.clear()
+        self.window.addstr(0, 0, textwrap.shorten(text, width=self.maxx-1, placeholder='#'))
+        self.window.refresh()
+
+    def unset(self):
+        self.window.clear()
+        self.window.refresh()
+
+    def getch(self):
+        return self.window.getch()

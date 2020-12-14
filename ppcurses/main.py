@@ -60,15 +60,15 @@ def interactable(stdscr):
     ppcurses.link(headerstate, planletstate, columnstate, cardstate, carddetails, comments)
 
     # 1 pixel window to listen for keypresses
-    keylistener = curses.newwin(0, curses.COLS-1, 0, curses.COLS-1)
-    keylistener.keypad(True)
+    statuswin = ppcurses.windows.Status(1, 10, 0, curses.COLS-10)
+    ppcurses.memstore['statuswin'] = statuswin
 
     state = planletstate
     state.activate()
     headerstate.update(refetch=True)
 
     while True:
-        key = keylistener.getch()
+        key = statuswin.getch()
         state = ppcurses.keymap.do(state, key, allowed_keys=['*'])
 
 

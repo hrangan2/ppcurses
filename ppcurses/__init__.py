@@ -38,8 +38,10 @@ domain = parser.get('ppcurses', 'domain')
 
 def _get(endpoint):
     logger.error('Calling endpoint %s', endpoint)
+    memstore['statuswin'].set('updating')
     url = 'https://' + domain + endpoint
     r = requests.get(url, headers={'Authorization': 'Bearer ' + token})
+    memstore['statuswin'].unset()
 
     if not r.ok:
         logger.error("Failed calling %s, [%s]", (endpoint, r.status_code))
