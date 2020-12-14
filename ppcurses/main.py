@@ -8,7 +8,7 @@ import locale
 import logging
 
 
-logging.basicConfig(filename='ppcurses.log', level=logging.WARNING)
+logging.basicConfig(filename='ppcurses.log', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 locale.setlocale(locale.LC_ALL, '')

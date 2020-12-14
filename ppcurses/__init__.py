@@ -11,7 +11,7 @@ import logging
 import configparser
 
 
-logging.basicConfig(filename='ppcurses.log', level=logging.WARNING)
+logging.basicConfig(filename='ppcurses.log', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 internaldir = os.path.join(os.path.expanduser('~'), '.ppcurses')
@@ -37,7 +37,7 @@ domain = parser.get('ppcurses', 'domain')
 
 
 def _get(endpoint):
-    logger.error('Calling endpoint %s', endpoint)
+    logger.info('Calling endpoint %s', endpoint)
     memstore['statuswin'].set('updating')
     url = 'https://' + domain + endpoint
     r = requests.get(url, headers={'Authorization': 'Bearer ' + token})

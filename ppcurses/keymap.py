@@ -39,7 +39,6 @@ def change_project_board(state):
 
 @key('q')
 def quit(state):
-    logger.info('Pressed q')
     raise ppcurses.errors.GracefulExit
 
 

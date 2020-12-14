@@ -58,7 +58,7 @@ class State:
         if hasattr(self, 'window'):
             self.window.draw()
         if hasattr(self, 'nstate'):
-            logger.info('updating linked state %s of %s', self.nstate, self)
+            logger.debug('updating linked state %s of %s', self.nstate, self)
             self.nstate.update(reset_position=reset_position, refetch=refetch)
 
     def prev(self):
@@ -183,7 +183,7 @@ class Pager:
             self.window.draw()
 
         if hasattr(self, 'nstate'):
-            logger.info('updating linked state %s of %s', self.nstate, self)
+            logger.debug('updating linked state %s of %s', self.nstate, self)
             self.nstate.update(reset_position=reset_position, refetch=refetch)
 
     @property

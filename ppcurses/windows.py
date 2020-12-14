@@ -19,7 +19,7 @@ class Window:
 
 class ProjectBoard(Window):
     def draw(self):
-        logger.info('redrawing window of state %s', str(self.state))
+        logger.debug('redrawing window of state %s', str(self.state))
         self.window.clear()
         items, _, _, _ = self.state.surrounding()
         title = ' %s - %s ' % (items[0]['project_name'].upper(), items[0]['board_name'].upper())
@@ -29,7 +29,7 @@ class ProjectBoard(Window):
 
 class SimpleList(Window):
     def draw(self):
-        logger.info('redrawing window of state %s', str(self.state))
+        logger.debug('redrawing window of state %s', str(self.state))
         self.window.clear()
         if self.state._active:
             self.window.border(*ACTIVE_WINDOW)
@@ -56,7 +56,7 @@ class SimpleList(Window):
 
 class Pageable(Window):
     def draw(self):
-        logger.info('redrawing window of state %s', self.state.name)
+        logger.debug('redrawing window of state %s', self.state.name)
         self.window.clear()
         if self.state._active:
             self.window.border(*ACTIVE_WINDOW)
