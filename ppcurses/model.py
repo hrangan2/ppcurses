@@ -77,6 +77,11 @@ class Card(Base):
         self.comments = [Comment(each) for each in comments['data']]
 
 
+def comments(kwargs):
+    comments = get(f"/3/conversations/comments?item_id={kwargs['card_id']}&item_name=card&count=100&offset=0")
+    return [Comment(each) for each in comments['data']]
+
+
 class Comment(Base):
     def __init__(self, comment):
         self.id = comment['id']

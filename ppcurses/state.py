@@ -19,9 +19,9 @@ class Zero:
 class State:
     zerostate = [Zero('No items to show')]
 
-    def __init__(self, updatef, name=None):
-        self.active = False
+    def __init__(self, name, updatef):
         self.name = name
+        self.active = False
         self.updatef = updatef
         self.data = self.zerostate
         self.current_id = self.data[0]['id']
@@ -31,9 +31,6 @@ class State:
             return '<namedstate: %s>' % self.name
         else:
             return super().__repr__()
-
-    def set_name(self, name):
-        self.name = name
 
     def attach_window(self, window):
         self.window = window
@@ -153,14 +150,17 @@ def link(*states):
             pass
 
 
-class SingleCard:
-    zerostate = Zero('No card selected')
-
-    def __init__(self, model):
+class Pager:
+    def __init__(self, name, updater):
+        self.name = name
         self.active = False
-        self.model = model
-        self.card = self.zerostate
+        self.updater = updater
+        self.data = self.zerostate
         self.index = 0
+
+    @property
+    def current_item(self):
+        return {'id': self.data.id, 'card_id': self.data.id}
 
     def attach_window(self, window):
         self.window = window
@@ -170,53 +170,16 @@ class SingleCard:
         self.index = 0
         prev_args = self.pstate.current_item
         if prev_args['id'] is None:
-            self.card = self.zerostate
+            self.data = self.zerostate
         else:
-            self.card = self.model(prev_args) or self.zerostate
-        ppcurses.utils.global_state['card'] = self.card
-
+            self.data = self.updater(prev_args) or self.zerostate
         self.lines_of_text = self.generate_lines_of_text()
-
         if hasattr(self, 'window'):
             self.window.draw()
 
         if hasattr(self, 'nstate'):
             logger.info('updating linked state %s of %s', self.nstate, self)
             self.nstate.update()
-
-    def generate_lines_of_text(self):
-        if self.card.id is None:
-            return [self.card.text]
-
-        contents = []
-        contents.extend(textwrap.wrap(self.card.title, width=self.window.maxx))
-        contents.append(' ')
-        if self.card.description:
-            contents.append('Description:')
-            for line in self.card.description.split('\n'):
-                contents.extend(textwrap.wrap(line, width=self.window.maxx-5))
-            contents.append(' ')
-        contents.append('Assignee: %s' % str(self.card.assignee['name'] if self.card.assignee else None))
-        contributors = ','.join([each['name'] for each in self.card.contributors]) or str(None)
-        contents.append('Co-Assignees: %s' % contributors)
-        contents.append(' ')
-        if self.card.label:
-            contents.append('Label: %s' % str(self.card.label['name'] if self.card.label else None))
-        if self.card.estimate:
-            contents.append('Points: %s' % str(self.card.estimate))
-        if self.card.tags:
-            tags = ','.join([each['name'] for each in self.card.tags]) or str(None)
-            contents.append('Tags: %s' % str(tags))
-
-        if self.card.checklist:
-            contents.append(' ')
-            contents.append('Checklist:')
-            for each in self.card.checklist:
-                if each['done']:
-                    contents.append('[X] %s' % each['title'])
-                else:
-                    contents.append('[ ] %s' % each['title'])
-        return contents
 
     @property
     def lines_needed(self):
@@ -254,33 +217,67 @@ class SingleCard:
         self.window.draw()
 
 
-class CommentPad:
-    zerostate = Zero('No comments to show')
-
-    def __init__(self, model):
-        self.active = False
-        self.model = model
-        self.comments = self.zerostate
-
-    def attach_window(self, window):
-        self.window = window
-        self.window.state = self
+class SingleCard(Pager):
+    zerostate = Zero('No card selected')
 
     def update(self):
-        prev_args = self.pstate.current_item
-        if prev_args['id'] is None:
-            self.card = [self.zerostate]
-        else:
-            self.card = self.model(prev_args) or self.zerostate
+        super().update()
+        ppcurses.utils.global_state['card'] = self.data
 
-        if hasattr(self, 'window'):
-            self.window.draw()
-        if hasattr(self, 'nstate'):
-            logger.info('updating linked state %s of %s', self.nstate, self)
-            self.nstate.update()
+    def generate_lines_of_text(self):
+        if self.data.id is None:
+            return [self.data.text]
 
-    def prev(self):
-        pass
+        contents = []
+        contents.extend(textwrap.wrap(self.data.title, width=self.window.maxx))
+        contents.append(' ')
+        if self.data.description:
+            contents.append('Description:')
+            for line in self.data.description.split('\n'):
+                contents.extend(textwrap.wrap(line, width=self.window.maxx-5))
+            contents.append(' ')
+        contents.append('Assignee: %s' % str(self.data.assignee['name'] if self.data.assignee else None))
+        contributors = ','.join([each['name'] for each in self.data.contributors]) or str(None)
+        contents.append('Co-Assignees: %s' % contributors)
+        contents.append(' ')
+        if self.data.label:
+            contents.append('Label: %s' % str(self.data.label['name'] if self.data.label else None))
+        if self.data.estimate:
+            contents.append('Points: %s' % str(self.data.estimate))
+        if self.data.tags:
+            tags = ','.join([each['name'] for each in self.data.tags]) or str(None)
+            contents.append('Tags: %s' % str(tags))
 
-    def next(self):
-        pass
+        if self.data.checklist:
+            contents.append(' ')
+            contents.append('Checklist:')
+            for n, each in enumerate(self.data.checklist):
+                if each['done']:
+                    contents.append('%s. [X] %s' % (n, each['title']))
+                else:
+                    contents.append('%s. [ ] %s' % (n, each['title']))
+        return contents
+
+
+class Comments(Pager):
+    zerostate = [Zero('No comments to show')]
+
+    def generate_lines_of_text(self):
+        contents = []
+        for n, comment in enumerate(self.data):
+            if comment.id is None:
+                contents.append(comment.text)
+                continue
+            contents.append(ppcurses.utils.epoch_to_datetime(comment.created_at))
+            contents.append('By: %s' % comment.created_by['name'])
+            if comment.attachments:
+                contents.append('Attachments: %s' % comment.attachments)
+
+            for line in comment.text.split('\n'):
+                contents.extend(textwrap.wrap(line, width=self.window.maxx-5))
+            if n != (len(self.data) - 1):
+                contents.append(' ')
+                contents.append('-'*(self.window.maxx-5))
+                contents.append(' ')
+
+        return contents

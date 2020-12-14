@@ -1,10 +1,21 @@
 #!/usr/bin/env python
+import signal
 import logging
+import ppcurses.errors
 import ppcurses.model
 from ppcurses.utils import get, global_state
 
 
 logger = logging.getLogger(__name__)
+
+
+def network_quickfail():
+    def handler(signum, frame):
+        raise ppcurses.errors.CallFailure('NETWORK QUICKFAIL')
+    signal.signal(signal.SIGALRM, handler)
+    signal.alarm(2)
+    me()
+    signal.alarm(0)
 
 
 def staticinit():

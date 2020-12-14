@@ -54,15 +54,15 @@ class SimpleListPane(Window):
         self.window.refresh()
 
 
-class CardPane(Window):
+class Pageable(Window):
     def draw(self):
-        logger.info('redrawing card pane')
+        logger.info('redrawing window of state %s', self.state.name)
         self.window.clear()
         if self.state.active:
             self.window.border(*ACTIVE_WINDOW)
         else:
             self.window.border(*INACTIVE_WINDOW)
-        self.window.addstr(0, 2, 'card details')
+        self.window.addstr(0, 2, self.state.name)
         lines, scroll_up, scroll_down = self.state.surrounding()
 
         if scroll_up:
@@ -73,23 +73,3 @@ class CardPane(Window):
         for n, line in enumerate(lines):
             self.window.addstr(n+1, 1, textwrap.shorten(line, width=self.maxx-3))
         self.window.refresh()
-
-
-class CommentPad(Window):
-    def draw(self):
-        logger.info('redrawing comments pane')
-        self.window.clear()
-        if self.state.active:
-            self.window.border(*ACTIVE_WINDOW)
-        else:
-            self.window.border(*INACTIVE_WINDOW)
-        self.window.addstr(0, 2, 'comments')
-
-        items, highlight_index = self.state.surrounding()
-
-        self.window.refresh()
-
-
-class Text(Window):
-    def __init__(self, y, x, maxy, maxx):
-        self.textpad = curses.textpad.rectangle(y, x, maxy, maxx)

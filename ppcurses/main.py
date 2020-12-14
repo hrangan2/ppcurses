@@ -18,48 +18,49 @@ code = locale.getpreferredencoding()
 
 def interactable(stdscr):
     stdscr.clear()
+    ppcurses.api.network_quickfail()
     curses.curs_set(0)
     # height_y, width_x, begin_y, begin_x
 
     # Project & Board Header Configuration
-    initstate = ppcurses.state.State(ppcurses.api.staticinit)
-    initstate.set_name('header')
+    initstate = ppcurses.state.State('header', ppcurses.api.staticinit)
     initstate.attach_window(
         ppcurses.window.ProjectBoardPane(2, curses.COLS-1, 0, 0),
         )
 
     # Planlet List Configuration
-    planletstate = ppcurses.state.State(ppcurses.api.planlets)
-    planletstate.set_name('planlet')
+    planletstate = ppcurses.state.State('planlet', ppcurses.api.planlets)
     planletstate.attach_window(
         ppcurses.window.SimpleListPane((curses.LINES - 2)//3+1, (curses.COLS-1)//3, 1, 0)
         )
 
     # Column List Configuration
-    columnstate = ppcurses.state.State(ppcurses.api.columns)
-    columnstate.set_name('column')
+    columnstate = ppcurses.state.State('column', ppcurses.api.columns)
     columnstate.attach_window(
         ppcurses.window.SimpleListPane((curses.LINES - 2)//3+1, (curses.COLS-1)//3, 1, (curses.COLS-1)//3)
         )
 
     # Card List Configuration
-    cardstate = ppcurses.state.State(ppcurses.api.cards)
-    cardstate.set_name('card')
+    cardstate = ppcurses.state.State('card', ppcurses.api.cards)
     cardstate.attach_window(
         ppcurses.window.SimpleListPane((curses.LINES - 2)//3+1, (curses.COLS-1)//3, 1, 2*(curses.COLS-1)//3)
         )
     ppcurses.state.link(initstate, planletstate, columnstate, cardstate)
 
     # Card Pane Configuration
-    carddetails = ppcurses.state.SingleCard(ppcurses.model.Card)
+    carddetails = ppcurses.state.SingleCard('card details', ppcurses.model.Card)
     carddetails.attach_window(
-        ppcurses.window.CardPane(2*(curses.LINES - 2)//3, (curses.COLS-1)//2, (curses.LINES - 2)//3 + 2, 0)
+        ppcurses.window.Pageable(2*(curses.LINES - 2)//3, (curses.COLS-1)//2, (curses.LINES - 2)//3 + 2, 0)
+        )
+
+    # Comment List Configuration
+    comments = ppcurses.state.Comments('comments', ppcurses.model.comments)
+    comments.attach_window(
+        ppcurses.window.Pageable(2*(curses.LINES - 2)//3, (curses.COLS-1)//2, (curses.LINES - 2)//3 + 2, (curses.COLS-1)//2)
         )
 
     # Link the state objects together
-    ppcurses.state.link(initstate, planletstate, columnstate, cardstate, carddetails)
-
-    # Comment List Configuration
+    ppcurses.state.link(initstate, planletstate, columnstate, cardstate, carddetails, comments)
 
     # 1 pixel window to listen for keypresses
     keylistener = curses.newwin(0, curses.COLS-1, 0, curses.COLS-1)

@@ -1,6 +1,6 @@
-import time
 import requests
-from collections import defaultdict
+from datetime import datetime
+from dateutil import tz
 from ppcurses import token, domain, api_domain
 from ppcurses.errors import CallFailure
 import logging
@@ -8,21 +8,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-TIMING = defaultdict(list)
-
-
-def timeit(func):
-    def inner(*args, **kwargs):
-        start = time.time()
-        retval = func(*args, **kwargs)
-        taken = time.time() - start
-        TIMING[func.__name__].append((str(taken) + ' ' + str(args) + ',' + str(kwargs)))
-        return retval
-    return inner
-
-
-@timeit
-def get(endpoint):
+def get(endpoint='/'):
     logger.info('Calling endpoint %s', endpoint)
     url = 'https://' + api_domain + endpoint
     r = requests.get(url, headers={'Authorization': 'Bearer ' + token})
@@ -39,6 +25,16 @@ def direct_card_link():
         return f"https://{domain}/#direct/card/{global_state['card'].id}"
     else:
         return ''
+
+
+def epoch_to_datetime(epoch_ts):
+    from_zone = tz.tzutc()
+    to_zone = tz.tzlocal()
+    utc = datetime.utcfromtimestamp(epoch_ts)
+    utc = utc.replace(tzinfo=from_zone)
+
+    dest = utc.astimezone(to_zone)
+    return dest.strftime('%c')
 
 
 global_state = {}
