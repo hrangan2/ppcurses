@@ -72,7 +72,7 @@ def interactable(stdscr):
 
     while True:
         key = keylistener.getkey()
-        state = ppcurses.keymap.do(state, key)
+        state = ppcurses.keymap.do(state, key, allowed_keys=['*'])
 
 
 def main():

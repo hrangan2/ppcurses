@@ -85,7 +85,10 @@ def yank_card_url(state):
     return state
 
 
-def do(state, key):
+def do(state, key, allowed_keys=['*']):
+    if ('*' not in allowed_keys) and (key not in allowed_keys):
+        logger.info('Skipping blocked key - %s', repr(key))
+        return state
     if key not in REGISTERED:
         logger.warning('Unregistered key press detected - %s', repr(key))
     else:
