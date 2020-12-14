@@ -94,8 +94,8 @@ def refresh_all(state):
 
 @key('y')
 def yank_card_url(state):
-    if ppcurses.storage['card_id'] is not None:
-        direct_link = f"https://{ppcurses.domain}/#direct/card/{ppcurses.storage['card_id']}"
+    if ppcurses.memstore['card_id'] is not None:
+        direct_link = f"https://{ppcurses.domain}/#direct/card/{ppcurses.memstore['card_id']}"
     else:
         direct_link = ''
     subprocess.run("pbcopy", universal_newlines=True, input=direct_link)
