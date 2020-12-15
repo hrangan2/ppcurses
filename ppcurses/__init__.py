@@ -10,6 +10,7 @@ from ppcurses.errors import CallFailure
 import logging
 import configparser
 
+mode = 'ppcurses'
 
 logging.basicConfig(filename='ppcurses.log', level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -24,16 +25,16 @@ if not os.path.exists(configfile):
         f.write("""\
 [ppcurses]
 token=ADD_USER_TOKEN
-domain=local.rnd.projectplace.com
+domain=service.projectplace.com
 """)
 
 parser = configparser.ConfigParser()
 parser.read_file(open(configfile))
-token = parser.get('ppcurses', 'token')
+token = parser.get(mode, 'token')
 if token == 'ADD_USER_TOKEN':
     print('Add your projectplace token to %s' % configfile)
     exit()
-domain = parser.get('ppcurses', 'domain')
+domain = parser.get(mode, 'domain')
 
 
 def _get(endpoint):
@@ -91,7 +92,7 @@ class KeyValueDB:
     _cache = {}
 
     def __init__(self):
-        self.conn = sqlite3.connect(os.path.join(internaldir, 'ppcurses.db'))
+        self.conn = sqlite3.connect(os.path.join(internaldir, '%s.db' % mode))
         cursor = self.conn.cursor()
         cursor.execute("""
                 CREATE TABLE IF NOT EXISTS keyval (

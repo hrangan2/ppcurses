@@ -17,8 +17,14 @@ code = locale.getpreferredencoding()
 
 def interactable(stdscr):
     stdscr.clear()
-    ppcurses.data.whoami()
     curses.curs_set(0)
+
+    # 1 pixel window to listen for keypresses
+    statuswin = ppcurses.windows.Status(1, 10, 0, curses.COLS-10)
+    ppcurses.memstore['statuswin'] = statuswin
+
+    # Get current user
+    ppcurses.data.whoami()
 
     # Project & Board Header Configuration
     headerstate = ppcurses.state.State('header', ppcurses.data.fileinit)
@@ -58,10 +64,6 @@ def interactable(stdscr):
 
     # Link the state objects together
     ppcurses.link(headerstate, planletstate, columnstate, cardstate, carddetails, comments)
-
-    # 1 pixel window to listen for keypresses
-    statuswin = ppcurses.windows.Status(1, 10, 0, curses.COLS-10)
-    ppcurses.memstore['statuswin'] = statuswin
 
     state = planletstate
     state.activate()

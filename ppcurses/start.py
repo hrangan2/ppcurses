@@ -30,12 +30,10 @@ def select_project_board():
     projects.activate()
     projects.update()
 
-    keylistener = curses.newwin(0, curses.COLS-1, 0, curses.COLS-1)
-    keylistener.keypad(True)
     state = projects
 
     while True:
-        key = keylistener.getch()
+        key = ppcurses.memstore['statuswin'].getch()
         if key == curses.ascii.NL:
             if projects.current_item['id'] is not None and boards.current_item['id']:
                 ppcurses.dbstore.set_forever('project_id', projects.current_item['id'])
