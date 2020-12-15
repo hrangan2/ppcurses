@@ -209,6 +209,14 @@ def checklist_to_card(state):
     return state
 
 
+@key('xx')
+def delete_card(state):
+    change = ppcurses.memstore['carddetailstate'].delete_card()
+    if change:
+        ppcurses.memstore['cardliststate'].update(cascade=True, reset_position=False, refetch=True)
+    return state
+
+
 @key('s')
 def change_project_board(state):
     """ Change the project and board selection """

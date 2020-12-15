@@ -473,6 +473,12 @@ class SingleCard(Pager):
         data = {"contributor_ids": contributor_ids}
         return ppcurses.put(endpoint, data)
 
+    def delete_card(self):
+        if self.data.id is None:
+            return False
+        endpoint = f"/api/v1/cards/{self.data.id}"
+        return ppcurses.delete(endpoint)
+
 
 class Comments(Pager):
     zerostate = [Zero('No comments to show')]
