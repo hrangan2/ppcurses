@@ -44,8 +44,96 @@ def key(k2):
     return inner
 
 
+########################################################################################
+#                                   PPCURSES ACTION                                    #
+########################################################################################
+
+
+@key('?')
+def help(state):
+    "Help"
+    parsed = []
+    for n, key in enumerate(HELP_MSG):
+        logger.error(': '.join([', '.join(HELP_MSG[key]), key]))
+        parsed.append({'id': n, 'name': ': '.join([', '.join(HELP_MSG[key]), key])})
+    ppcurses.hover.select_one('help', lambda **kwargs: parsed)
+    return state
+
+
+@key('q')
+def quit(state):
+    """ Quit """
+    raise ppcurses.errors.GracefulExit
+
+
+@key('y')
+def yank_card_url(state):
+    """ Copy the direct link for a card """
+    if ppcurses.memstore['card_id'] is not None:
+        direct_link = f"https://{ppcurses.domain}/#direct/card/{ppcurses.memstore['card_id']}"
+    else:
+        direct_link = ''
+    subprocess.run("pbcopy", universal_newlines=True, input=direct_link)
+    return state
+
+
+@key('r')
+def refresh(state):
+    """ Refresh the current window """
+    state.update(refetch=True)
+    return state
+
+
+@key('R')
+def refresh_all(state):
+    """ Refresh all windows """
+    ppcurses.dbstore.clear_transient()
+    ppcurses.memstore['headerstate'].update(refetch=True)
+    return state
+
+
+@key('S')
+def change_project_board(state):
+    """ Change the project and board selection """
+    ppcurses.hover.select_project_board()
+    ppcurses.memstore['headerstate'].update(reset_position=True)
+    return state
+
+
+########################################################################################
+#                                 PROJECTPLACE ACTIONS                                 #
+########################################################################################
+
+
+@key('cc')
+def create_card(state):
+    """ Create a new card """
+    change = ppcurses.memstore['carddetailstate'].create_card()
+    if change:
+        ppcurses.memstore['cardliststate'].update(cascade=True, reset_position=False, refetch=True)
+    return state
+
+
+@key('xx')
+def delete_card(state):
+    """ Delete a card """
+    change = ppcurses.memstore['carddetailstate'].delete_card()
+    if change:
+        ppcurses.memstore['cardliststate'].update(cascade=True, reset_position=False, refetch=True)
+    return state
+
+
+@key('aa')
+def add_co_assignee(state):
+    """ Add a co-assignee to a card """
+    change = ppcurses.memstore['carddetailstate'].add_co_assignee()
+    if change:
+        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
+    return state
+
+
 @key('ac')
-def write_comment(state):
+def add_comment(state):
     """ Add a new comment """
     change = ppcurses.memstore['commentsstate'].add()
     if change:
@@ -53,13 +141,68 @@ def write_comment(state):
     return state
 
 
-@key('xc <n>')
-def delete_comment(state):
-    """ Delete a comment """
-    k = ppcurses.memstore['statuswin'].getch()
-    change = ppcurses.memstore['commentsstate'].delete(chr(k))
+@key('ak')
+def add_checklist(state):
+    """ Add a checklist item """
+    change = ppcurses.memstore['carddetailstate'].add_checklist()
     if change:
-        ppcurses.memstore['commentsstate'].update(cascade=False, reset_position=False, refetch=True)
+        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
+    return state
+
+
+@key('et')
+def change_title(state):
+    """ Change the title of the card """
+    change = ppcurses.memstore['carddetailstate'].change_title()
+    if change:
+        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
+    return state
+
+
+@key('ed')
+def change_description(state):
+    """ Change the description of the card """
+    change = ppcurses.memstore['carddetailstate'].change_description()
+    if change:
+        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
+    return state
+
+
+@key('eo')
+def change_assignee(state):
+    """ Change the owner/assignee of the card """
+    change = ppcurses.memstore['carddetailstate'].change_assignee()
+    if change:
+        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
+    return state
+
+
+@key('el')
+def change_label(state):
+    """ Change the label of the card """
+    change = ppcurses.memstore['carddetailstate'].change_label()
+    if change:
+        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
+    return state
+
+
+@key('ep')
+def change_points(state):
+    """ Change the points on a card """
+    change = ppcurses.memstore['carddetailstate'].change_points()
+    if change:
+        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
+    return state
+
+
+@key('ek <n>')
+def edit_checklist(state):
+    """ Edit a checklist item """
+    # TODO
+    k = ppcurses.memstore['statuswin'].getch()
+    change = ppcurses.memstore['carddetailstate'].edit_checklist(chr(k))
+    if change:
+        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
@@ -73,60 +216,6 @@ def edit_comment(state):
     return state
 
 
-@key('ct')
-def change_title(state):
-    """ Change the title of the card """
-    change = ppcurses.memstore['carddetailstate'].change_title()
-    if change:
-        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
-    return state
-
-
-@key('cd')
-def change_description(state):
-    """ Change the description of the card """
-    change = ppcurses.memstore['carddetailstate'].change_description()
-    if change:
-        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
-    return state
-
-
-@key('cp')
-def change_points(state):
-    """ Change the points on a card """
-    change = ppcurses.memstore['carddetailstate'].change_points()
-    if change:
-        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
-    return state
-
-
-@key('cl')
-def change_label(state):
-    """ Change the label of the card """
-    change = ppcurses.memstore['carddetailstate'].change_label()
-    if change:
-        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
-    return state
-
-
-@key('co')
-def change_assignee(state):
-    """ Change the assignee of the card """
-    change = ppcurses.memstore['carddetailstate'].change_assignee()
-    if change:
-        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
-    return state
-
-
-@key('aa')
-def add_co_assignee(state):
-    """ Add a co-assignee to a card """
-    change = ppcurses.memstore['carddetailstate'].add_co_assignee()
-    if change:
-        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
-    return state
-
-
 @key('xa <n>')
 def remove_co_assignee(state):
     """ Remove a co-assignee from the card """
@@ -134,6 +223,46 @@ def remove_co_assignee(state):
     change = ppcurses.memstore['carddetailstate'].remove_co_assignee(chr(k))
     if change:
         ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
+    return state
+
+
+@key('xc <n>')
+def delete_comment(state):
+    """ Delete a comment """
+    k = ppcurses.memstore['statuswin'].getch()
+    change = ppcurses.memstore['commentsstate'].delete(chr(k))
+    if change:
+        ppcurses.memstore['commentsstate'].update(cascade=False, reset_position=False, refetch=True)
+    return state
+
+
+@key('xk <n>')
+def delete_checklist(state):
+    """ Delete a checklist item """
+    k = ppcurses.memstore['statuswin'].getch()
+    change = ppcurses.memstore['carddetailstate'].delete_checklist(chr(k))
+    if change:
+        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
+    return state
+
+
+@key('tk <n>')
+def toggle_checklist(state):
+    """ Toggle a checklist item """
+    k = ppcurses.memstore['statuswin'].getch()
+    change = ppcurses.memstore['carddetailstate'].toggle_checklist(chr(k))
+    if change:
+        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
+    return state
+
+
+@key('uk <n>')
+def checklist_to_card(state):
+    """ Convert a checklist item to a card"""
+    k = ppcurses.memstore['statuswin'].getch()
+    change = ppcurses.memstore['carddetailstate'].checklist_to_card(chr(k))
+    if change:
+        ppcurses.memstore['cardliststate'].update(cascade=True, reset_position=False, refetch=True)
     return state
 
 
@@ -155,86 +284,9 @@ def move_to_planlet(state):
     return state
 
 
-@key('tl <n>')
-def toggle_checklist(state):
-    """ Toggle a checklist item """
-    k = ppcurses.memstore['statuswin'].getch()
-    change = ppcurses.memstore['carddetailstate'].toggle_checklist(chr(k))
-    if change:
-        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
-    return state
-
-
-@key('el <n>')
-def edit_checklist(state):
-    """ Edit a checklist item """
-    # TODO
-    k = ppcurses.memstore['statuswin'].getch()
-    change = ppcurses.memstore['carddetailstate'].edit_checklist(chr(k))
-    if change:
-        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
-    return state
-
-
-@key('al')
-def add_checklist(state):
-    """ Add a checklist item """
-    change = ppcurses.memstore['carddetailstate'].add_checklist()
-    if change:
-        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
-    return state
-
-
-@key('xl <n>')
-def delete_checklist(state):
-    """ Delete a checklist item """
-    k = ppcurses.memstore['statuswin'].getch()
-    change = ppcurses.memstore['carddetailstate'].delete_checklist(chr(k))
-    if change:
-        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
-    return state
-
-
-@key('vl <n>')
-def checklist_to_card(state):
-    """ Convert a checklist item to a card"""
-    k = ppcurses.memstore['statuswin'].getch()
-    change = ppcurses.memstore['carddetailstate'].checklist_to_card(chr(k))
-    if change:
-        ppcurses.memstore['cardliststate'].update(cascade=True, reset_position=False, refetch=True)
-    return state
-
-
-@key('xx')
-def delete_card(state):
-    """ Delete a card """
-    change = ppcurses.memstore['carddetailstate'].delete_card()
-    if change:
-        ppcurses.memstore['cardliststate'].update(cascade=True, reset_position=False, refetch=True)
-    return state
-
-
-@key('cc')
-def create_card(state):
-    """ Create a new card """
-    change = ppcurses.memstore['carddetailstate'].create_card()
-    if change:
-        ppcurses.memstore['cardliststate'].update(cascade=True, reset_position=False, refetch=True)
-    return state
-
-
-@key('S')
-def change_project_board(state):
-    """ Change the project and board selection """
-    ppcurses.hover.select_project_board()
-    ppcurses.memstore['headerstate'].update(reset_position=True)
-    return state
-
-
-@key('q')
-def quit(state):
-    """ Quit """
-    raise ppcurses.errors.GracefulExit
+########################################################################################
+#                                       NAVIGATION                                     #
+########################################################################################
 
 
 @key('h')
@@ -272,41 +324,6 @@ def navright(state):
     state = getattr(state, 'nstate', state)
     state.activate()
     state.window.draw()
-    return state
-
-
-@key('r')
-def refresh(state):
-    """ Refresh the current window """
-    state.update(refetch=True)
-    return state
-
-
-@key('R')
-def refresh_all(state):
-    """ Refresh all windows """
-    ppcurses.dbstore.clear_transient()
-    ppcurses.memstore['headerstate'].update(refetch=True)
-    return state
-
-
-@key('y')
-def yank_card_url(state):
-    """ Copy the direct link for a card """
-    if ppcurses.memstore['card_id'] is not None:
-        direct_link = f"https://{ppcurses.domain}/#direct/card/{ppcurses.memstore['card_id']}"
-    else:
-        direct_link = ''
-    subprocess.run("pbcopy", universal_newlines=True, input=direct_link)
-    return state
-
-
-@key('?')
-def help(state):
-    parsed = []
-    for n, key in enumerate(HELP_MSG):
-        parsed.append({'id': n, 'name': ': '.join([', '.join(HELP_MSG[key]), key])})
-    ppcurses.hover.select_one('help', lambda **kwargs: parsed)
     return state
 
 

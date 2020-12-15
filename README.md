@@ -11,28 +11,35 @@ $ ppcurses
 ```
 Navigate windows with the arrow keys or hjkl
 
-ac         Add a new comment
-xc <n>     Delete a comment
-ec <n>     Edit a comment
-ct         Change the title of the card
-cd         Change the description of the card
-cp         Change the points on a card
-cl         Change the label of the card
-co         Change the assignee of the card
-aa         Add a co-assignee to a card
-xa <n>     Remove a co-assignee from the card
-mc         Move the card to a different column
-mp         Move the card to a different activity
-tl <n>     Toggle a checklist item
-el <n>     Edit a checklist item
-al         Add a checklist item
-xl <n>     Delete a checklist item
-vl <n>     Convert a checklist item to a card
-xx         Delete a card
-cc         Create a new card
-S          Change the project and board selection
+?          Help
 q          Quit
+y          Copy the direct link for a card
 r          Refresh the current window
 R          Refresh all windows
-y          Copy the direct link for a card
+S          Change the project and board selection
+
+cc         Create a new card
+xx         Delete a card
+
+aa         Add a co-assignee to a card
+ac         Add a new comment
+ak         Add a checklist item
+
+et         Change the title of the card
+ed         Change the description of the card
+eo         Change the owner/assignee of the card
+el         Change the label of the card
+ep         Change the points on a card
+ek <n>     Edit a checklist item
+ec <n>     Edit a comment
+
+xa <n>     Remove a co-assignee from the card
+xc <n>     Delete a comment
+xk <n>     Delete a checklist item
+
+tk <n>     Toggle a checklist item
+uk <n>     Convert a checklist item to a card
+
+mc         Move the card to a different column
+mp         Move the card to a different activity
 ```
