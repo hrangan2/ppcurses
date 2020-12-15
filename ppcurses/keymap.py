@@ -231,7 +231,7 @@ def navleft(state):
     pstate = getattr(state, 'pstate', state)
     state.deactivate()
     state.window.draw()
-    if getattr(pstate, 'name') != 'headerstate':
+    if getattr(pstate, 'name') != 'header':
         state = pstate
     state.activate()
     state.window.draw()
