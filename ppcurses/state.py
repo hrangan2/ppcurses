@@ -317,7 +317,12 @@ class SingleCard(Pager):
     def add_checklist(self):
         if self.data.id is None:
             return False
-        logger.warning('pending: adding checklist')
+        endpoint = f"/api/v1/cards/{self.data.id}/checklist"
+        checklist = ppcurses.hover.textbox('add checklist')
+        if checklist is None:
+            return
+        data = {'title': checklist}
+        return ppcurses.post(endpoint, data)
 
     def checklist_to_card(self, char):
         try:

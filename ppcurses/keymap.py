@@ -1,5 +1,4 @@
 import curses
-import inspect
 import ppcurses.errors
 import ppcurses.hover
 import ppcurses.state
@@ -177,11 +176,12 @@ def edit_checklist(state):
     return state
 
 
-@key('wl')
+@key('al')
 def add_checklist(state):
     """ Add a checklist item """
-    # TODO
-    logger.error('Pending command - %s' % inspect.stack()[0][3])
+    change = ppcurses.memstore['carddetailstate'].add_checklist()
+    if change:
+        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
@@ -207,6 +207,7 @@ def checklist_to_card(state):
 
 @key('xx')
 def delete_card(state):
+    """ Delete a card """
     change = ppcurses.memstore['carddetailstate'].delete_card()
     if change:
         ppcurses.memstore['cardliststate'].update(cascade=True, reset_position=False, refetch=True)
@@ -215,6 +216,7 @@ def delete_card(state):
 
 @key('cc')
 def create_card(state):
+    """ Create a new card """
     change = ppcurses.memstore['carddetailstate'].create_card()
     if change:
         ppcurses.memstore['cardliststate'].update(cascade=True, reset_position=False, refetch=True)
