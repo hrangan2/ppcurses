@@ -73,7 +73,7 @@ def interactable(stdscr):
 
     state = planletstate
     state.activate()
-    headerstate.update(refetch=True)
+    headerstate.update()
 
     while True:
         key = statuswin.getch()
