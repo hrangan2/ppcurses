@@ -47,9 +47,12 @@ def write_comment(state):
 
 @key('xc')
 def delete_comment(state):
-    logger.error('Pending command - %s' % inspect.stack()[0][3])
-    # k = ppcurses.memstore['statuswin'].getch()
-    # logger.error(chr(k))
+    k = ppcurses.memstore['statuswin'].getch()
+    if chr(k).isdigit():
+        change = ppcurses.memstore['comments'].delete(int(chr(k)))
+        logger.error(change)
+        if change:
+            ppcurses.memstore['comments'].update(cascade=False, reset_position=True, refetch=True)
     return state
 
 

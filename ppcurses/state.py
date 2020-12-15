@@ -43,7 +43,7 @@ class State:
         self.window = window
         self.window.state = self
 
-    def update(self, reset_position=False, refetch=False):
+    def update(self, cascade=True, reset_position=False, refetch=False):
         if hasattr(self, 'pstate'):
             prev_args = self.pstate.current_item
             if prev_args['id'] is None:
@@ -57,7 +57,7 @@ class State:
             self.current_id = self.data[0]['id']
         if hasattr(self, 'window'):
             self.window.draw()
-        if hasattr(self, 'nstate'):
+        if cascade and hasattr(self, 'nstate'):
             logger.debug('updating linked state %s of %s', self.nstate, self)
             self.nstate.update(reset_position=reset_position, refetch=refetch)
 
@@ -169,7 +169,7 @@ class Pager:
         self.window = window
         self.window.state = self
 
-    def update(self, reset_position=False, refetch=False):
+    def update(self, cascade=True, reset_position=False, refetch=False):
         self.index = 0
         prev_args = self.pstate.current_item
         if prev_args['id'] is None:
@@ -182,7 +182,7 @@ class Pager:
         if hasattr(self, 'window'):
             self.window.draw()
 
-        if hasattr(self, 'nstate'):
+        if cascade and hasattr(self, 'nstate'):
             logger.debug('updating linked state %s of %s', self.nstate, self)
             self.nstate.update(reset_position=reset_position, refetch=refetch)
 
@@ -225,8 +225,8 @@ class Pager:
 class SingleCard(Pager):
     zerostate = Zero('No card selected')
 
-    def update(self, reset_position=False, refetch=False):
-        super().update(reset_position=reset_position, refetch=refetch)
+    def update(self, cascade=True, reset_position=False, refetch=False):
+        super().update(cascade=cascade, reset_position=reset_position, refetch=refetch)
         ppcurses.memstore['card_id'] = self.data.id
 
     def generate_lines_of_text(self):
@@ -270,7 +270,7 @@ class Comments(Pager):
             if comment.id is None:
                 contents.append(comment.text)
                 continue
-            contents.append(str(n+1) + '. ' + ppcurses.epoch_to_datetime(comment.created_at))
+            contents.append(str(n) + '. ' + ppcurses.epoch_to_datetime(comment.created_at))
             contents.append('By: %s' % comment.created_by['name'])
             if comment.attachments:
                 contents.append('Attachments: %s' % comment.attachments)
@@ -283,3 +283,19 @@ class Comments(Pager):
                 contents.append(' ')
 
         return contents
+
+    def delete(self, index):
+        try:
+            comment = self.data[index]
+        except IndexError:
+            return False
+        if comment.id is None:
+            return False
+
+        if not comment.is_mine():
+            logger.warning('Trying to modify a card that you did not create')
+            return False
+
+        card_id = ppcurses.memstore['card'].id
+        endpoint = f"/api/v3/conversations/comment/{comment.id}?item_id={card_id}&item_name=card"
+        return ppcurses.delete(endpoint)

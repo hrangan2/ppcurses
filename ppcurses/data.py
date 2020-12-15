@@ -189,6 +189,9 @@ class Comment(Serializer):
                 }
         self.attachments = len(comment.get('attachments', []))
 
+    def is_mine(self):
+        return self.created_by['id'] == ppcurses.memstore['user_id']
+
 
 class Board(Serializer):
     def __init__(self, board_id, refetch=False):

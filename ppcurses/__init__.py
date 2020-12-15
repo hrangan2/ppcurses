@@ -38,7 +38,7 @@ domain = parser.get(mode, 'domain')
 
 
 def _get(endpoint):
-    logger.info('Calling endpoint %s', endpoint)
+    logger.info('Calling endpoint GET %s', endpoint)
     memstore['statuswin'].set('updating')
     url = 'https://' + domain + endpoint
     r = requests.get(url, headers={'Authorization': 'Bearer ' + token})
@@ -51,10 +51,21 @@ def _get(endpoint):
         return r.json()
 
 
-def get(endpoint='/', refetch=False):
+def get(endpoint, refetch=False):
     if refetch or (endpoint not in dbstore):
         dbstore[endpoint] = _get(endpoint)
     return dbstore[endpoint]
+
+
+def delete(endpoint):
+    logger.info('Calling endpoint DELETE %s', endpoint)
+    url = 'https://' + domain + endpoint
+    r = requests.delete(url, headers={'Authorization': 'Bearer ' + token})
+    if r.ok:
+        return True
+    else:
+        logger.warning("Failed deleting %s, [%s]", (endpoint, r.status_code))
+        return False
 
 
 def epoch_to_datetime(epoch_ts):

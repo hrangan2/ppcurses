@@ -50,17 +50,20 @@ def interactable(stdscr):
     cardstate.attach_window(
         ppcurses.windows.SimpleList((curses.LINES - 2)//3+1, (curses.COLS-1)//3, 1, 2*(curses.COLS-1)//3)
         )
+
     # Card Pane Configuration
     carddetails = ppcurses.state.SingleCard('card details', ppcurses.data.card)
     carddetails.attach_window(
         ppcurses.windows.Pageable(2*(curses.LINES - 2)//3, (curses.COLS-1)//2, (curses.LINES - 2)//3 + 2, 0)
         )
+    ppcurses.memstore['card'] = carddetails
 
     # Comment List Configuration
     comments = ppcurses.state.Comments('comments', ppcurses.data.comments)
     comments.attach_window(
         ppcurses.windows.Pageable(2*(curses.LINES - 2)//3, (curses.COLS-1)//2, (curses.LINES - 2)//3 + 2, (curses.COLS-1)//2)
         )
+    ppcurses.memstore['comments'] = comments
 
     # Link the state objects together
     ppcurses.link(headerstate, planletstate, columnstate, cardstate, carddetails, comments)
