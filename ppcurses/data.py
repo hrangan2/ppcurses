@@ -111,7 +111,11 @@ def cards(kwargs, refetch=False):
 
 def comments(kwargs, refetch=False):
     endpoint = f"/api/v3/conversations/comments?item_id={kwargs['card_id']}&item_name=card&count=100&offset=0"
-    return [Comment(each) for each in ppcurses.get(endpoint, refetch=refetch)['data']]
+    return sorted(
+            [Comment(each) for each in ppcurses.get(endpoint, refetch=refetch)['data']],
+            key=lambda x: x.created_at,
+            reverse=True
+            )
 
 
 def card(kwargs, refetch=False):
@@ -218,3 +222,16 @@ class Board(Serializer):
                 'id': each['id'],
                 'name': each['name']
                 })
+
+
+def get_board_members(**kwargs):
+    board_id = ppcurses.memstore['board'].id
+    project_id = ppcurses.dbstore['project_id']
+    endpoint = f"/api/v2/boards/{board_id}/people-with-access"
+    allowed = ppcurses.get(endpoint, refetch=True)['access']
+
+    endpoint = f"/api/v1/projects/{project_id}/members?member_params=include_last_active,include_pending,organisation,description,in_team"
+    board_members = [{'id': member['id'],
+                      'name': member['name']
+                      } for member in ppcurses.get(endpoint, refetch=True) if member['id'] in allowed]
+    return board_members

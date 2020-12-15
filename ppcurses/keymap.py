@@ -45,7 +45,7 @@ def key(k2):
     return inner
 
 
-@key('wc')
+@key('ac')
 def write_comment(state):
     """ Add a new comment """
     # TODO

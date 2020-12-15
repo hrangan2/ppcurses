@@ -1,9 +1,12 @@
 import curses
+import string
+import textwrap
 import curses.ascii
 import logging
 import ppcurses
 import ppcurses.state
 import ppcurses.errors
+import ppcurses.data
 
 logger = logging.getLogger(__name__)
 
@@ -83,8 +86,6 @@ def select_one(name, updater):
         if key == curses.ascii.NL:
             if state.current_item['id'] is not None:
                 selection = state.current_item
-                state.window.clear()
-                state.window.refresh()
                 break
         try:
             state = ppcurses.keymap.do(state, key, allowed_keys=[
@@ -96,8 +97,48 @@ def select_one(name, updater):
         except ppcurses.errors.GracefulExit:
             # Remove any characters printed by these windows in the gaps
             # between existing windows
-            state.window.clear()
-            state.window.refresh()
             break
+    state.window.clear()
+    state.window.refresh()
     ppcurses.memstore['headerstate'].update()
     return selection
+
+
+def textbox(name, text=''):
+    def draw_text(window, text):
+        window.clear()
+        window.border(*ppcurses.windows.ACTIVE_WINDOW)
+        window.addstr(0, 2, name)
+        window.addstr(maxy-2, 2, 'Enter to confirm, Esc to cancel')
+
+        wrapped_text = textwrap.wrap(text, width=maxx-5, drop_whitespace=False, replace_whitespace=False)
+        if not text:
+            # This is to move the cursor to this location
+            window.addstr(2, 3, '')
+        for n, line in enumerate(wrapped_text):
+            window.addstr(n+2, 3, line)
+        window.refresh()
+
+    curses.curs_set(1)
+    window = curses.newwin(2*(curses.LINES - 1)//4, 6*(curses.COLS-1)//8, (curses.LINES - 1)//4, (curses.COLS-1)//8)
+    window.touchwin()
+    maxy, maxx = window.getmaxyx()
+    window.keypad(True)
+    draw_text(window, text)
+
+    while True:
+        key = ppcurses.memstore['statuswin'].getch()
+        if key == curses.ascii.NL:
+            break
+        elif key == curses.ascii.ESC:
+            text = None
+            break
+        elif key == curses.ascii.DEL:
+            text = text[:-1]
+            draw_text(window, text)
+        elif chr(key) in string.printable+' ':
+            text += chr(key)
+            draw_text(window, text)
+    ppcurses.memstore['headerstate'].update()
+    curses.curs_set(0)
+    return text

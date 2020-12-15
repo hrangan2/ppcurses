@@ -79,10 +79,32 @@ def put(endpoint, data):
         return False
 
 
+def put_form(endpoint, data):
+    logger.info('Calling endpoint PUT %s', endpoint)
+    url = 'https://' + domain + endpoint
+    r = requests.put(url, data=data, headers={'Authorization': 'Bearer ' + token})
+    if r.ok:
+        return True
+    else:
+        logger.error("Failed updating %s, [%s]", (endpoint, r.status_code))
+        return False
+
+
 def post(endpoint, data):
     logger.info('Calling endpoint POST %s', endpoint)
     url = 'https://' + domain + endpoint
     r = requests.post(url, json=data, headers={'Authorization': 'Bearer ' + token})
+    if r.ok:
+        return True
+    else:
+        logger.error("Failed updating %s, [%s]", (endpoint, r.status_code))
+        return False
+
+
+def post_form(endpoint, data):
+    logger.info('Calling endpoint POST %s', endpoint)
+    url = 'https://' + domain + endpoint
+    r = requests.post(url, data=data, headers={'Authorization': 'Bearer ' + token})
     if r.ok:
         return True
     else:

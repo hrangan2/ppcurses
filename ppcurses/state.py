@@ -420,22 +420,10 @@ class SingleCard(Pager):
             data = {'label_id': response['id']}
             return ppcurses.put(endpoint, data)
 
-    def get_board_members(self):
-        board_id = ppcurses.memstore['board'].id
-        project_id = ppcurses.dbstore['project_id']
-        endpoint = f"/api/v2/boards/{board_id}/people-with-access"
-        allowed = ppcurses.get(endpoint, refetch=True)['access']
-
-        endpoint = f"/api/v1/projects/{project_id}/members?member_params=include_last_active,include_pending,organisation,description,in_team"
-        board_members = [{'id': member['id'],
-                          'name': member['name']
-                          } for member in ppcurses.get(endpoint, refetch=True) if member['id'] in allowed]
-        return board_members
-
     def change_assignee(self):
         if self.data.id is None:
             return False
-        board_members = self.get_board_members()
+        board_members = ppcurses.data.get_board_members()
         board_members.insert(0, {'id': 'remove', 'name': 'Remove assignee'})
         response = ppcurses.hover.select_one('assignees', lambda **kwargs: board_members)
         if response is not None:
@@ -446,7 +434,7 @@ class SingleCard(Pager):
     def add_co_assignee(self):
         if self.data.id is None:
             return False
-        board_members = self.get_board_members()
+        board_members = ppcurses.data.get_board_members()
         board_members.insert(0, {'id': 'remove', 'name': 'Remove co-assignee'})
         response = ppcurses.hover.select_one('co-assignees', lambda **kwargs: board_members)
         contributor_ids = [each['id'] for each in self.data.contributors]
@@ -534,9 +522,33 @@ class Comments(Pager):
             return False
         if comment.id is None:
             return False
-        logger.warning('pending: editing comment %s', index)
+        comment_text = ppcurses.hover.textbox('edit a comment', comment.text)
+        if comment_text is None:
+            return
+        else:
+            endpoint = f"/api/v3/conversations/comment/{comment.id}"
+            data = {"text": comment_text,
+                    "encoded_text": comment_text,
+                    "attachments": [],
+                    "send_to_external": False,
+                    }
+            return ppcurses.put_form(endpoint, data)
 
     def add(self):
         if ppcurses.memstore['carddetailstate'].data.id is None:
             return
-        logger.warning('pending: adding a comment')
+        card_id = ppcurses.memstore['carddetailstate'].data.id
+        comment_text = ppcurses.hover.textbox('add a comment')
+        if comment_text is None:
+            return
+        else:
+            endpoint = "/api/v3/conversations/comment"
+            data = {"text": comment_text,
+                    "encoded_text": comment_text,
+                    "attachments": [],
+                    "send_to_external": False,
+                    "sent_from": 'web',
+                    "item_name": 'card',
+                    "item_id": card_id
+                    }
+            return ppcurses.post_form(endpoint, data)
