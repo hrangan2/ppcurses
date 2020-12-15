@@ -223,7 +223,7 @@ def create_card(state):
     return state
 
 
-@key('s')
+@key('S')
 def change_project_board(state):
     """ Change the project and board selection """
     ppcurses.hover.select_project_board()
