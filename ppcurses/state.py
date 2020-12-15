@@ -322,13 +322,26 @@ class SingleCard(Pager):
         response = ppcurses.hover.select_one('label', lambda **kwargs:  ppcurses.memstore['board'].labels)
         if response is not None:
             endpoint = f"/api/v1/cards/{self.data.id}"
-            data = {'label_id': response}
+            data = {'label_id': response['id']}
             return ppcurses.put(endpoint, data)
 
     def change_assignee(self):
         if self.data.id is None:
             return False
-        logger.warning('pending: changing assignee')
+        board_id = ppcurses.memstore['board'].id
+        project_id = ppcurses.dbstore['project_id']
+        endpoint = f"/api/v2/boards/{board_id}/people-with-access"
+        allowed = ppcurses.get(endpoint, refetch=True)['access']
+
+        endpoint = f"/api/v1/projects/{project_id}/members?member_params=include_last_active,include_pending,organisation,description,in_team"
+        allowed_members = [{'id': member['id'],
+                            'name': member['name']
+                            } for member in ppcurses.get(endpoint, refetch=True) if member['id'] in allowed]
+        response = ppcurses.hover.select_one('assignee', lambda **kwargs: allowed_members)
+        if response is not None:
+            endpoint = f"/api/v1/cards/{self.data.id}"
+            data = {'assignee_id': response['id']}
+            return ppcurses.put(endpoint, data)
 
     def change_co_assignee(self):
         if self.data.id is None:

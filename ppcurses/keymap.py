@@ -106,7 +106,6 @@ def change_label(state):
 
 @key('ca')
 def change_assignee(state):
-    # TODO
     change = ppcurses.memstore['card'].change_assignee()
     if change:
         ppcurses.memstore['card'].update(cascade=False, reset_position=False, refetch=True)

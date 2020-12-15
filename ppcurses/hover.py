@@ -82,7 +82,7 @@ def select_one(name, updater):
         key = ppcurses.memstore['statuswin'].getch()
         if key == curses.ascii.NL:
             if state.current_item['id'] is not None:
-                selection = state.current_item['id']
+                selection = state.current_item
                 state.window.clear()
                 state.window.refresh()
                 break
