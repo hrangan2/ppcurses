@@ -341,6 +341,25 @@ class SingleCard(Pager):
         if self.data.id is None:
             return False
 
+        board_id = ppcurses.memstore['board'].id
+        column_id = ppcurses.memstore['columnstate'].current_item['id']
+        response = ppcurses.hover.select_one('columns', lambda **kwargs: ppcurses.memstore['planletstate'].data)
+        if response is not None:
+            logger.info('Moving card to %s', response)
+            endpoint = f"/api/v1/boards/{board_id}/move-cards"
+            if response['id'] == -1:
+                response['id'] = None
+            data = {
+                    "card_ids": [self.data.id],
+                    "column_id": column_id,
+                    "after_card": None,
+                    "swimlane": {
+                        "type": "planlet_id",
+                        "value": response['id']
+                        }
+                    }
+            return ppcurses.post(endpoint, data)
+
     def change_title(self):
         if self.data.id is None:
             return False
