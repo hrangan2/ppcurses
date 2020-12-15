@@ -271,6 +271,18 @@ class SingleCard(Pager):
         endpoint = f"/api/v1/cards/{self.data.id}/checklist/{checklist['id']}/"
         return ppcurses.delete(endpoint)
 
+    def toggle_checklist(self, index):
+        if self.data.id is None:
+            return False
+        try:
+            checklist = self.data.checklist[index]
+        except IndexError:
+            return False
+        endpoint = f"/api/v1/cards/{self.data.id}/checklist/{checklist['id']}/"
+        data = {'done': not checklist['done'],
+                'title': checklist['title']}
+        return ppcurses.put(endpoint, data)
+
     def edit_checklist(self, index):
         if self.data.id is None:
             return False

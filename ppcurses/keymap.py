@@ -129,18 +129,6 @@ def remove_co_assignee(state):
     return state
 
 
-@key('tl')
-def toggle_checklist(state):
-    # TODO
-    k = ppcurses.memstore['statuswin'].getch()
-    if chr(k).isdigit():
-        index = int(chr(k))
-        change = ppcurses.memstore['card'].toggle_checklist(index)
-        if change:
-            ppcurses.memstore['card'].update(cascade=False, reset_position=False, refetch=True)
-    return state
-
-
 @key('mc')
 def move_column(state):
     # TODO
@@ -159,8 +147,20 @@ def move_planlet(state):
     return state
 
 
+@key('tl')
+def toggle_checklist(state):
+    k = ppcurses.memstore['statuswin'].getch()
+    if chr(k).isdigit():
+        index = int(chr(k))
+        change = ppcurses.memstore['card'].toggle_checklist(index)
+        if change:
+            ppcurses.memstore['card'].update(cascade=False, reset_position=False, refetch=True)
+    return state
+
+
 @key('el')
 def edit_checklist(state):
+    # TODO
     k = ppcurses.memstore['statuswin'].getch()
     if chr(k).isdigit():
         index = int(chr(k))
@@ -172,6 +172,7 @@ def edit_checklist(state):
 
 @key('wl')
 def add_checklist(state):
+    # TODO
     logger.error('Pending command - %s' % inspect.stack()[0][3])
     return state
 
@@ -189,6 +190,7 @@ def delete_checklist(state):
 
 @key('vl')
 def checklist_to_card(state):
+    # TODO
     k = ppcurses.memstore['statuswin'].getch()
     if chr(k).isdigit():
         index = int(chr(k))
