@@ -260,6 +260,16 @@ class SingleCard(Pager):
                     contents.append('%s. [ ] %s' % (n, each['title']))
         return contents
 
+    def delete_checklist(self, index):
+        if self.data.id is None:
+            return False
+        try:
+            checklist = self.data.checklist[index]
+        except IndexError:
+            return False
+        endpoint = f"/api/v1/cards/{self.data.id}/checklist/{checklist['id']}/"
+        return ppcurses.delete(endpoint)
+
 
 class Comments(Pager):
     zerostate = [Zero('No comments to show')]

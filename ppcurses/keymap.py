@@ -50,7 +50,6 @@ def delete_comment(state):
     k = ppcurses.memstore['statuswin'].getch()
     if chr(k).isdigit():
         change = ppcurses.memstore['comments'].delete(int(chr(k)))
-        logger.error(change)
         if change:
             ppcurses.memstore['comments'].update(cascade=False, reset_position=True, refetch=True)
     return state
@@ -118,7 +117,12 @@ def add_checklist(state):
 
 @key('xl')
 def delete_checklist(state):
-    logger.error('Pending command - %s' % inspect.stack()[0][3])
+    k = ppcurses.memstore['statuswin'].getch()
+    if chr(k).isdigit():
+        index = int(chr(k))
+        change = ppcurses.memstore['card'].delete_checklist(index)
+        if change:
+            ppcurses.memstore['card'].update(cascade=False, reset_position=True, refetch=True)
     return state
 
 
