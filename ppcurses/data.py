@@ -76,7 +76,8 @@ def planlets(kwargs, refetch=False):
 
 
 def columns(kwargs, refetch=False):
-    columns = Board(kwargs['board_id'], refetch=refetch).progresses
+    ppcurses.memstore['board'] = Board(kwargs['board_id'], refetch=refetch)
+    columns = ppcurses.memstore['board'].progresses
     return [{
         'id': each['id'],
         'name': each['name'],

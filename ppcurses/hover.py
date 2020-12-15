@@ -40,6 +40,10 @@ def select_project_board():
                 ppcurses.dbstore.set_forever('project_name', projects.current_item['name'])
                 ppcurses.dbstore.set_forever('board_id', boards.current_item['id'])
                 ppcurses.dbstore.set_forever('board_name', boards.current_item['name'])
+                projects.window.clear()
+                boards.window.clear()
+                projects.window.refresh()
+                boards.window.refresh()
                 break
         try:
             state = ppcurses.keymap.do(state, key, allowed_keys=[
@@ -52,13 +56,48 @@ def select_project_board():
         except ppcurses.errors.GracefulExit:
             # Remove any characters printed by these windows in the gaps
             # between existing windows
-            projects.window.window.clear()
-            boards.window.window.clear()
-            projects.window.window.refresh()
-            boards.window.window.refresh()
+            projects.window.clear()
+            boards.window.clear()
+            projects.window.refresh()
+            boards.window.refresh()
             if ppcurses.dbstore['project_id'] is None or ppcurses.dbstore['board_id'] is None:
                 exit()
             else:
                 break
     win.clear()
     win.refresh()
+
+
+def select_one(name, updater):
+    state = ppcurses.state.State('%ss' % name, updater)
+    state.attach_window(
+        ppcurses.windows.SimpleList(2*(curses.LINES - 1)//4, (curses.COLS-1)//2, (curses.LINES - 1)//4, (curses.COLS-1)//4)
+        )
+
+    state.activate()
+    state.update()
+
+    selection = None
+    while True:
+        key = ppcurses.memstore['statuswin'].getch()
+        if key == curses.ascii.NL:
+            if state.current_item['id'] is not None:
+                selection = state.current_item['id']
+                state.window.clear()
+                state.window.refresh()
+                break
+        try:
+            state = ppcurses.keymap.do(state, key, allowed_keys=[
+                'h', chr(curses.KEY_LEFT),
+                'j', chr(curses.KEY_DOWN),
+                'k', chr(curses.KEY_UP),
+                'l', chr(curses.KEY_RIGHT),
+                'q'])
+        except ppcurses.errors.GracefulExit:
+            # Remove any characters printed by these windows in the gaps
+            # between existing windows
+            state.window.clear()
+            state.window.refresh()
+            break
+    ppcurses.memstore['header'].update()
+    return selection

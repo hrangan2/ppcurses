@@ -16,6 +16,12 @@ class Window:
         self.maxy, self.maxx = self.window.getmaxyx()
         self.window.keypad(True)
 
+    def clear(self):
+        self.window.clear()
+
+    def refresh(self):
+        self.window.refresh()
+
 
 class ProjectBoard(Window):
     def draw(self):

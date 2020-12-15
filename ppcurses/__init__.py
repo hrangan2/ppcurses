@@ -68,6 +68,17 @@ def delete(endpoint):
         return False
 
 
+def put(endpoint, data):
+    logger.info('Calling endpoint PUT %s', endpoint)
+    url = 'https://' + domain + endpoint
+    r = requests.put(url, data=data, headers={'Authorization': 'Bearer ' + token})
+    if r.ok:
+        return True
+    else:
+        logger.warning("Failed updating %s, [%s]", (endpoint, r.status_code))
+        return False
+
+
 def epoch_to_datetime(epoch_ts):
     from_zone = tz.tzutc()
     to_zone = tz.tzlocal()

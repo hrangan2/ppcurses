@@ -1,5 +1,6 @@
 import logging
 import ppcurses
+import ppcurses.hover
 import textwrap
 
 logger = logging.getLogger(__name__)
@@ -170,7 +171,6 @@ class Pager:
         self.window.state = self
 
     def update(self, cascade=True, reset_position=False, refetch=False):
-        self.index = 0
         prev_args = self.pstate.current_item
         if prev_args['id'] is None:
             self.data = self.zerostate
@@ -319,7 +319,11 @@ class SingleCard(Pager):
     def change_label(self):
         if self.data.id is None:
             return False
-        logger.warning('pending: changing label')
+        response = ppcurses.hover.select_one('label', lambda **kwargs:  ppcurses.memstore['board'].labels)
+        if response is not None:
+            endpoint = f"/api/v1/cards/{self.data.id}"
+            data = {'label_id': response}
+            return ppcurses.put(endpoint, data)
 
     def change_assignee(self):
         if self.data.id is None:
