@@ -322,7 +322,7 @@ class SingleCard(Pager):
         planlet_id = ppcurses.memstore['planletstate'].current_item['id']
         if planlet_id == -1:
             planlet_id = None
-        response = ppcurses.hover.select_one('column', lambda **kwargs: columns)
+        response = ppcurses.hover.select_one('columns', lambda **kwargs: columns)
         if response is not None:
             logger.info('Moving card to %s', response)
             endpoint = f"/api/v1/boards/{board_id}/move-cards"
@@ -357,7 +357,7 @@ class SingleCard(Pager):
         points = [0, 0.5, 1, 2, 3, 5, 8, 13, 20, 40, 100]
         data = [{'id': str(x), 'name': str(x)} for x in points]
         data.insert(0, {'id': 'remove', 'name': 'Remove points'})
-        response = ppcurses.hover.select_one('point', lambda **kwargs: data)
+        response = ppcurses.hover.select_one('points', lambda **kwargs: data)
         if response is not None:
             endpoint = f"/api/v1/cards/{self.data.id}"
             data = {'estimate': response['id']}
@@ -366,7 +366,7 @@ class SingleCard(Pager):
     def change_label(self):
         if self.data.id is None:
             return False
-        response = ppcurses.hover.select_one('label', lambda **kwargs:  ppcurses.memstore['board'].labels)
+        response = ppcurses.hover.select_one('labels', lambda **kwargs:  ppcurses.memstore['board'].labels)
         if response is not None:
             endpoint = f"/api/v1/cards/{self.data.id}"
             data = {'label_id': response['id']}
@@ -389,7 +389,7 @@ class SingleCard(Pager):
             return False
         board_members = self.get_board_members()
         board_members.insert(0, {'id': 'remove', 'name': 'Remove assignee'})
-        response = ppcurses.hover.select_one('assignee', lambda **kwargs: board_members)
+        response = ppcurses.hover.select_one('assignees', lambda **kwargs: board_members)
         if response is not None:
             endpoint = f"/api/v1/cards/{self.data.id}"
             data = {'assignee_id': response['id']}
@@ -400,7 +400,7 @@ class SingleCard(Pager):
             return False
         board_members = self.get_board_members()
         board_members.insert(0, {'id': 'remove', 'name': 'Remove co-assignee'})
-        response = ppcurses.hover.select_one('co-assignee', lambda **kwargs: board_members)
+        response = ppcurses.hover.select_one('co-assignees', lambda **kwargs: board_members)
         contributor_ids = [each['id'] for each in self.data.contributors]
         if (response is not None) and (response['id'] not in contributor_ids):
             endpoint = f"/api/v1/cards/{self.data.id}"

@@ -69,7 +69,7 @@ def select_project_board():
 
 
 def select_one(name, updater):
-    state = ppcurses.state.State('%ss' % name, updater)
+    state = ppcurses.state.State('%s' % name, updater)
     state.attach_window(
         ppcurses.windows.SimpleList(2*(curses.LINES - 1)//4, (curses.COLS-1)//2, (curses.LINES - 1)//4, (curses.COLS-1)//4)
         )
