@@ -271,6 +271,7 @@ def refresh(state):
 @key('R')
 def refresh_all(state):
     """ Refresh all windows """
+    ppcurses.dbstore.clear_transient()
     ppcurses.memstore['headerstate'].update(refetch=True)
     return state
 

@@ -136,6 +136,11 @@ class KeyValueDB:
                 """)
         age_7days = int(time.time()) - 7*24*60*60
         cursor.execute("DELETE FROM keyval WHERE timestamp < ?", (age_7days, ))
+        self.reload()
+
+    def reload(self):
+        self.__class__._cache = {}
+        cursor = self.conn.cursor()
         r = cursor.execute("SELECT key, value FROM keyval""")
         for row in r.fetchall():
             self.__class__._cache[row[0]] = pickle.loads(row[1])
@@ -151,6 +156,14 @@ class KeyValueDB:
                 """, (key, pickle.dumps(value)))
         self.__class__._cache[key] = value
         self.conn.commit()
+
+    def clear_transient(self):
+        cursor = self.conn.cursor()
+        cursor.execute("""
+            DELETE FROM keyval WHERE timestamp IS NOT NULL
+        """)
+        self.conn.commit()
+        self.reload()
 
     def __setitem__(self, key, value):
         cursor = self.conn.cursor()
