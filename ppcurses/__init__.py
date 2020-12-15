@@ -71,11 +71,11 @@ def delete(endpoint):
 def put(endpoint, data):
     logger.info('Calling endpoint PUT %s', endpoint)
     url = 'https://' + domain + endpoint
-    r = requests.put(url, data=data, headers={'Authorization': 'Bearer ' + token})
+    r = requests.put(url, json=data, headers={'Authorization': 'Bearer ' + token})
     if r.ok:
         return True
     else:
-        logger.warning("Failed updating %s, [%s]", (endpoint, r.status_code))
+        logger.error("Failed updating %s, [%s]", (endpoint, r.status_code))
         return False
 
 

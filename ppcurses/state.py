@@ -242,8 +242,9 @@ class SingleCard(Pager):
                 contents.extend(textwrap.wrap(line, width=self.window.maxx-3))
             contents.append(' ')
         contents.append('Assignee: %s' % str(self.data.assignee['name'] if self.data.assignee else None))
-        contributors = ','.join([each['name'] for each in self.data.contributors]) or str(None)
-        contents.append('Co-Assignees: %s' % contributors)
+
+        contributors = 'Co-Assignees: ' + ', '.join([each['name'] + '(%s)' % n for n, each in enumerate(self.data.contributors)]) or str(None)
+        contents.extend(textwrap.wrap(contributors, width=self.window.maxx-3))
         contents.append(' ')
         if self.data.label:
             contents.append('Label: %s' % str(self.data.label['name'] if self.data.label else None))
@@ -293,11 +294,11 @@ class SingleCard(Pager):
             return False
         logger.warning('pending: convert checklist to card')
 
-    def move_to_column(self, index):
+    def move_to_column(self):
         if self.data.id is None:
             return False
 
-    def move_to_planlet(self, index):
+    def move_to_planlet(self):
         if self.data.id is None:
             return False
 
@@ -314,8 +315,9 @@ class SingleCard(Pager):
     def change_points(self):
         if self.data.id is None:
             return False
-        points = ['remove', 0, 0.5, 1, 2, 3, 5, 8, 13, 20, 40, 100]
-        data = [{'id': x, 'name': str(x)} for x in points]
+        points = [0, 0.5, 1, 2, 3, 5, 8, 13, 20, 40, 100]
+        data = [{'id': str(x), 'name': str(x)} for x in points]
+        data.insert(0, {'id': 'remove', 'name': 'Remove points'})
         response = ppcurses.hover.select_one('point', lambda **kwargs: data)
         if response is not None:
             endpoint = f"/api/v1/cards/{self.data.id}"
@@ -343,16 +345,30 @@ class SingleCard(Pager):
         allowed_members = [{'id': member['id'],
                             'name': member['name']
                             } for member in ppcurses.get(endpoint, refetch=True) if member['id'] in allowed]
+        allowed_members.insert(0, {'id': 'remove', 'name': 'Remove assignee'})
         response = ppcurses.hover.select_one('assignee', lambda **kwargs: allowed_members)
         if response is not None:
             endpoint = f"/api/v1/cards/{self.data.id}"
             data = {'assignee_id': response['id']}
             return ppcurses.put(endpoint, data)
 
-    def change_co_assignee(self):
+    def add_co_assignee(self):
         if self.data.id is None:
             return False
         logger.warning('pending: changing co-assignee')
+
+    def remove_co_assignee(self, index):
+        if self.data.id is None:
+            return False
+        try:
+            co_assignee = self.data.contributors[index]
+        except IndexError:
+            return False
+
+        contributor_ids = [each['id'] for each in self.data.contributors if each['id'] != co_assignee['id']]
+        endpoint = f"/api/v1/cards/{self.data.id}"
+        data = {"contributor_ids": contributor_ids}
+        return ppcurses.put(endpoint, data)
 
 
 class Comments(Pager):

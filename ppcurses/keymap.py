@@ -39,7 +39,7 @@ def key(k):
     return inner
 
 
-@key('ac')
+@key('wc')
 def write_comment(state):
     # TODO
     change = ppcurses.memstore['comments'].add()
@@ -103,7 +103,7 @@ def change_label(state):
     return state
 
 
-@key('ca')
+@key('co')
 def change_assignee(state):
     change = ppcurses.memstore['card'].change_assignee()
     if change:
@@ -111,12 +111,21 @@ def change_assignee(state):
     return state
 
 
-@key('cc')
-def change_co_assignee(state):
-    # TODO
-    change = ppcurses.memstore['card'].change_co_assignee()
+@key('aa')
+def add_co_assignee(state):
+    change = ppcurses.memstore['card'].add_co_assignee()
     if change:
         ppcurses.memstore['card'].update(cascade=False, reset_position=False, refetch=True)
+    return state
+
+
+@key('xa')
+def remove_co_assignee(state):
+    k = ppcurses.memstore['statuswin'].getch()
+    if chr(k).isdigit():
+        change = ppcurses.memstore['card'].remove_co_assignee(int(chr(k)))
+        if change:
+            ppcurses.memstore['card'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
@@ -161,7 +170,7 @@ def edit_checklist(state):
     return state
 
 
-@key('al')
+@key('wl')
 def add_checklist(state):
     logger.error('Pending command - %s' % inspect.stack()[0][3])
     return state
