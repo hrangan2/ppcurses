@@ -333,20 +333,24 @@ class SingleCard(Pager):
             data = {'label_id': response['id']}
             return ppcurses.put(endpoint, data)
 
-    def change_assignee(self):
-        if self.data.id is None:
-            return False
+    def get_board_members(self):
         board_id = ppcurses.memstore['board'].id
         project_id = ppcurses.dbstore['project_id']
         endpoint = f"/api/v2/boards/{board_id}/people-with-access"
         allowed = ppcurses.get(endpoint, refetch=True)['access']
 
         endpoint = f"/api/v1/projects/{project_id}/members?member_params=include_last_active,include_pending,organisation,description,in_team"
-        allowed_members = [{'id': member['id'],
-                            'name': member['name']
-                            } for member in ppcurses.get(endpoint, refetch=True) if member['id'] in allowed]
-        allowed_members.insert(0, {'id': 'remove', 'name': 'Remove assignee'})
-        response = ppcurses.hover.select_one('assignee', lambda **kwargs: allowed_members)
+        board_members = [{'id': member['id'],
+                          'name': member['name']
+                          } for member in ppcurses.get(endpoint, refetch=True) if member['id'] in allowed]
+        return board_members
+
+    def change_assignee(self):
+        if self.data.id is None:
+            return False
+        board_members = self.get_board_members()
+        board_members.insert(0, {'id': 'remove', 'name': 'Remove assignee'})
+        response = ppcurses.hover.select_one('assignee', lambda **kwargs: board_members)
         if response is not None:
             endpoint = f"/api/v1/cards/{self.data.id}"
             data = {'assignee_id': response['id']}
@@ -355,7 +359,15 @@ class SingleCard(Pager):
     def add_co_assignee(self):
         if self.data.id is None:
             return False
-        logger.warning('pending: changing co-assignee')
+        board_members = self.get_board_members()
+        board_members.insert(0, {'id': 'remove', 'name': 'Remove co-assignee'})
+        response = ppcurses.hover.select_one('co-assignee', lambda **kwargs: board_members)
+        contributor_ids = [each['id'] for each in self.data.contributors]
+        if (response is not None) and (response['id'] not in contributor_ids):
+            endpoint = f"/api/v1/cards/{self.data.id}"
+            contributor_ids.append(response['id'])
+            data = {'contributor_ids': contributor_ids}
+            return ppcurses.put(endpoint, data)
 
     def remove_co_assignee(self, index):
         if self.data.id is None:
