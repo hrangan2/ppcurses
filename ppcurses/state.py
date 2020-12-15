@@ -314,7 +314,13 @@ class SingleCard(Pager):
     def change_points(self):
         if self.data.id is None:
             return False
-        logger.warning('pending: changing points')
+        points = ['remove', 0, 0.5, 1, 2, 3, 5, 8, 13, 20, 40, 100]
+        data = [{'id': x, 'name': str(x)} for x in points]
+        response = ppcurses.hover.select_one('point', lambda **kwargs: data)
+        if response is not None:
+            endpoint = f"/api/v1/cards/{self.data.id}"
+            data = {'estimate': response['id']}
+            return ppcurses.put(endpoint, data)
 
     def change_label(self):
         if self.data.id is None:

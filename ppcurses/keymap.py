@@ -89,7 +89,6 @@ def change_description(state):
 
 @key('cp')
 def change_points(state):
-    # TODO
     change = ppcurses.memstore['card'].change_points()
     if change:
         ppcurses.memstore['card'].update(cascade=False, reset_position=False, refetch=True)
