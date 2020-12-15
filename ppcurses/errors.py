@@ -12,3 +12,7 @@ class GracefulExit(PPCursesError):
 
 class DuplicateKeyDefined(PPCursesError):
     pass
+
+
+class RootKeyExists(PPCursesError):
+    pass

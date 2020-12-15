@@ -1,4 +1,5 @@
 import curses
+import inspect
 import ppcurses.errors
 import ppcurses.start
 import ppcurses.state
@@ -14,14 +15,114 @@ REGISTERED = {}
 
 def key(k):
     def inner(func):
-        if k in REGISTERED:
-            raise ppcurses.errors.DuplicateKeyDefined(k, func.__name__)
-        REGISTERED[ord(k)] = func
+        if len(k) == 1:
+            if k in REGISTERED:
+                raise ppcurses.errors.DuplicateKeyDefined(k, func.__name__)
+            REGISTERED[ord(k)] = func
+        else:
+            partial = REGISTERED
+            for n, char in enumerate(k):
+                if n == (len(k) - 1):
+                    if callable(partial):
+                        raise ppcurses.errors.RootKeyExists(k, func.__name__)
+                    if ord(char) in partial:
+                        raise ppcurses.errors.DuplicateKeyDefined(k, func.__name__)
+                    partial[ord(char)] = func
+                else:
+                    if ord(char) not in partial:
+                        partial[ord(char)] = {}
+                    partial = partial[ord(char)]
 
         def inner2(state):
             return func(state)
         return inner2
     return inner
+
+
+@key('ac')
+def write_comment(state):
+    logger.error('Pending command - %s' % inspect.stack()[0][3])
+    return state
+
+
+@key('xc')
+def delete_comment(state):
+    logger.error('Pending command - %s' % inspect.stack()[0][3])
+    # k = ppcurses.memstore['statuswin'].getch()
+    # logger.error(chr(k))
+    return state
+
+
+@key('ec')
+def edit_comment(state):
+    logger.error('Pending command - %s' % inspect.stack()[0][3])
+    return state
+
+
+@key('ct')
+def change_title(state):
+    logger.error('Pending command - %s' % inspect.stack()[0][3])
+    return state
+
+
+@key('cd')
+def change_description(state):
+    logger.error('Pending command - %s' % inspect.stack()[0][3])
+    return state
+
+
+@key('cp')
+def change_points(state):
+    logger.error('Pending command - %s' % inspect.stack()[0][3])
+    return state
+
+
+@key('cl')
+def change_label(state):
+    logger.error('Pending command - %s' % inspect.stack()[0][3])
+    return state
+
+
+@key('ca')
+def change_assignee(state):
+    logger.error('Pending command - %s' % inspect.stack()[0][3])
+    return state
+
+
+@key('cc')
+def change_co_assignee(state):
+    logger.error('Pending command - %s' % inspect.stack()[0][3])
+    return state
+
+
+@key('tl')
+def toggle_checklist(state):
+    logger.error('Pending command - %s' % inspect.stack()[0][3])
+    return state
+
+
+@key('el')
+def edit_checklist(state):
+    logger.error('Pending command - %s' % inspect.stack()[0][3])
+    return state
+
+
+@key('al')
+def add_checklist(state):
+    logger.error('Pending command - %s' % inspect.stack()[0][3])
+    return state
+
+
+@key('xl')
+def delete_checklist(state):
+    logger.error('Pending command - %s' % inspect.stack()[0][3])
+    return state
+
+
+@key('vl')
+def checklist_to_card(state):
+    logger.error('Pending command - %s' % inspect.stack()[0][3])
+    return state
 
 
 @key(chr(curses.KEY_RESIZE))
@@ -30,7 +131,7 @@ def resize_term(state):
     return state
 
 
-@key('c')
+@key('s')
 def change_project_board(state):
     ppcurses.start.select_project_board()
     ppcurses.memstore['header'].update(reset_position=True)
@@ -102,12 +203,20 @@ def yank_card_url(state):
     return state
 
 
-def do(state, key, allowed_keys=['*']):
+def do(state, key, allowed_keys=['*'], keymap=REGISTERED):
     if ('*' not in allowed_keys) and (key not in [ord(c) for c in allowed_keys]):
+        ppcurses.memstore['statuswin'].unset()
         logger.info('Skipping blocked key - %s', repr(key))
         return state
-    if key not in REGISTERED:
+    if key not in keymap:
+        ppcurses.memstore['statuswin'].unset()
         logger.warning('Unregistered key press detected - %s', repr(key))
     else:
-        state = REGISTERED[key](state)
+        if callable(keymap[key]):
+            state = keymap[key](state)
+            ppcurses.memstore['statuswin'].unset()
+        else:
+            ppcurses.memstore['statuswin'].set(chr(key))
+            k = ppcurses.memstore['statuswin'].getch()
+            state = do(state, k, keymap=keymap[key])
     return state

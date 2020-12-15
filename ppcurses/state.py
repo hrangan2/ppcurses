@@ -270,7 +270,7 @@ class Comments(Pager):
             if comment.id is None:
                 contents.append(comment.text)
                 continue
-            contents.append(ppcurses.epoch_to_datetime(comment.created_at))
+            contents.append(str(n+1) + '. ' + ppcurses.epoch_to_datetime(comment.created_at))
             contents.append('By: %s' % comment.created_by['name'])
             if comment.attachments:
                 contents.append('Attachments: %s' % comment.attachments)

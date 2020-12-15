@@ -76,12 +76,16 @@ class Pageable(Window):
 
 
 class Status(Window):
+    text = ''
+
     def set(self, text):
         self.window.clear()
-        self.window.addstr(0, 0, textwrap.shorten(text, width=self.maxx-1, placeholder='#'))
+        self.__class__.text += text
+        self.window.addstr(0, 0, textwrap.shorten(self.__class__.text, width=self.maxx-1, placeholder='#'))
         self.window.refresh()
 
     def unset(self):
+        self.__class__.text = ''
         self.window.clear()
         self.window.refresh()
 
