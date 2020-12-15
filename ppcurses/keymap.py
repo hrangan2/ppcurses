@@ -48,7 +48,6 @@ def key(k2):
 @key('ac')
 def write_comment(state):
     """ Add a new comment """
-    # TODO
     change = ppcurses.memstore['commentsstate'].add()
     if change:
         ppcurses.memstore['commentsstate'].update(cascade=False, reset_position=False, refetch=True)
@@ -68,7 +67,6 @@ def delete_comment(state):
 @key('ec <n>')
 def edit_comment(state):
     """ Edit a comment """
-    # TODO
     k = ppcurses.memstore['statuswin'].getch()
     change = ppcurses.memstore['commentsstate'].edit(chr(k))
     if change:
@@ -212,6 +210,14 @@ def checklist_to_card(state):
 @key('xx')
 def delete_card(state):
     change = ppcurses.memstore['carddetailstate'].delete_card()
+    if change:
+        ppcurses.memstore['cardliststate'].update(cascade=True, reset_position=False, refetch=True)
+    return state
+
+
+@key('cc')
+def create_card(state):
+    change = ppcurses.memstore['carddetailstate'].create_card()
     if change:
         ppcurses.memstore['cardliststate'].update(cascade=True, reset_position=False, refetch=True)
     return state

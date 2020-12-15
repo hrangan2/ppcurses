@@ -467,6 +467,22 @@ class SingleCard(Pager):
         endpoint = f"/api/v1/cards/{self.data.id}"
         return ppcurses.delete(endpoint)
 
+    def create_card(self):
+        endpoint = "/api/v1/projects/148/cards/create-new"
+        board_id = ppcurses.memstore['board'].id
+        planlet_id = ppcurses.memstore['planletstate'].current_item['id']
+        column_id = ppcurses.memstore['columnstate'].current_item['id']
+        if (board_id is None) or (planlet_id is None) or (column_id is None):
+            return False
+        card_name = ppcurses.hover.textbox('card name')
+        if card_name is None:
+            return False
+        data = {"column_id": column_id,
+                "board_id": board_id,
+                "planlet_id": planlet_id,
+                "title": card_name}
+        return ppcurses.post(endpoint, data)
+
 
 class Comments(Pager):
     zerostate = [Zero('No comments to show')]

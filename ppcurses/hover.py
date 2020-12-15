@@ -43,10 +43,6 @@ def select_project_board():
                 ppcurses.dbstore.set_forever('project_name', projects.current_item['name'])
                 ppcurses.dbstore.set_forever('board_id', boards.current_item['id'])
                 ppcurses.dbstore.set_forever('board_name', boards.current_item['name'])
-                projects.window.clear()
-                boards.window.clear()
-                projects.window.refresh()
-                boards.window.refresh()
                 break
         try:
             state = ppcurses.keymap.do(state, key, allowed_keys=[
@@ -59,14 +55,14 @@ def select_project_board():
         except ppcurses.errors.GracefulExit:
             # Remove any characters printed by these windows in the gaps
             # between existing windows
-            projects.window.clear()
-            boards.window.clear()
-            projects.window.refresh()
-            boards.window.refresh()
             if ppcurses.dbstore['project_id'] is None or ppcurses.dbstore['board_id'] is None:
                 exit()
             else:
                 break
+    projects.window.clear()
+    boards.window.clear()
+    projects.window.refresh()
+    boards.window.refresh()
     win.clear()
     win.refresh()
 
@@ -139,6 +135,8 @@ def textbox(name, text=''):
         elif chr(key) in string.printable+' ':
             text += chr(key)
             draw_text(window, text)
+    window.clear()
+    window.refresh()
     ppcurses.memstore['headerstate'].update()
     curses.curs_set(0)
     return text
