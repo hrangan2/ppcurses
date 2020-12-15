@@ -312,13 +312,18 @@ class SingleCard(Pager):
             checklist = self.data.checklist[index]
         except IndexError:
             return False
-        logger.warning('pending: editing checklist')
+        endpoint = f"/api/v1/cards/{self.data.id}/checklist/{checklist['id']}/"
+        text = ppcurses.hover.textbox('edit checklist item', checklist['title'])
+        if text is None:
+            return
+        data = {'title': text, 'done': checklist['done']}
+        return ppcurses.put(endpoint, data)
 
     def add_checklist(self):
         if self.data.id is None:
             return False
         endpoint = f"/api/v1/cards/{self.data.id}/checklist"
-        checklist = ppcurses.hover.textbox('add checklist')
+        checklist = ppcurses.hover.textbox('add checklist item')
         if checklist is None:
             return
         data = {'title': checklist}

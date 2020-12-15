@@ -124,7 +124,7 @@ def epoch_to_datetime(epoch_ts):
 
 def link(*states):
     """ You need to pass a list of states to this function before they can work """
-    logger.info('linking %s states', len(states))
+    logger.info('linking states %s', repr(states))
     for n, each in enumerate(states):
         if n:
             each.pstate = states[n-1]
