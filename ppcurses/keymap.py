@@ -77,7 +77,6 @@ def edit_comment(state):
 @key('ct')
 def change_title(state):
     """ Change the title of the card """
-    # TODO
     change = ppcurses.memstore['carddetailstate'].change_title()
     if change:
         ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
@@ -87,7 +86,6 @@ def change_title(state):
 @key('cd')
 def change_description(state):
     """ Change the description of the card """
-    # TODO
     change = ppcurses.memstore['carddetailstate'].change_description()
     if change:
         ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)

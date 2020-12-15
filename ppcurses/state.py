@@ -392,12 +392,22 @@ class SingleCard(Pager):
     def change_title(self):
         if self.data.id is None:
             return False
-        logger.warning('pending: changing title')
+        title = ppcurses.hover.textbox('change title', self.data.title)
+        if title is None:
+            return
+        endpoint = f"/api/v1/cards/{self.data.id}"
+        data = {'title': title}
+        return ppcurses.put(endpoint, data)
 
     def change_description(self):
         if self.data.id is None:
             return False
-        logger.warning('pending: changing description')
+        description = ppcurses.hover.textbox('change description', self.data.description)
+        if description is None:
+            return
+        endpoint = f"/api/v1/cards/{self.data.id}"
+        data = {'description': description}
+        return ppcurses.put(endpoint, data)
 
     def change_points(self):
         if self.data.id is None:
