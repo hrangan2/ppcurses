@@ -56,8 +56,6 @@ def boards(kwargs, refetch=False):
 
 def planlets(kwargs, refetch=False):
     endpoint = f"/api/v1/boards/{kwargs['board_id']}/planlets"
-    ppcurses.memstore['planlets'] = ppcurses.get(endpoint, refetch=refetch)[str(kwargs['board_id'])]
-
     data = [{
         'id': each['id'],
         'name': each['name'],
@@ -79,7 +77,6 @@ def planlets(kwargs, refetch=False):
 
 def columns(kwargs, refetch=False):
     columns = Board(kwargs['board_id'], refetch=refetch).progresses
-    ppcurses.memstore['columns'] = columns
     return [{
         'id': each['id'],
         'name': each['name'],
