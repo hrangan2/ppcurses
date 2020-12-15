@@ -309,6 +309,25 @@ class SingleCard(Pager):
     def move_to_column(self):
         if self.data.id is None:
             return False
+        columns = ppcurses.memstore['board'].progresses
+        board_id = ppcurses.memstore['board'].id
+        planlet_id = ppcurses.memstore['planletstate'].current_item['id']
+        if planlet_id == -1:
+            planlet_id = None
+        response = ppcurses.hover.select_one('column', lambda **kwargs: columns)
+        if response is not None:
+            logger.info('Moving card to %s', response)
+            endpoint = f"/api/v1/boards/{board_id}/move-cards"
+            data = {
+                    "card_ids": [self.data.id],
+                    "column_id": response['id'],
+                    "after_card": None,
+                    "swimlane": {
+                        "type": "planlet_id",
+                        "value": planlet_id
+                        }
+                    }
+            return ppcurses.post(endpoint, data)
 
     def move_to_planlet(self):
         if self.data.id is None:
@@ -430,7 +449,7 @@ class Comments(Pager):
             logger.warning('Trying to modify a card that you did not create')
             return False
 
-        card_id = ppcurses.memstore['card'].id
+        card_id = ppcurses.memstore['carddetailstate'].data.id
         endpoint = f"/api/v3/conversations/comment/{comment.id}?item_id={card_id}&item_name=card"
         return ppcurses.delete(endpoint)
 
@@ -444,6 +463,6 @@ class Comments(Pager):
         logger.warning('pending: editing comment %s', index)
 
     def add(self):
-        if ppcurses.memstore['card'].data.id is None:
+        if ppcurses.memstore['carddetailstate'].data.id is None:
             return
         logger.warning('pending: adding a comment')

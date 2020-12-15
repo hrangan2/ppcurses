@@ -99,5 +99,5 @@ def select_one(name, updater):
             state.window.clear()
             state.window.refresh()
             break
-    ppcurses.memstore['header'].update()
+    ppcurses.memstore['headerstate'].update()
     return selection

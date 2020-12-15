@@ -42,9 +42,9 @@ def key(k):
 @key('wc')
 def write_comment(state):
     # TODO
-    change = ppcurses.memstore['comments'].add()
+    change = ppcurses.memstore['commentsstate'].add()
     if change:
-        ppcurses.memstore['comments'].update(cascade=False, reset_position=False, refetch=True)
+        ppcurses.memstore['commentsstate'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
@@ -52,9 +52,9 @@ def write_comment(state):
 def delete_comment(state):
     k = ppcurses.memstore['statuswin'].getch()
     if chr(k).isdigit():
-        change = ppcurses.memstore['comments'].delete(int(chr(k)))
+        change = ppcurses.memstore['commentsstate'].delete(int(chr(k)))
         if change:
-            ppcurses.memstore['comments'].update(cascade=False, reset_position=False, refetch=True)
+            ppcurses.memstore['commentsstate'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
@@ -63,59 +63,59 @@ def edit_comment(state):
     # TODO
     k = ppcurses.memstore['statuswin'].getch()
     if chr(k).isdigit():
-        change = ppcurses.memstore['comments'].edit(int(chr(k)))
+        change = ppcurses.memstore['commentsstate'].edit(int(chr(k)))
         if change:
-            ppcurses.memstore['comments'].update(cascade=False, reset_position=False, refetch=True)
+            ppcurses.memstore['commentsstate'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
 @key('ct')
 def change_title(state):
     # TODO
-    change = ppcurses.memstore['card'].change_title()
+    change = ppcurses.memstore['carddetailstate'].change_title()
     if change:
-        ppcurses.memstore['card'].update(cascade=False, reset_position=False, refetch=True)
+        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
 @key('cd')
 def change_description(state):
     # TODO
-    change = ppcurses.memstore['card'].change_description()
+    change = ppcurses.memstore['carddetailstate'].change_description()
     if change:
-        ppcurses.memstore['card'].update(cascade=False, reset_position=False, refetch=True)
+        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
 @key('cp')
 def change_points(state):
-    change = ppcurses.memstore['card'].change_points()
+    change = ppcurses.memstore['carddetailstate'].change_points()
     if change:
-        ppcurses.memstore['card'].update(cascade=False, reset_position=False, refetch=True)
+        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
 @key('cl')
 def change_label(state):
-    change = ppcurses.memstore['card'].change_label()
+    change = ppcurses.memstore['carddetailstate'].change_label()
     if change:
-        ppcurses.memstore['card'].update(cascade=False, reset_position=False, refetch=True)
+        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
 @key('co')
 def change_assignee(state):
-    change = ppcurses.memstore['card'].change_assignee()
+    change = ppcurses.memstore['carddetailstate'].change_assignee()
     if change:
-        ppcurses.memstore['card'].update(cascade=False, reset_position=False, refetch=True)
+        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
 @key('aa')
 def add_co_assignee(state):
-    change = ppcurses.memstore['card'].add_co_assignee()
+    change = ppcurses.memstore['carddetailstate'].add_co_assignee()
     if change:
-        ppcurses.memstore['card'].update(cascade=False, reset_position=False, refetch=True)
+        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
@@ -123,27 +123,26 @@ def add_co_assignee(state):
 def remove_co_assignee(state):
     k = ppcurses.memstore['statuswin'].getch()
     if chr(k).isdigit():
-        change = ppcurses.memstore['card'].remove_co_assignee(int(chr(k)))
+        change = ppcurses.memstore['carddetailstate'].remove_co_assignee(int(chr(k)))
         if change:
-            ppcurses.memstore['card'].update(cascade=False, reset_position=False, refetch=True)
+            ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
 @key('mc')
-def move_column(state):
-    # TODO
-    change = ppcurses.memstore['card'].move_to_column()
+def move_to_column(state):
+    change = ppcurses.memstore['carddetailstate'].move_to_column()
     if change:
-        ppcurses.memstore['card'].update(cascade=False, reset_position=False, refetch=True)
+        ppcurses.memstore['columnstate'].update(cascade=True, reset_position=False, refetch=True)
     return state
 
 
-@key('ma')
-def move_planlet(state):
+@key('mp')
+def move_to_planlet(state):
     # TODO
-    change = ppcurses.memstore['card'].move_to_planlet()
+    change = ppcurses.memstore['carddetailstate'].move_to_planlet()
     if change:
-        ppcurses.memstore['card'].update(cascade=False, reset_position=False, refetch=True)
+        ppcurses.memstore['headerstate'].update(cascade=True, reset_position=True, refetch=True)
     return state
 
 
@@ -152,9 +151,9 @@ def toggle_checklist(state):
     k = ppcurses.memstore['statuswin'].getch()
     if chr(k).isdigit():
         index = int(chr(k))
-        change = ppcurses.memstore['card'].toggle_checklist(index)
+        change = ppcurses.memstore['carddetailstate'].toggle_checklist(index)
         if change:
-            ppcurses.memstore['card'].update(cascade=False, reset_position=False, refetch=True)
+            ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
@@ -164,9 +163,9 @@ def edit_checklist(state):
     k = ppcurses.memstore['statuswin'].getch()
     if chr(k).isdigit():
         index = int(chr(k))
-        change = ppcurses.memstore['card'].edit_checklist(index)
+        change = ppcurses.memstore['carddetailstate'].edit_checklist(index)
         if change:
-            ppcurses.memstore['card'].update(cascade=False, reset_position=False, refetch=True)
+            ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
@@ -182,9 +181,9 @@ def delete_checklist(state):
     k = ppcurses.memstore['statuswin'].getch()
     if chr(k).isdigit():
         index = int(chr(k))
-        change = ppcurses.memstore['card'].delete_checklist(index)
+        change = ppcurses.memstore['carddetailstate'].delete_checklist(index)
         if change:
-            ppcurses.memstore['card'].update(cascade=False, reset_position=False, refetch=True)
+            ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
@@ -194,9 +193,9 @@ def checklist_to_card(state):
     k = ppcurses.memstore['statuswin'].getch()
     if chr(k).isdigit():
         index = int(chr(k))
-        change = ppcurses.memstore['card'].checklist_to_card(index)
+        change = ppcurses.memstore['carddetailstate'].checklist_to_card(index)
         if change:
-            ppcurses.memstore['card'].update(cascade=False, reset_position=False, refetch=True)
+            ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
@@ -209,7 +208,7 @@ def resize_term(state):
 @key('s')
 def change_project_board(state):
     ppcurses.hover.select_project_board()
-    ppcurses.memstore['header'].update(reset_position=True)
+    ppcurses.memstore['headerstate'].update(reset_position=True)
     return state
 
 
@@ -224,7 +223,7 @@ def navleft(state):
     pstate = getattr(state, 'pstate', state)
     state.deactivate()
     state.window.draw()
-    if getattr(pstate, 'name') != 'header':
+    if getattr(pstate, 'name') != 'headerstate':
         state = pstate
     state.activate()
     state.window.draw()
@@ -264,7 +263,7 @@ def refresh(state):
 
 @key('R')
 def refresh_all(state):
-    ppcurses.memstore['header'].update(refetch=True)
+    ppcurses.memstore['headerstate'].update(refetch=True)
     return state
 
 

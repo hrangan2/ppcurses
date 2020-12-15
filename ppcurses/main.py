@@ -31,19 +31,21 @@ def interactable(stdscr):
     headerstate.attach_window(
         ppcurses.windows.ProjectBoard(2, curses.COLS-1, 0, 0),
         )
-    ppcurses.memstore['header'] = headerstate
+    ppcurses.memstore['headerstate'] = headerstate
 
     # Planlet List Configuration
     planletstate = ppcurses.state.State('planlet', ppcurses.data.planlets)
     planletstate.attach_window(
         ppcurses.windows.SimpleList((curses.LINES - 2)//3+1, (curses.COLS-1)//3, 1, 0)
         )
+    ppcurses.memstore['planletstate'] = planletstate
 
     # Column List Configuration
     columnstate = ppcurses.state.State('column', ppcurses.data.columns)
     columnstate.attach_window(
         ppcurses.windows.SimpleList((curses.LINES - 2)//3+1, (curses.COLS-1)//3, 1, (curses.COLS-1)//3)
         )
+    ppcurses.memstore['columnstate'] = columnstate
 
     # Card List Configuration
     cardstate = ppcurses.state.State('card', ppcurses.data.cards)
@@ -56,14 +58,14 @@ def interactable(stdscr):
     carddetails.attach_window(
         ppcurses.windows.Pageable(2*(curses.LINES - 2)//3, (curses.COLS-1)//2, (curses.LINES - 2)//3 + 2, 0)
         )
-    ppcurses.memstore['card'] = carddetails
+    ppcurses.memstore['carddetailstate'] = carddetails
 
     # Comment List Configuration
     comments = ppcurses.state.Comments('comments', ppcurses.data.comments)
     comments.attach_window(
         ppcurses.windows.Pageable(2*(curses.LINES - 2)//3, (curses.COLS-1)//2, (curses.LINES - 2)//3 + 2, (curses.COLS-1)//2)
         )
-    ppcurses.memstore['comments'] = comments
+    ppcurses.memstore['commentsstate'] = comments
 
     # Link the state objects together
     ppcurses.link(headerstate, planletstate, columnstate, cardstate, carddetails, comments)
