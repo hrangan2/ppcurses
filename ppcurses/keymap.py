@@ -1,7 +1,7 @@
 import curses
 import inspect
 import ppcurses.errors
-import ppcurses.start
+import ppcurses.hover
 import ppcurses.state
 import ppcurses
 import logging
@@ -200,7 +200,7 @@ def resize_term(state):
 
 @key('s')
 def change_project_board(state):
-    ppcurses.start.select_project_board()
+    ppcurses.hover.select_project_board()
     ppcurses.memstore['header'].update(reset_position=True)
     return state
 
