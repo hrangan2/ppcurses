@@ -270,6 +270,67 @@ class SingleCard(Pager):
         endpoint = f"/api/v1/cards/{self.data.id}/checklist/{checklist['id']}/"
         return ppcurses.delete(endpoint)
 
+    def edit_checklist(self, index):
+        if self.data.id is None:
+            return False
+        try:
+            checklist = self.data.checklist[index]
+        except IndexError:
+            return False
+        logger.warning('pending: editing checklist')
+
+    def add_checklist(self):
+        if self.data.id is None:
+            return False
+        logger.warning('pending: adding checklist')
+
+    def checklist_to_card(self, index):
+        if self.data.id is None:
+            return False
+        try:
+            checklist = self.data.checklist[index]
+        except IndexError:
+            return False
+        logger.warning('pending: convert checklist to card')
+
+    def move_to_column(self, index):
+        if self.data.id is None:
+            return False
+
+    def move_to_planlet(self, index):
+        if self.data.id is None:
+            return False
+
+    def change_title(self):
+        if self.data.id is None:
+            return False
+        logger.warning('pending: changing title')
+
+    def change_description(self):
+        if self.data.id is None:
+            return False
+        logger.warning('pending: changing description')
+
+    def change_points(self):
+        if self.data.id is None:
+            return False
+        logger.warning('pending: changing points')
+
+    def change_label(self):
+        if self.data.id is None:
+            return False
+        logger.warning('pending: changing label')
+
+    def change_assignee(self):
+        if self.data.id is None:
+            return False
+        logger.warning('pending: changing assignee')
+
+    def change_co_assignee(self):
+        if self.data.id is None:
+            return False
+        logger.warning('pending: changing co-assignee')
+
 
 class Comments(Pager):
     zerostate = [Zero('No comments to show')]
@@ -309,3 +370,17 @@ class Comments(Pager):
         card_id = ppcurses.memstore['card'].id
         endpoint = f"/api/v3/conversations/comment/{comment.id}?item_id={card_id}&item_name=card"
         return ppcurses.delete(endpoint)
+
+    def edit(self, index):
+        try:
+            comment = self.data[index]
+        except IndexError:
+            return False
+        if comment.id is None:
+            return False
+        logger.warning('pending: editing comment %s', index)
+
+    def add(self):
+        if ppcurses.memstore['card'].data.id is None:
+            return
+        logger.warning('pending: adding a comment')

@@ -41,7 +41,10 @@ def key(k):
 
 @key('ac')
 def write_comment(state):
-    logger.error('Pending command - %s' % inspect.stack()[0][3])
+    # TODO
+    change = ppcurses.memstore['comments'].add()
+    if change:
+        ppcurses.memstore['comments'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
@@ -51,61 +54,113 @@ def delete_comment(state):
     if chr(k).isdigit():
         change = ppcurses.memstore['comments'].delete(int(chr(k)))
         if change:
-            ppcurses.memstore['comments'].update(cascade=False, reset_position=True, refetch=True)
+            ppcurses.memstore['comments'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
 @key('ec')
 def edit_comment(state):
-    logger.error('Pending command - %s' % inspect.stack()[0][3])
+    # TODO
+    k = ppcurses.memstore['statuswin'].getch()
+    if chr(k).isdigit():
+        change = ppcurses.memstore['comments'].edit(int(chr(k)))
+        if change:
+            ppcurses.memstore['comments'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
 @key('ct')
 def change_title(state):
-    logger.error('Pending command - %s' % inspect.stack()[0][3])
+    # TODO
+    change = ppcurses.memstore['card'].change_title()
+    if change:
+        ppcurses.memstore['card'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
 @key('cd')
 def change_description(state):
-    logger.error('Pending command - %s' % inspect.stack()[0][3])
+    # TODO
+    change = ppcurses.memstore['card'].change_description()
+    if change:
+        ppcurses.memstore['card'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
 @key('cp')
 def change_points(state):
-    logger.error('Pending command - %s' % inspect.stack()[0][3])
+    # TODO
+    change = ppcurses.memstore['card'].change_points()
+    if change:
+        ppcurses.memstore['card'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
 @key('cl')
 def change_label(state):
-    logger.error('Pending command - %s' % inspect.stack()[0][3])
+    # TODO
+    change = ppcurses.memstore['card'].change_label()
+    if change:
+        ppcurses.memstore['card'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
 @key('ca')
 def change_assignee(state):
-    logger.error('Pending command - %s' % inspect.stack()[0][3])
+    # TODO
+    change = ppcurses.memstore['card'].change_assignee()
+    if change:
+        ppcurses.memstore['card'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
 @key('cc')
 def change_co_assignee(state):
-    logger.error('Pending command - %s' % inspect.stack()[0][3])
+    # TODO
+    change = ppcurses.memstore['card'].change_co_assignee()
+    if change:
+        ppcurses.memstore['card'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
 @key('tl')
 def toggle_checklist(state):
-    logger.error('Pending command - %s' % inspect.stack()[0][3])
+    # TODO
+    k = ppcurses.memstore['statuswin'].getch()
+    if chr(k).isdigit():
+        index = int(chr(k))
+        change = ppcurses.memstore['card'].toggle_checklist(index)
+        if change:
+            ppcurses.memstore['card'].update(cascade=False, reset_position=False, refetch=True)
+    return state
+
+
+@key('mc')
+def move_column(state):
+    # TODO
+    change = ppcurses.memstore['card'].move_to_column()
+    if change:
+        ppcurses.memstore['card'].update(cascade=False, reset_position=False, refetch=True)
+    return state
+
+
+@key('ma')
+def move_planlet(state):
+    # TODO
+    change = ppcurses.memstore['card'].move_to_planlet()
+    if change:
+        ppcurses.memstore['card'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
 @key('el')
 def edit_checklist(state):
-    logger.error('Pending command - %s' % inspect.stack()[0][3])
+    k = ppcurses.memstore['statuswin'].getch()
+    if chr(k).isdigit():
+        index = int(chr(k))
+        change = ppcurses.memstore['card'].edit_checklist(index)
+        if change:
+            ppcurses.memstore['card'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
@@ -122,13 +177,18 @@ def delete_checklist(state):
         index = int(chr(k))
         change = ppcurses.memstore['card'].delete_checklist(index)
         if change:
-            ppcurses.memstore['card'].update(cascade=False, reset_position=True, refetch=True)
+            ppcurses.memstore['card'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
 @key('vl')
 def checklist_to_card(state):
-    logger.error('Pending command - %s' % inspect.stack()[0][3])
+    k = ppcurses.memstore['statuswin'].getch()
+    if chr(k).isdigit():
+        index = int(chr(k))
+        change = ppcurses.memstore['card'].checklist_to_card(index)
+        if change:
+            ppcurses.memstore['card'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
@@ -220,6 +280,7 @@ def do(state, key, allowed_keys=['*'], keymap=REGISTERED):
         logger.warning('Unregistered key press detected - %s', repr(key))
     else:
         if callable(keymap[key]):
+            ppcurses.memstore['statuswin'].set(chr(key))
             state = keymap[key](state)
             ppcurses.memstore['statuswin'].unset()
         else:
