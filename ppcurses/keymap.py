@@ -51,10 +51,9 @@ def write_comment(state):
 @key('xc')
 def delete_comment(state):
     k = ppcurses.memstore['statuswin'].getch()
-    if chr(k).isdigit():
-        change = ppcurses.memstore['commentsstate'].delete(int(chr(k)))
-        if change:
-            ppcurses.memstore['commentsstate'].update(cascade=False, reset_position=False, refetch=True)
+    change = ppcurses.memstore['commentsstate'].delete(chr(k))
+    if change:
+        ppcurses.memstore['commentsstate'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
@@ -62,10 +61,9 @@ def delete_comment(state):
 def edit_comment(state):
     # TODO
     k = ppcurses.memstore['statuswin'].getch()
-    if chr(k).isdigit():
-        change = ppcurses.memstore['commentsstate'].edit(int(chr(k)))
-        if change:
-            ppcurses.memstore['commentsstate'].update(cascade=False, reset_position=False, refetch=True)
+    change = ppcurses.memstore['commentsstate'].edit(chr(k))
+    if change:
+        ppcurses.memstore['commentsstate'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
@@ -122,10 +120,9 @@ def add_co_assignee(state):
 @key('xa')
 def remove_co_assignee(state):
     k = ppcurses.memstore['statuswin'].getch()
-    if chr(k).isdigit():
-        change = ppcurses.memstore['carddetailstate'].remove_co_assignee(int(chr(k)))
-        if change:
-            ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
+    change = ppcurses.memstore['carddetailstate'].remove_co_assignee(chr(k))
+    if change:
+        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
@@ -149,11 +146,9 @@ def move_to_planlet(state):
 @key('tl')
 def toggle_checklist(state):
     k = ppcurses.memstore['statuswin'].getch()
-    if chr(k).isdigit():
-        index = int(chr(k))
-        change = ppcurses.memstore['carddetailstate'].toggle_checklist(index)
-        if change:
-            ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
+    change = ppcurses.memstore['carddetailstate'].toggle_checklist(chr(k))
+    if change:
+        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
@@ -161,11 +156,9 @@ def toggle_checklist(state):
 def edit_checklist(state):
     # TODO
     k = ppcurses.memstore['statuswin'].getch()
-    if chr(k).isdigit():
-        index = int(chr(k))
-        change = ppcurses.memstore['carddetailstate'].edit_checklist(index)
-        if change:
-            ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
+    change = ppcurses.memstore['carddetailstate'].edit_checklist(chr(k))
+    if change:
+        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
@@ -179,11 +172,9 @@ def add_checklist(state):
 @key('xl')
 def delete_checklist(state):
     k = ppcurses.memstore['statuswin'].getch()
-    if chr(k).isdigit():
-        index = int(chr(k))
-        change = ppcurses.memstore['carddetailstate'].delete_checklist(index)
-        if change:
-            ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
+    change = ppcurses.memstore['carddetailstate'].delete_checklist(chr(k))
+    if change:
+        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
@@ -191,11 +182,9 @@ def delete_checklist(state):
 def checklist_to_card(state):
     # TODO
     k = ppcurses.memstore['statuswin'].getch()
-    if chr(k).isdigit():
-        index = int(chr(k))
-        change = ppcurses.memstore['carddetailstate'].checklist_to_card(index)
-        if change:
-            ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
+    change = ppcurses.memstore['carddetailstate'].checklist_to_card(chr(k))
+    if change:
+        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 

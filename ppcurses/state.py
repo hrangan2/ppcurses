@@ -3,7 +3,11 @@ import ppcurses
 import ppcurses.hover
 import textwrap
 
+from string import digits, ascii_letters
+
 logger = logging.getLogger(__name__)
+
+bigindex = digits + ascii_letters
 
 
 class Zero:
@@ -243,7 +247,7 @@ class SingleCard(Pager):
             contents.append(' ')
         contents.append('Assignee: %s' % str(self.data.assignee['name'] if self.data.assignee else None))
 
-        contributors = 'Co-Assignees: ' + ', '.join([each['name'] + '(%s)' % n for n, each in enumerate(self.data.contributors)]) or str(None)
+        contributors = 'Co-Assignees: ' + ', '.join([each['name'] + '(%s)' % bigindex[n] for n, each in enumerate(self.data.contributors)]) or str(None)
         contents.extend(textwrap.wrap(contributors, width=self.window.maxx-3))
         contents.append(' ')
         if self.data.label:
@@ -256,12 +260,13 @@ class SingleCard(Pager):
             contents.append('Checklist:')
             for n, each in enumerate(self.data.checklist):
                 if each['done']:
-                    contents.append('%s. [X] %s' % (n, each['title']))
+                    contents.append('%s. [X] %s' % (bigindex[n], each['title']))
                 else:
-                    contents.append('%s. [ ] %s' % (n, each['title']))
+                    contents.append('%s. [ ] %s' % (bigindex[n], each['title']))
         return contents
 
-    def delete_checklist(self, index):
+    def delete_checklist(self, char):
+        index = bigindex.index(char)
         if self.data.id is None:
             return False
         try:
@@ -271,7 +276,8 @@ class SingleCard(Pager):
         endpoint = f"/api/v1/cards/{self.data.id}/checklist/{checklist['id']}/"
         return ppcurses.delete(endpoint)
 
-    def toggle_checklist(self, index):
+    def toggle_checklist(self, char):
+        index = bigindex.index(char)
         if self.data.id is None:
             return False
         try:
@@ -283,7 +289,8 @@ class SingleCard(Pager):
                 'title': checklist['title']}
         return ppcurses.put(endpoint, data)
 
-    def edit_checklist(self, index):
+    def edit_checklist(self, char):
+        index = bigindex.index(char)
         if self.data.id is None:
             return False
         try:
@@ -297,7 +304,8 @@ class SingleCard(Pager):
             return False
         logger.warning('pending: adding checklist')
 
-    def checklist_to_card(self, index):
+    def checklist_to_card(self, char):
+        index = bigindex.index(char)
         if self.data.id is None:
             return False
         try:
@@ -400,7 +408,8 @@ class SingleCard(Pager):
             data = {'contributor_ids': contributor_ids}
             return ppcurses.put(endpoint, data)
 
-    def remove_co_assignee(self, index):
+    def remove_co_assignee(self, char):
+        index = bigindex.index(char)
         if self.data.id is None:
             return False
         try:
@@ -423,7 +432,7 @@ class Comments(Pager):
             if comment.id is None:
                 contents.append(comment.text)
                 continue
-            contents.append(str(n) + '. ' + ppcurses.epoch_to_datetime(comment.created_at))
+            contents.append(bigindex[n] + '. ' + ppcurses.epoch_to_datetime(comment.created_at))
             contents.append('By: %s' % comment.created_by['name'])
             if comment.attachments:
                 contents.append('Attachments: %s' % comment.attachments)
@@ -437,7 +446,8 @@ class Comments(Pager):
 
         return contents
 
-    def delete(self, index):
+    def delete(self, char):
+        index = bigindex.index(char)
         try:
             comment = self.data[index]
         except IndexError:
@@ -453,10 +463,11 @@ class Comments(Pager):
         endpoint = f"/api/v3/conversations/comment/{comment.id}?item_id={card_id}&item_name=card"
         return ppcurses.delete(endpoint)
 
-    def edit(self, index):
+    def edit(self, char):
         try:
+            index = bigindex.index(char)
             comment = self.data[index]
-        except IndexError:
+        except (IndexError, ValueError):
             return False
         if comment.id is None:
             return False
