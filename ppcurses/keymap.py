@@ -202,11 +202,10 @@ def delete_checklist(state):
 @key('vl <n>')
 def checklist_to_card(state):
     """ Convert a checklist item to a card"""
-    # TODO
     k = ppcurses.memstore['statuswin'].getch()
     change = ppcurses.memstore['carddetailstate'].checklist_to_card(chr(k))
     if change:
-        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
+        ppcurses.memstore['cardliststate'].update(cascade=True, reset_position=False, refetch=True)
     return state
 
 

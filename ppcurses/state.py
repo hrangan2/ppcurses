@@ -266,8 +266,13 @@ class SingleCard(Pager):
         return contents
 
     def delete_checklist(self, char):
-        index = bigindex.index(char)
+        try:
+            index = bigindex.index(char)
+        except ValueError:
+            return False
         if self.data.id is None:
+            return False
+        if self.data.checklist is None:
             return False
         try:
             checklist = self.data.checklist[index]
@@ -277,8 +282,13 @@ class SingleCard(Pager):
         return ppcurses.delete(endpoint)
 
     def toggle_checklist(self, char):
-        index = bigindex.index(char)
+        try:
+            index = bigindex.index(char)
+        except ValueError:
+            return False
         if self.data.id is None:
+            return False
+        if self.data.checklist is None:
             return False
         try:
             checklist = self.data.checklist[index]
@@ -290,8 +300,13 @@ class SingleCard(Pager):
         return ppcurses.put(endpoint, data)
 
     def edit_checklist(self, char):
-        index = bigindex.index(char)
+        try:
+            index = bigindex.index(char)
+        except ValueError:
+            return False
         if self.data.id is None:
+            return False
+        if self.data.checklist is None:
             return False
         try:
             checklist = self.data.checklist[index]
@@ -305,14 +320,28 @@ class SingleCard(Pager):
         logger.warning('pending: adding checklist')
 
     def checklist_to_card(self, char):
-        index = bigindex.index(char)
+        try:
+            index = bigindex.index(char)
+        except ValueError:
+            return False
         if self.data.id is None:
+            return False
+        if self.data.checklist is None:
             return False
         try:
             checklist = self.data.checklist[index]
         except IndexError:
             return False
-        logger.warning('pending: convert checklist to card')
+        endpoint = f"/api/v1/checklists/{self.data.checklist_id}/checklist-item/{checklist['id']}/convert-to-card"
+        data = {
+                "column_id": ppcurses.memstore['columnstate'].current_item['id'],
+                "board_id": ppcurses.memstore['board'].id
+                }
+        planlet_id = ppcurses.memstore['planletstate'].current_item['id']
+        if planlet_id != -1:
+            data['planlet_id'] = planlet_id
+        logger.error(data)
+        return ppcurses.post(endpoint, data)
 
     def move_to_column(self):
         if self.data.id is None:
@@ -428,7 +457,10 @@ class SingleCard(Pager):
             return ppcurses.put(endpoint, data)
 
     def remove_co_assignee(self, char):
-        index = bigindex.index(char)
+        try:
+            index = bigindex.index(char)
+        except ValueError:
+            return False
         if self.data.id is None:
             return False
         try:
@@ -466,7 +498,10 @@ class Comments(Pager):
         return contents
 
     def delete(self, char):
-        index = bigindex.index(char)
+        try:
+            index = bigindex.index(char)
+        except ValueError:
+            return False
         try:
             comment = self.data[index]
         except IndexError:
@@ -485,8 +520,11 @@ class Comments(Pager):
     def edit(self, char):
         try:
             index = bigindex.index(char)
+        except ValueError:
+            return False
+        try:
             comment = self.data[index]
-        except (IndexError, ValueError):
+        except IndexError:
             return False
         if comment.id is None:
             return False

@@ -167,6 +167,7 @@ class Card(Serializer):
 
         if card.get('checklist', None) is not None:
             self.checklist = []
+            self.checklist_id = card['checklist']['id']
             for each in card['checklist']['items']:
                 self.checklist.append({
                     'id': each['id'],

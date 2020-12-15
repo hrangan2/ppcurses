@@ -48,10 +48,11 @@ def interactable(stdscr):
     ppcurses.memstore['columnstate'] = columnstate
 
     # Card List Configuration
-    cardstate = ppcurses.state.State('card', ppcurses.data.cards)
-    cardstate.attach_window(
+    cardliststate = ppcurses.state.State('card', ppcurses.data.cards)
+    cardliststate.attach_window(
         ppcurses.windows.SimpleList((curses.LINES - 2)//3+1, (curses.COLS-1)//3, 1, 2*(curses.COLS-1)//3)
         )
+    ppcurses.memstore['cardliststate'] = cardliststate
 
     # Card Pane Configuration
     carddetails = ppcurses.state.SingleCard('card details', ppcurses.data.card)
@@ -68,7 +69,7 @@ def interactable(stdscr):
     ppcurses.memstore['commentsstate'] = comments
 
     # Link the state objects together
-    ppcurses.link(headerstate, planletstate, columnstate, cardstate, carddetails, comments)
+    ppcurses.link(headerstate, planletstate, columnstate, cardliststate, carddetails, comments)
 
     state = planletstate
     state.activate()
