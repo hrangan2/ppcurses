@@ -25,8 +25,20 @@ def get_title():
     return titles[index]
 
 
-@app.route('/r')
-def incrementer():
+@app.route('/control')
+def control():
+    return render_template('control.html')
+
+
+@app.route('/_reset')
+def reset():
+    with open('index', 'w') as f:
+        f.write('0')
+    return ''
+
+
+@app.route('/_increment')
+def increment():
     with open('index') as f:
         index = int(f.read())
     index += 1
