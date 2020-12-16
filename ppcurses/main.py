@@ -18,6 +18,7 @@ code = locale.getpreferredencoding()
 def interactable(stdscr):
     stdscr.clear()
     curses.curs_set(0)
+    curses.raw()
 
     # 1 pixel window to listen for keypresses
     statuswin = ppcurses.windows.Status(1, 10, 0, curses.COLS-10)

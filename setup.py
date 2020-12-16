@@ -19,6 +19,7 @@ setup(name='ppcurses',
       install_requires=[
           'requests',
           'python-dateutil',
+          'pyperclip',
           ],
       classifiers=[
           'Environment :: Console :: Curses',

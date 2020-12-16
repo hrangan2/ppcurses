@@ -4,7 +4,7 @@ import ppcurses.hover
 import ppcurses.state
 import ppcurses
 import logging
-import subprocess
+import pyperclip
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +73,7 @@ def yank_card_url(state):
         direct_link = f"https://{ppcurses.domain}/#direct/card/{ppcurses.memstore['card_id']}"
     else:
         direct_link = ''
-    subprocess.run("pbcopy", universal_newlines=True, input=direct_link)
+    pyperclip.copy(direct_link)
     return state
 
 
