@@ -412,7 +412,7 @@ class SingleCard(Pager):
     def change_description(self):
         if self.data.id is None:
             return False
-        description = ppcurses.hover.textbox('change description', self.data.description)
+        description = ppcurses.hover.textbox('change description', self.data.description, newlines=True)
         if description is None:
             return
         endpoint = f"/api/v1/cards/{self.data.id}"
@@ -558,7 +558,7 @@ class Comments(Pager):
             return False
         if comment.id is None:
             return False
-        comment_text = ppcurses.hover.textbox('edit a comment', comment.text)
+        comment_text = ppcurses.hover.textbox('edit a comment', comment.text, newlines=True)
         if comment_text is None:
             return
         else:
@@ -574,7 +574,7 @@ class Comments(Pager):
         if ppcurses.memstore['carddetailstate'].data.id is None:
             return
         card_id = ppcurses.memstore['carddetailstate'].data.id
-        comment_text = ppcurses.hover.textbox('add a comment')
+        comment_text = ppcurses.hover.textbox('add a comment', newlines=True)
         if comment_text is None:
             return
         else:

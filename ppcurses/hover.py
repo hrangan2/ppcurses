@@ -1,4 +1,5 @@
 import curses
+import pyperclip
 import string
 import textwrap
 import curses.ascii
@@ -100,43 +101,70 @@ def select_one(name, updater):
     return selection
 
 
-def textbox(name, text=''):
+def textbox(name, text='', newlines=False):
+    original_text = text
+    ctrl_confirm = 's'
+    ctrl_quit = 'q'
+
     def draw_text(window, text):
         window.clear()
         window.border(*ppcurses.windows.ACTIVE_WINDOW)
         window.addstr(0, 2, name)
-        window.addstr(maxy-2, 2, 'Enter to confirm, Esc to cancel')
+        window.addstr(maxy-2, 2, 'ctrl-%s to confirm, ctrl-%s to cancel' % (ctrl_confirm, ctrl_quit))
 
-        wrapped_text = textwrap.wrap(text, width=maxx-5, drop_whitespace=False, replace_whitespace=False)
         if not text:
             # This is to move the cursor to this location
             window.addstr(2, 3, '')
-        for n, line in enumerate(wrapped_text):
+        lines = []
+        for line in text.split('\n'):
+            wrapped = textwrap.wrap(line, width=maxx-6, drop_whitespace=False, replace_whitespace=False)
+            if not wrapped:
+                lines.append('')
+            else:
+                lines.extend(wrapped)
+        for n, line in enumerate(lines[-maxy+5:]):
             window.addstr(n+2, 3, line)
         window.refresh()
 
     curses.curs_set(1)
     window = curses.newwin(2*(curses.LINES - 1)//4, 6*(curses.COLS-1)//8, (curses.LINES - 1)//4, (curses.COLS-1)//8)
-    window.touchwin()
     maxy, maxx = window.getmaxyx()
+    window.touchwin()
     window.keypad(True)
-    draw_text(window, text)
 
     while True:
-        key = ppcurses.memstore['statuswin'].getch()
-        if key == curses.ascii.NL:
+        draw_text(window, text)
+        key = ppcurses.memstore['statuswin'].window.getch()
+
+        if key == curses.ascii.ctrl(ord(ctrl_confirm)):
             break
-        elif key == curses.ascii.ESC:
+        elif key == curses.ascii.ctrl(ord(ctrl_quit)):
             text = None
             break
+        elif key == curses.ascii.ctrl(ord('v')):
+            text += pyperclip.paste()
+        elif key == curses.ascii.ctrl(ord('w')):
+            if text.endswith('\n'):
+                text = text[:-1]
+            elif text.endswith(' '):
+                text = text.rstrip()
+            else:
+                chars_to_remove = len(text.split(' ')[-1].split('\n')[-1])
+                text = text[:-chars_to_remove]
+                if text.endswith(' '):
+                    text = text.rstrip()
+        elif key == curses.ascii.NL:
+            if newlines:
+                text += '\n'
         elif key == curses.ascii.DEL:
             text = text[:-1]
-            draw_text(window, text)
         elif chr(key) in string.printable+' ':
             text += chr(key)
-            draw_text(window, text)
+
     window.clear()
     window.refresh()
     ppcurses.memstore['headerstate'].update()
     curses.curs_set(0)
+    if (not text) or (text == original_text):
+        return None
     return text
