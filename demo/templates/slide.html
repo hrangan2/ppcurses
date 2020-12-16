@@ -3,16 +3,17 @@
 <head>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
-var titles = [
-    "create a card with cc",
-    "this is the second title",
-    "this is the third title"
-    ];
-var index = 0;
 $(document).ready(function(){
+    var oldData = '';
     function new_title() {
         $.ajax({url: "http://localhost:5000/title"}).then(function(data) {
-            $('#title').text(data);
+            if (data != oldData) {
+                oldData = data;
+                $("#title").fadeOut(function() {
+                  $(this).text(data)
+                }).fadeIn();
+            }
+
             })
     }
     setInterval(new_title, 1000);
