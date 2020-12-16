@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+var titles = [
+    "create a card with cc",
+    "this is the second title",
+    "this is the third title"
+    ];
+var index = 0;
+$(document).ready(function(){
+    function new_title() {
+        $.ajax({url: "http://localhost:5000/title"}).then(function(data) {
+            $('#title').text(data);
+            })
+    }
+    setInterval(new_title, 1000);
+});
+</script>
+</head>
+<body>
+    <br />
+    <br />
+    <h2><center>
+    <div id='title'>
+    </div>
+        </center>
+    </h2>
+
+</body>
+</html>
