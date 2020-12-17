@@ -1,21 +1,9 @@
 #!/usr/bin/env python
 from flask import render_template
 from flask import Flask
+from words import titles
 
 app = Flask(__name__)
-
-
-titles = [
-
-        "select a project and board on startup",
-        "hjkl/arrow keys to navigate columns",
-        "add a card with cc",
-        "edit the card title with et",
-        "edit the card description with ed",
-        "add a comment with ac",
-        "edit a commeent with ec<n>",
-
-        ]
 
 
 @app.route('/title')
@@ -41,7 +29,21 @@ def reset():
 def increment():
     with open('index') as f:
         index = int(f.read())
+    if index == len(titles) - 1:
+        return ''
     index += 1
+    with open('index', 'w') as f:
+        f.write(str(index))
+    return ''
+
+
+@app.route('/_decrement')
+def decrement():
+    with open('index') as f:
+        index = int(f.read())
+    if index == 0:
+        return
+    index -= 1
     with open('index', 'w') as f:
         f.write(str(index))
     return ''
