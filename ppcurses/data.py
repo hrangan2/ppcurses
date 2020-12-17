@@ -168,6 +168,8 @@ class Card(Serializer):
             self.label = None
 
         self.estimate = card.get('estimate', None)
+        if self.estimate is not None:
+            self.estimate = int(self.estimate) if self.estimate != 0.5 else self.estimate
 
         if card.get('checklist', None) is not None:
             self.checklist = []

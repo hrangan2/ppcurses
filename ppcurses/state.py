@@ -252,7 +252,7 @@ class SingleCard(Pager):
         contents.append(' ')
         if self.data.label:
             contents.append('Label: %s' % str(self.data.label['name'] if self.data.label else None))
-        if self.data.estimate:
+        if self.data.estimate is not None:
             contents.append('Points: %s' % str(self.data.estimate))
 
         if self.data.checklist:
@@ -477,22 +477,60 @@ class SingleCard(Pager):
         if self.data.id is None:
             return False
         points = [0, 0.5, 1, 2, 3, 5, 8, 13, 20, 40, 100]
-        data = [{'id': str(x), 'name': str(x)} for x in points]
+        data = [{'id': str(x), 'name': x} for x in points]
         data.insert(0, {'id': 'remove', 'name': 'Remove points'})
-        response = ppcurses.hover.select_one('points', lambda **kwargs: data)
-        if response is not None:
-            endpoint = f"/api/v1/cards/{self.data.id}"
-            data = {'estimate': response['id']}
-            return ppcurses.put(endpoint, data)
+        selection = ppcurses.hover.select_one('points', lambda **kwargs: data)
+        if (
+                (selection is None)
+                or (self.data.estimate and self.data.estimate == selection['name'])
+                or (self.data.estimate is None and selection['id'] == 'remove')
+                ):
+            return
+
+        endpoint = f"/api/v1/cards/{self.data.id}"
+        data = {'estimate': selection['id']}
+        response = ppcurses.put(endpoint, data)
+        if response:
+            if self.data.estimate is None:
+                estimate = 'remove'
+            else:
+                estimate = str(self.data.estimate)
+            ppcurses.mkundo(
+                'carddetailstate',
+                ppcurses.put,
+                endpoint,
+                {'estimate': estimate}
+                )
+        return response
 
     def change_label(self):
         if self.data.id is None:
             return False
-        response = ppcurses.hover.select_one('labels', lambda **kwargs:  ppcurses.memstore['board'].labels)
-        if response is not None:
-            endpoint = f"/api/v1/cards/{self.data.id}"
-            data = {'label_id': response['id']}
-            return ppcurses.put(endpoint, data)
+        data = ppcurses.memstore['board'].labels
+        data.insert(0, {'id': 'remove', 'name': 'Remove label'})
+        selection = ppcurses.hover.select_one('labels', lambda **kwargs:  data)
+        if (
+                (selection is None)
+                or (self.data.label and self.data.label['id'] == selection['id'])
+                or (self.data.label is None and selection['id'] == 'remove')
+                ):
+            return
+
+        endpoint = f"/api/v1/cards/{self.data.id}"
+        data = {'label_id': selection['id']}
+        response = ppcurses.put(endpoint, data)
+        if response:
+            if self.data.label is None:
+                label_id = 'remove'
+            else:
+                label_id = self.data.label['id']
+            ppcurses.mkundo(
+                'carddetailstate',
+                ppcurses.put,
+                endpoint,
+                {'label_id': label_id}
+                )
+        return response
 
     def change_assignee(self):
         if self.data.id is None:

@@ -195,7 +195,6 @@ def change_assignee(state):
 @key('el')
 def change_label(state):
     """ Change the label of the card """
-    # TODO
     change = ppcurses.memstore['carddetailstate'].change_label()
     if change:
         ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
@@ -205,7 +204,6 @@ def change_label(state):
 @key('ep')
 def change_points(state):
     """ Change the points on a card """
-    # TODO
     change = ppcurses.memstore['carddetailstate'].change_points()
     if change:
         ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
