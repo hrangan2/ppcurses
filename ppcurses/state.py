@@ -388,7 +388,19 @@ class SingleCard(Pager):
         planlet_id = ppcurses.memstore['planletstate'].current_item['id']
         if planlet_id != -1:
             data['planlet_id'] = planlet_id
-        return ppcurses.post(endpoint, data)
+        response = ppcurses.post(endpoint, data)
+        if response:
+            ppcurses.mkundo(
+                    'cardliststate',
+                    ppcurses.data.helper_card_to_checklist,
+                    None,
+                    {
+                     'new_card_id': response['id'],
+                     'parent_card_id': self.data.id,
+                     'checklist_title': checklist['title']
+                     }
+                    )
+        return response
 
     def move_to_column(self):
         if self.data.id is None:

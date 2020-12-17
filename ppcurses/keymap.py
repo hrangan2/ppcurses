@@ -271,7 +271,6 @@ def toggle_checklist(state):
 @key('pk <n>')
 def checklist_to_card(state):
     """ Convert a checklist item to a card"""
-    # TODO
     k = ppcurses.memstore['statuswin'].getch()
     change = ppcurses.memstore['carddetailstate'].checklist_to_card(chr(k))
     if change:

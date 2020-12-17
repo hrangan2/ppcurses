@@ -239,3 +239,12 @@ def get_board_members(**kwargs):
                       'name': member['name']
                       } for member in ppcurses.get(endpoint, refetch=False) if member['id'] in allowed]
     return board_members
+
+
+def helper_card_to_checklist(_, data):
+    ppcurses.post(f"/api/v1/cards/{data['parent_card_id']}/checklist",
+                  {'title': data['checklist_title']}
+                  )
+
+    ppcurses.delete(f"/api/v1/cards/{data['new_card_id']}")
+    return True
