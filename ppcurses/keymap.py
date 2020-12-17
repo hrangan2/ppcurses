@@ -185,7 +185,6 @@ def change_description(state):
 @key('eo')
 def change_assignee(state):
     """ Change the owner/assignee of the card """
-    # TODO
     change = ppcurses.memstore['carddetailstate'].change_assignee()
     if change:
         ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)

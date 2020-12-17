@@ -537,11 +537,28 @@ class SingleCard(Pager):
             return False
         board_members = ppcurses.data.get_board_members()
         board_members.insert(0, {'id': 'remove', 'name': 'Remove assignee'})
-        response = ppcurses.hover.select_one('assignees', lambda **kwargs: board_members)
-        if response is not None:
-            endpoint = f"/api/v1/cards/{self.data.id}"
-            data = {'assignee_id': response['id']}
-            return ppcurses.put(endpoint, data)
+        selection = ppcurses.hover.select_one('assignees', lambda **kwargs: board_members)
+        if (
+                selection is None
+                or self.data.assignee is not None and self.data.assignee['id'] == selection['id']
+                or self.data.assignee is None and selection['id'] == 'remove'
+                ):
+            return
+        endpoint = f"/api/v1/cards/{self.data.id}"
+        data = {'assignee_id': selection['id']}
+        response = ppcurses.put(endpoint, data)
+        if response:
+            if self.data.assignee is None:
+                assignee_id = 'remove'
+            else:
+                assignee_id = self.data.assignee['id']
+            ppcurses.mkundo(
+                'carddetailstate',
+                ppcurses.put,
+                endpoint,
+                {'assignee_id': assignee_id}
+                )
+        return response
 
     def add_co_assignee(self):
         if self.data.id is None:
