@@ -338,6 +338,18 @@ def navright(state):
     return state
 
 
+@key('g')
+def goto_first(state):
+    state.first()
+    return state
+
+
+@key('G')
+def goto_last(state):
+    state.last()
+    return state
+
+
 # # Uncomment this to log a command list for the README
 # for key, value in HELP_MSG.items():
 #     assert len(value) == 1

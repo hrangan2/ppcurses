@@ -52,6 +52,7 @@ def select_project_board():
                 'j', chr(curses.KEY_DOWN),
                 'k', chr(curses.KEY_UP),
                 'l', chr(curses.KEY_RIGHT),
+                'g', 'G',
                 'r',
                 'q'])
         except ppcurses.errors.GracefulExit:
@@ -91,6 +92,7 @@ def select_one(name, updater):
                 'j', chr(curses.KEY_DOWN),
                 'k', chr(curses.KEY_UP),
                 'l', chr(curses.KEY_RIGHT),
+                'g', 'G',
                 'q'])
         except ppcurses.errors.GracefulExit:
             # Remove any characters printed by these windows in the gaps

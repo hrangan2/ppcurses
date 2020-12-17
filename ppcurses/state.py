@@ -66,11 +66,30 @@ class State:
             logger.debug('updating linked state %s of %s', self.nstate, self)
             self.nstate.update(reset_position=reset_position, refetch=refetch)
 
+    def first(self):
+        if self.index == 0:
+            return
+        self.current_id = self.data[0]['id']
+        self.window.draw()
+        if hasattr(self, 'nstate'):
+            self.nstate.update()
+
     def prev(self):
         if self.index == 0:
             return
 
         self.current_id = self.data[self.index - 1]['id']
+        self.window.draw()
+        if hasattr(self, 'nstate'):
+            self.nstate.update()
+
+    def last(self):
+        if len(self.data) == 1:
+            return
+        if self.index == len(self.data) - 1:
+            return
+
+        self.current_id = self.data[-1]['id']
         self.window.draw()
         if hasattr(self, 'nstate'):
             self.nstate.update()
