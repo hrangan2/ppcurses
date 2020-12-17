@@ -485,10 +485,23 @@ class SingleCard(Pager):
         if self.data.id is None:
             return False
         endpoint = f"/api/v1/cards/{self.data.id}"
-        return ppcurses.delete(endpoint)
+        response = ppcurses.delete(endpoint)
+        if response:
+            project_id = ppcurses.dbstore['project_id']
+            ppcurses.mkundo(
+                'cardliststate',
+                ppcurses.post,
+                f"/api/v1/projects/{project_id}/trashcan",
+                {
+                    "action": "restore",
+                    "items": [{"id": self.data.id, "type": "card"}]
+                    }
+                 )
+        return response
 
     def create_card(self):
-        endpoint = "/api/v1/projects/148/cards/create-new"
+        project_id = ppcurses.dbstore['project_id']
+        endpoint = f"/api/v1/projects/{project_id}/cards/create-new"
         board_id = ppcurses.memstore['board'].id
         planlet_id = ppcurses.memstore['planletstate'].current_item['id']
         column_id = ppcurses.memstore['columnstate'].current_item['id']
@@ -501,7 +514,14 @@ class SingleCard(Pager):
                 "board_id": board_id,
                 "planlet_id": planlet_id,
                 "title": card_name}
-        return ppcurses.post(endpoint, data)
+        response = ppcurses.post(endpoint, data)
+        if response:
+            ppcurses.mkundo(
+                'cardliststate',
+                ppcurses.delete,
+                f"/api/v1/cards/{response['id']}")
+
+        return response
 
 
 class Comments(Pager):
