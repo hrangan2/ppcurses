@@ -148,7 +148,7 @@ def add_co_assignee(state):
 @key('ac')
 def add_comment(state):
     """ Add a new comment """
-    change = ppcurses.memstore['commentsstate'].add()
+    change = ppcurses.memstore['commentsstate'].add_comment()
     if change:
         ppcurses.memstore['commentsstate'].update(cascade=False, reset_position=False, refetch=True)
     return state
@@ -223,7 +223,7 @@ def edit_checklist(state):
 def edit_comment(state):
     """ Edit a comment """
     k = ppcurses.memstore['statuswin'].getch()
-    change = ppcurses.memstore['commentsstate'].edit(chr(k))
+    change = ppcurses.memstore['commentsstate'].edit_comment(chr(k))
     if change:
         ppcurses.memstore['commentsstate'].update(cascade=False, reset_position=False, refetch=True)
     return state
@@ -243,7 +243,7 @@ def remove_co_assignee(state):
 def delete_comment(state):
     """ Delete a comment """
     k = ppcurses.memstore['statuswin'].getch()
-    change = ppcurses.memstore['commentsstate'].delete(chr(k))
+    change = ppcurses.memstore['commentsstate'].delete_comment(chr(k))
     if change:
         ppcurses.memstore['commentsstate'].update(cascade=False, reset_position=False, refetch=True)
     return state

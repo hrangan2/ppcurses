@@ -1,4 +1,5 @@
 import curses
+import re
 import pyperclip
 import string
 import textwrap
@@ -101,7 +102,25 @@ def select_one(name, updater):
     return selection
 
 
-def textbox(name, text='', newlines=False):
+def decode_atref(text):
+    board_members = {each['id']: each['name'] for each in ppcurses.data.get_board_members()}
+
+    def board_member_replacer(matchobj):
+        return '@' + board_members[int(matchobj.groups()[0])]
+
+    return re.sub(r'@\[([0-9]+)\]', board_member_replacer, text)
+
+
+def remove_atref(text):
+    regex = r'.*(@\[[0-9]+\]$)'
+    match = re.match(regex, text)
+    if match is not None:
+        return len(match.groups()[0])
+    else:
+        return None
+
+
+def textbox(name, text='', newlines=False, encoded=False):
     original_text = text
     ctrl_confirm = 's'
     ctrl_quit = 'q'
@@ -116,7 +135,8 @@ def textbox(name, text='', newlines=False):
             # This is to move the cursor to this location
             window.addstr(2, 3, '')
         lines = []
-        for line in text.split('\n'):
+        raw_text = decode_atref(text) if encoded else text
+        for line in raw_text.split('\n'):
             wrapped = textwrap.wrap(line, width=maxx-6, drop_whitespace=False, replace_whitespace=False)
             if not wrapped:
                 lines.append('')
@@ -148,6 +168,12 @@ def textbox(name, text='', newlines=False):
                 text = text[:-1]
             elif text.endswith(' '):
                 text = text.rstrip()
+            elif text.endswith(']'):
+                removal_chars = remove_atref(text)
+                if removal_chars is not None:
+                    text = text[:-removal_chars]
+                else:
+                    text = text[:-1]
             else:
                 chars_to_remove = len(text.split(' ')[-1].split('\n')[-1])
                 text = text[:-chars_to_remove]
@@ -157,7 +183,20 @@ def textbox(name, text='', newlines=False):
             if newlines:
                 text += '\n'
         elif key == curses.ascii.DEL:
-            text = text[:-1]
+            if text.endswith(']'):
+                removal_chars = remove_atref(text)
+                if removal_chars is not None:
+                    text = text[:-removal_chars]
+                else:
+                    text = text[:-1]
+            else:
+                text = text[:-1]
+        elif key == ord('@'):
+            if encoded:
+                member = select_one('board members', ppcurses.data.get_board_members)
+                text += '@[%s]' % member['id']
+            else:
+                text += chr(key)
         elif chr(key) in string.printable+' ':
             text += chr(key)
 
@@ -166,5 +205,8 @@ def textbox(name, text='', newlines=False):
     ppcurses.memstore['headerstate'].update()
     curses.curs_set(0)
     if (not text) or (text == original_text):
-        return None
-    return text
+        return None, None
+    if encoded:
+        return decode_atref(text), text
+    else:
+        return text, None

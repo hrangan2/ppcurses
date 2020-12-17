@@ -139,15 +139,6 @@ def link(*states):
             pass
 
 
-def memoize(func):
-    def inner(kwargs):
-        key = str(sorted(kwargs.items(), key=lambda x: x[0]))
-        if key not in memstore:
-            memstore[key] = func(kwargs)
-        return memstore[key]
-    return inner
-
-
 class KeyValueDB:
     _cache = {}
 

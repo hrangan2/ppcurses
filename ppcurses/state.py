@@ -313,7 +313,7 @@ class SingleCard(Pager):
         except IndexError:
             return False
         endpoint = f"/api/v1/cards/{self.data.id}/checklist/{checklist['id']}/"
-        text = ppcurses.hover.textbox('edit checklist item', checklist['title'])
+        text, _ = ppcurses.hover.textbox('edit checklist item', checklist['title'])
         if text is None:
             return
         data = {'title': text, 'done': checklist['done']}
@@ -323,7 +323,7 @@ class SingleCard(Pager):
         if self.data.id is None:
             return False
         endpoint = f"/api/v1/cards/{self.data.id}/checklist"
-        checklist = ppcurses.hover.textbox('add checklist item')
+        checklist, _ = ppcurses.hover.textbox('add checklist item')
         if checklist is None:
             return
         data = {'title': checklist}
@@ -402,7 +402,7 @@ class SingleCard(Pager):
     def change_title(self):
         if self.data.id is None:
             return False
-        title = ppcurses.hover.textbox('change title', self.data.title)
+        title, _ = ppcurses.hover.textbox('change title', self.data.title)
         if title is None:
             return
         endpoint = f"/api/v1/cards/{self.data.id}"
@@ -412,7 +412,7 @@ class SingleCard(Pager):
     def change_description(self):
         if self.data.id is None:
             return False
-        description = ppcurses.hover.textbox('change description', self.data.description, newlines=True)
+        description, _ = ppcurses.hover.textbox('change description', self.data.description, newlines=True)
         if description is None:
             return
         endpoint = f"/api/v1/cards/{self.data.id}"
@@ -494,7 +494,7 @@ class SingleCard(Pager):
         column_id = ppcurses.memstore['columnstate'].current_item['id']
         if (board_id is None) or (planlet_id is None) or (column_id is None):
             return False
-        card_name = ppcurses.hover.textbox('card name')
+        card_name, _ = ppcurses.hover.textbox('card name')
         if card_name is None:
             return False
         data = {"column_id": column_id,
@@ -527,7 +527,7 @@ class Comments(Pager):
 
         return contents
 
-    def delete(self, char):
+    def delete_comment(self, char):
         try:
             index = bigindex.index(char)
         except ValueError:
@@ -549,7 +549,7 @@ class Comments(Pager):
         response = ppcurses.delete(endpoint)
         return response
 
-    def edit(self, char):
+    def edit_comment(self, char):
         try:
             index = bigindex.index(char)
         except ValueError:
@@ -560,30 +560,30 @@ class Comments(Pager):
             return False
         if comment.id is None:
             return False
-        comment_text = ppcurses.hover.textbox('edit a comment', comment.text, newlines=True)
+        comment_text, encoded_text = ppcurses.hover.textbox('edit a comment', comment.text, newlines=True, encoded=True)
         if comment_text is None:
             return
         else:
             endpoint = f"/api/v3/conversations/comment/{comment.id}"
             data = {"text": comment_text,
-                    "encoded_text": comment_text,
+                    "encoded_text": encoded_text,
                     "attachments": str(comment.attachments),
                     "send_to_external": False,
                     }
             response = ppcurses.put_form(endpoint, data)
             return response
 
-    def add(self):
+    def add_comment(self):
         if ppcurses.memstore['carddetailstate'].data.id is None:
             return
         card_id = ppcurses.memstore['carddetailstate'].data.id
-        comment_text = ppcurses.hover.textbox('add a comment', newlines=True)
+        comment_text, encoded_text = ppcurses.hover.textbox('add a comment', newlines=True, encoded=True)
         if comment_text is None:
             return
         else:
             endpoint = "/api/v3/conversations/comment"
             data = {"text": comment_text,
-                    "encoded_text": comment_text,
+                    "encoded_text": encoded_text,
                     "attachments": [],
                     "send_to_external": False,
                     "sent_from": 'web',

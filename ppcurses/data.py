@@ -229,10 +229,10 @@ def get_board_members(**kwargs):
     board_id = ppcurses.memstore['board'].id
     project_id = ppcurses.dbstore['project_id']
     endpoint = f"/api/v2/boards/{board_id}/people-with-access"
-    allowed = ppcurses.get(endpoint, refetch=True)['access']
+    allowed = ppcurses.get(endpoint, refetch=False)['access']
 
     endpoint = f"/api/v1/projects/{project_id}/members?member_params=include_last_active,include_pending,organisation,description,in_team"
     board_members = [{'id': member['id'],
                       'name': member['name']
-                      } for member in ppcurses.get(endpoint, refetch=True) if member['id'] in allowed]
+                      } for member in ppcurses.get(endpoint, refetch=False) if member['id'] in allowed]
     return board_members
