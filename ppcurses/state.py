@@ -472,7 +472,7 @@ class SingleCard(Pager):
 
         board_id = ppcurses.memstore['board'].id
         column_id = ppcurses.memstore['columnstate'].current_item['id']
-        selection = ppcurses.hover.select_one('columns', lambda **kwargs: ppcurses.memstore['planletstate'].data)
+        selection = ppcurses.hover.select_one('planlets', lambda **kwargs: ppcurses.memstore['planletstate'].data)
         if (selection is None) or (selection['id'] == ppcurses.memstore['planletstate'].current_item['id']):
             return
         logger.info('Moving card to %s', selection)
@@ -792,7 +792,7 @@ class Comments(Pager):
             return False
         if comment.id is None:
             return False
-        comment_text, encoded_text = ppcurses.hover.textbox('edit a comment', comment.text, newlines=True, encoded=True)
+        comment_text, encoded_text = ppcurses.hover.textbox('edit a comment', comment.encoded_text, newlines=True, encoded=True)
         if comment_text is None:
             return
         else:
