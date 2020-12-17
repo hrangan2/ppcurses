@@ -255,6 +255,11 @@ class SingleCard(Pager):
         if self.data.estimate is not None:
             contents.append('Points: %s' % str(self.data.estimate))
 
+        if self.data.attachments:
+            contents.append(' ')
+            contents.append('Attachments:')
+            contents.extend(['- %s' % each for each in self.data.attachments])
+
         if self.data.checklist:
             contents.append(' ')
             contents.append('Checklist:')

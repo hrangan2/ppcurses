@@ -186,6 +186,8 @@ class Card(Serializer):
         else:
             self.checklist = None
 
+        self.attachments = [each['name'] for each in card['all_attachments']]
+
 
 class Comment(Serializer):
     def __init__(self, comment, refetch=False):
