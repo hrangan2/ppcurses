@@ -388,7 +388,6 @@ class SingleCard(Pager):
         planlet_id = ppcurses.memstore['planletstate'].current_item['id']
         if planlet_id != -1:
             data['planlet_id'] = planlet_id
-        logger.error(data)
         return ppcurses.post(endpoint, data)
 
     def move_to_column(self):
@@ -621,8 +620,9 @@ class SingleCard(Pager):
             return False
         data = {"column_id": column_id,
                 "board_id": board_id,
-                "planlet_id": planlet_id,
                 "title": card_name}
+        if planlet_id != -1:
+            data['planlet_id'] = planlet_id
         response = ppcurses.post(endpoint, data)
         if response:
             ppcurses.mkundo(
