@@ -547,6 +547,20 @@ class Comments(Pager):
 
         endpoint = f"/api/v3/conversations/comment/{comment.id}?item_id={card_id}&item_name=card"
         response = ppcurses.delete(endpoint)
+        if response:
+            ppcurses.mkundo(
+                    'commentsstate',
+                    ppcurses.post_form,
+                    "/api/v3/conversations/comment",
+                    {"text": comment.text,
+                     "encoded_text": comment.encoded_text,
+                     "attachments": str(comment.attachments),
+                     "send_to_external": False,
+                     "sent_from": 'web',
+                     "item_name": 'card',
+                     "item_id": card_id
+                     }
+                    )
         return response
 
     def edit_comment(self, char):
@@ -571,6 +585,17 @@ class Comments(Pager):
                     "send_to_external": False,
                     }
             response = ppcurses.put_form(endpoint, data)
+            if response:
+                ppcurses.mkundo(
+                        'commentsstate',
+                        ppcurses.put_form,
+                        endpoint,
+                        {"text": comment.text,
+                         "encoded_text": comment.encoded_text,
+                         "attachments": str(comment.attachments),
+                         "send_to_external": False,
+                         }
+                        )
             return response
 
     def add_comment(self):
