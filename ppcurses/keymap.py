@@ -291,10 +291,9 @@ def move_to_column(state):
 @key('mp')
 def move_to_planlet(state):
     """ Move the card to a different activity """
-    # TODO
     change = ppcurses.memstore['carddetailstate'].move_to_planlet()
     if change:
-        ppcurses.memstore['headerstate'].update(cascade=True, reset_position=True, refetch=True)
+        ppcurses.memstore['planletstate'].update(cascade=True, reset_position=False, refetch=True)
     return state
 
 

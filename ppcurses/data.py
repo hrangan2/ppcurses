@@ -98,7 +98,8 @@ def cards(kwargs, refetch=False):
         'planlet_id': kwargs['planlet_id'],
         'column_id': kwargs['column_id'],
         'card_id': each['id'],
-        'assignee_id': each['assignee_id']
+        'assignee_id': each['assignee_id'],
+        'display_order': each['display_order']
         } for each in ppcurses.get(endpoint, refetch=refetch)
             if ((each['planlet_id'] or -1) == kwargs['planlet_id'])
             and each['column_id'] == kwargs['column_id']
@@ -106,7 +107,7 @@ def cards(kwargs, refetch=False):
 
     mine = [{**each, **{'name': '(*) '+each['name']}} for each in filtered_cards if each['assignee_id'] == ppcurses.memstore['user_id']]
     others = [{**each, **{'name': each['name']}} for each in filtered_cards if each['assignee_id'] != ppcurses.memstore['user_id']]
-    return sorted(mine, key=lambda x: x['name']) + sorted(others, key=lambda x: x['name'])
+    return sorted(mine, key=lambda x: x['display_order']) + sorted(others, key=lambda x: x['display_order'])
 
 
 def comments(kwargs, refetch=False):

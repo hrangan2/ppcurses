@@ -437,21 +437,43 @@ class SingleCard(Pager):
         board_id = ppcurses.memstore['board'].id
         column_id = ppcurses.memstore['columnstate'].current_item['id']
         selection = ppcurses.hover.select_one('columns', lambda **kwargs: ppcurses.memstore['planletstate'].data)
-        if selection is not None:
-            logger.info('Moving card to %s', selection)
-            endpoint = f"/api/v1/boards/{board_id}/move-cards"
-            if selection['id'] == -1:
-                selection['id'] = None
-            data = {
-                    "card_ids": [self.data.id],
-                    "column_id": column_id,
-                    "after_card": None,
-                    "swimlane": {
-                        "type": "planlet_id",
-                        "value": selection['id']
-                        }
+        if (selection is None) or (selection['id'] == ppcurses.memstore['planletstate'].current_item['id']):
+            return
+        logger.info('Moving card to %s', selection)
+        endpoint = f"/api/v1/boards/{board_id}/move-cards"
+        if selection['id'] == -1:
+            selection['id'] = None
+        data = {
+                "card_ids": [self.data.id],
+                "column_id": column_id,
+                "after_card": None,
+                "swimlane": {
+                    "type": "planlet_id",
+                    "value": selection['id']
                     }
-            return ppcurses.post(endpoint, data)
+                }
+        response = ppcurses.post(endpoint, data)
+        if response:
+            if ppcurses.memstore['planletstate'].current_item['id'] == -1:
+                planlet_id = None
+            else:
+                planlet_id = ppcurses.memstore['planletstate'].current_item['id']
+            ppcurses.mkundo(
+                'planletstate',
+                ppcurses.post,
+                endpoint,
+                {
+                 "card_ids": [self.data.id],
+                 "column_id": column_id,
+                 "after_card": None,
+                 "swimlane": {
+                     "type": "planlet_id",
+                     "value": planlet_id
+                     }
+                 }
+                )
+
+        return response
 
     def change_title(self):
         if self.data.id is None:
