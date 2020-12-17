@@ -188,12 +188,13 @@ class Comment(Serializer):
     def __init__(self, comment, refetch=False):
         self.id = comment['id']
         self.text = comment['text']
+        self.encoded_text = comment['encoded_text']
         self.created_at = comment['created_at']
         self.created_by = {
                 'id': comment['created_by']['id'],
                 'name': ' '.join([comment['created_by']['first_name'], comment['created_by']['last_name']])
                 }
-        self.attachments = len(comment.get('attachments', []))
+        self.attachments = [int(each['id']) for each in comment.get('attachments', [])]
 
     def is_mine(self):
         return self.created_by['id'] == ppcurses.memstore['user_id']

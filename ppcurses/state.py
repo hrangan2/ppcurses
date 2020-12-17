@@ -516,7 +516,7 @@ class Comments(Pager):
             contents.append(bigindex[n] + '. ' + ppcurses.epoch_to_datetime(comment.created_at))
             contents.append('By: %s' % comment.created_by['name'])
             if comment.attachments:
-                contents.append('Attachments: %s' % comment.attachments)
+                contents.append('Attachments: %s' % len(comment.attachments))
 
             for line in comment.text.split('\n'):
                 contents.extend(textwrap.wrap(line, width=self.window.maxx-5))
@@ -544,8 +544,10 @@ class Comments(Pager):
             return False
 
         card_id = ppcurses.memstore['carddetailstate'].data.id
+
         endpoint = f"/api/v3/conversations/comment/{comment.id}?item_id={card_id}&item_name=card"
-        return ppcurses.delete(endpoint)
+        response = ppcurses.delete(endpoint)
+        return response
 
     def edit(self, char):
         try:
@@ -565,10 +567,11 @@ class Comments(Pager):
             endpoint = f"/api/v3/conversations/comment/{comment.id}"
             data = {"text": comment_text,
                     "encoded_text": comment_text,
-                    "attachments": [],
+                    "attachments": str(comment.attachments),
                     "send_to_external": False,
                     }
-            return ppcurses.put_form(endpoint, data)
+            response = ppcurses.put_form(endpoint, data)
+            return response
 
     def add(self):
         if ppcurses.memstore['carddetailstate'].data.id is None:
@@ -587,4 +590,11 @@ class Comments(Pager):
                     "item_name": 'card',
                     "item_id": card_id
                     }
-            return ppcurses.post_form(endpoint, data)
+            response = ppcurses.post_form(endpoint, data)
+            if response:
+                ppcurses.mkundo(
+                        'commentsstate',
+                        ppcurses.delete,
+                        f"/api/v3/conversations/comment/{response['data']['id']}?item_id={response['data']['item_id']}&item_name=card"
+                        )
+            return response

@@ -57,12 +57,12 @@ def get(endpoint, refetch=False):
     return dbstore[endpoint]
 
 
-def delete(endpoint):
+def delete(endpoint, _=None):
     logger.info('Calling endpoint DELETE %s', endpoint)
     url = 'https://' + domain + endpoint
     r = requests.delete(url, headers={'Authorization': 'Bearer ' + token})
     if r.ok:
-        return True
+        return r.json()
     else:
         logger.warning("Failed deleting %s, [%s]", (endpoint, r.status_code))
         return False
@@ -73,7 +73,7 @@ def put(endpoint, data):
     url = 'https://' + domain + endpoint
     r = requests.put(url, json=data, headers={'Authorization': 'Bearer ' + token})
     if r.ok:
-        return True
+        return r.json()
     else:
         logger.error("Failed updating %s, [%s]", (endpoint, r.status_code))
         return False
@@ -84,7 +84,7 @@ def put_form(endpoint, data):
     url = 'https://' + domain + endpoint
     r = requests.put(url, data=data, headers={'Authorization': 'Bearer ' + token})
     if r.ok:
-        return True
+        return r.json()
     else:
         logger.error("Failed updating %s, [%s]", (endpoint, r.status_code))
         return False
@@ -95,7 +95,7 @@ def post(endpoint, data):
     url = 'https://' + domain + endpoint
     r = requests.post(url, json=data, headers={'Authorization': 'Bearer ' + token})
     if r.ok:
-        return True
+        return r.json()
     else:
         logger.error("Failed updating %s, [%s]", (endpoint, r.status_code))
         return False
@@ -106,10 +106,15 @@ def post_form(endpoint, data):
     url = 'https://' + domain + endpoint
     r = requests.post(url, data=data, headers={'Authorization': 'Bearer ' + token})
     if r.ok:
-        return True
+        return r.json()
     else:
         logger.error("Failed updating %s, [%s]", (endpoint, r.status_code))
         return False
+
+
+def mkundo(state, action, endpoint, data=None):
+    memstore['undo_action'] = lambda: action(endpoint, data)
+    memstore['undo_state'] = state
 
 
 def epoch_to_datetime(epoch_ts):

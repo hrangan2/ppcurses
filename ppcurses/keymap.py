@@ -100,6 +100,19 @@ def change_project_board(state):
     return state
 
 
+@key('u')
+def undo(state):
+    """ Undo last action """
+    change = ppcurses.memstore.get('undo_action', lambda: None)()
+    if change:
+        undo_state = ppcurses.memstore.get('undo_state', None)
+        if undo_state is not None:
+            ppcurses.memstore[ppcurses.memstore['undo_state']].update(cascade=True, reset_position=False, refetch=True)
+    ppcurses.memstore['undo_action'] = lambda: None
+    ppcurses.memstore['undo_state'] = None
+    return state
+
+
 ########################################################################################
 #                                 PROJECTPLACE ACTIONS                                 #
 ########################################################################################
@@ -256,7 +269,7 @@ def toggle_checklist(state):
     return state
 
 
-@key('uk <n>')
+@key('pk <n>')
 def checklist_to_card(state):
     """ Convert a checklist item to a card"""
     k = ppcurses.memstore['statuswin'].getch()
