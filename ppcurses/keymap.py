@@ -339,6 +339,12 @@ def navright(state):
     return state
 
 
+# # Uncomment this to log a command list for the README
+# for key, value in HELP_MSG.items():
+#     assert len(value) == 1
+#     logger.info('{:<20}{}'.format(value[0], key))
+
+
 def do(state, key, allowed_keys=['*'], keymap=REGISTERED):
     if ('*' not in allowed_keys) and (key not in [ord(c) for c in allowed_keys]):
         ppcurses.memstore['statuswin'].unset()
