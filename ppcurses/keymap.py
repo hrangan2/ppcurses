@@ -139,7 +139,6 @@ def delete_card(state):
 @key('aa')
 def add_co_assignee(state):
     """ Add a co-assignee to a card """
-    # TODO
     change = ppcurses.memstore['carddetailstate'].add_co_assignee()
     if change:
         ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
@@ -232,7 +231,6 @@ def edit_comment(state):
 @key('xa <n>')
 def remove_co_assignee(state):
     """ Remove a co-assignee from the card """
-    # TODO
     k = ppcurses.memstore['statuswin'].getch()
     change = ppcurses.memstore['carddetailstate'].remove_co_assignee(chr(k))
     if change:
@@ -284,7 +282,6 @@ def checklist_to_card(state):
 @key('mc')
 def move_to_column(state):
     """ Move the card to a different column """
-    # TODO
     change = ppcurses.memstore['carddetailstate'].move_to_column()
     if change:
         ppcurses.memstore['columnstate'].update(cascade=True, reset_position=False, refetch=True)

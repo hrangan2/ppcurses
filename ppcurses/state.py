@@ -398,20 +398,37 @@ class SingleCard(Pager):
         planlet_id = ppcurses.memstore['planletstate'].current_item['id']
         if planlet_id == -1:
             planlet_id = None
-        response = ppcurses.hover.select_one('columns', lambda **kwargs: columns)
-        if response is not None:
-            logger.info('Moving card to %s', response)
-            endpoint = f"/api/v1/boards/{board_id}/move-cards"
-            data = {
-                    "card_ids": [self.data.id],
-                    "column_id": response['id'],
-                    "after_card": None,
-                    "swimlane": {
-                        "type": "planlet_id",
-                        "value": planlet_id
-                        }
+        selection = ppcurses.hover.select_one('columns', lambda **kwargs: columns)
+        if (selection is None) or (selection['id'] == ppcurses.memstore['columnstate'].current_item['id']):
+            return
+        logger.info('Moving card to %s', selection)
+        endpoint = f"/api/v1/boards/{board_id}/move-cards"
+        data = {
+                "card_ids": [self.data.id],
+                "column_id": selection['id'],
+                "after_card": None,
+                "swimlane": {
+                    "type": "planlet_id",
+                    "value": planlet_id
                     }
-            return ppcurses.post(endpoint, data)
+                }
+        response = ppcurses.post(endpoint, data)
+        if response:
+            ppcurses.mkundo(
+                'columnstate',
+                ppcurses.post,
+                endpoint,
+                {
+                 "card_ids": [self.data.id],
+                 "column_id": ppcurses.memstore['columnstate'].current_item['id'],
+                 "after_card": None,
+                 "swimlane": {
+                     "type": "planlet_id",
+                     "value": planlet_id
+                     }
+                 }
+                )
+        return response
 
     def move_to_planlet(self):
         if self.data.id is None:
@@ -419,19 +436,19 @@ class SingleCard(Pager):
 
         board_id = ppcurses.memstore['board'].id
         column_id = ppcurses.memstore['columnstate'].current_item['id']
-        response = ppcurses.hover.select_one('columns', lambda **kwargs: ppcurses.memstore['planletstate'].data)
-        if response is not None:
-            logger.info('Moving card to %s', response)
+        selection = ppcurses.hover.select_one('columns', lambda **kwargs: ppcurses.memstore['planletstate'].data)
+        if selection is not None:
+            logger.info('Moving card to %s', selection)
             endpoint = f"/api/v1/boards/{board_id}/move-cards"
-            if response['id'] == -1:
-                response['id'] = None
+            if selection['id'] == -1:
+                selection['id'] = None
             data = {
                     "card_ids": [self.data.id],
                     "column_id": column_id,
                     "after_card": None,
                     "swimlane": {
                         "type": "planlet_id",
-                        "value": response['id']
+                        "value": selection['id']
                         }
                     }
             return ppcurses.post(endpoint, data)
@@ -562,15 +579,21 @@ class SingleCard(Pager):
     def add_co_assignee(self):
         if self.data.id is None:
             return False
-        board_members = ppcurses.data.get_board_members()
-        board_members.insert(0, {'id': 'remove', 'name': 'Remove co-assignee'})
-        response = ppcurses.hover.select_one('co-assignees', lambda **kwargs: board_members)
+        selection = ppcurses.hover.select_one('co-assignees', ppcurses.data.get_board_members)
         contributor_ids = [each['id'] for each in self.data.contributors]
-        if (response is not None) and (response['id'] not in contributor_ids):
+        if (selection is not None) and (selection['id'] not in contributor_ids):
             endpoint = f"/api/v1/cards/{self.data.id}"
-            contributor_ids.append(response['id'])
+            contributor_ids.append(selection['id'])
             data = {'contributor_ids': contributor_ids}
-            return ppcurses.put(endpoint, data)
+            response = ppcurses.put(endpoint, data)
+            if response:
+                ppcurses.mkundo(
+                    'carddetailstate',
+                    ppcurses.put,
+                    endpoint,
+                    {'contributor_ids': [each['id'] for each in self.data.contributors]}
+                )
+            return response
 
     def remove_co_assignee(self, char):
         try:
@@ -587,7 +610,15 @@ class SingleCard(Pager):
         contributor_ids = [each['id'] for each in self.data.contributors if each['id'] != co_assignee['id']]
         endpoint = f"/api/v1/cards/{self.data.id}"
         data = {"contributor_ids": contributor_ids}
-        return ppcurses.put(endpoint, data)
+        response = ppcurses.put(endpoint, data)
+        if response:
+            ppcurses.mkundo(
+                'carddetailstate',
+                ppcurses.put,
+                endpoint,
+                {"contributor_ids": [each['id'] for each in self.data.contributors]}
+                )
+        return response
 
     def delete_card(self):
         if self.data.id is None:
