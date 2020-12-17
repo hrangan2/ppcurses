@@ -279,7 +279,15 @@ class SingleCard(Pager):
         except IndexError:
             return False
         endpoint = f"/api/v1/cards/{self.data.id}/checklist/{checklist['id']}/"
-        return ppcurses.delete(endpoint)
+        response = ppcurses.delete(endpoint)
+        if response:
+            ppcurses.mkundo(
+                'carddetailstate',
+                ppcurses.post,
+                f"/api/v1/cards/{self.data.id}/checklist",
+                {'title': checklist['title']}
+                )
+        return response
 
     def toggle_checklist(self, char):
         try:
@@ -297,7 +305,15 @@ class SingleCard(Pager):
         endpoint = f"/api/v1/cards/{self.data.id}/checklist/{checklist['id']}/"
         data = {'done': not checklist['done'],
                 'title': checklist['title']}
-        return ppcurses.put(endpoint, data)
+        response = ppcurses.put(endpoint, data)
+        if response:
+            ppcurses.mkundo(
+                'carddetailstate',
+                ppcurses.put,
+                endpoint,
+                {'done': checklist['done'], 'tile': checklist['title']}
+                )
+        return response
 
     def edit_checklist(self, char):
         try:
@@ -317,7 +333,16 @@ class SingleCard(Pager):
         if text is None:
             return
         data = {'title': text, 'done': checklist['done']}
-        return ppcurses.put(endpoint, data)
+        response = ppcurses.put(endpoint, data)
+        if response:
+            ppcurses.mkundo(
+                'carddetailstate',
+                ppcurses.put,
+                endpoint,
+                {'title': checklist['title'], 'done': checklist['done']}
+                )
+
+        return response
 
     def add_checklist(self):
         if self.data.id is None:
@@ -327,7 +352,20 @@ class SingleCard(Pager):
         if checklist is None:
             return
         data = {'title': checklist}
-        return ppcurses.post(endpoint, data)
+        response = ppcurses.post(endpoint, data)
+        if response:
+            for each in response['checklist']['items'][-1::-1]:
+                if each['title'] == checklist:
+                    break
+            else:
+                return response
+            logger.error(each)
+            ppcurses.mkundo(
+                'carddetailstate',
+                ppcurses.delete,
+                f"/api/v1/cards/{self.data.id}/checklist/{each['id']}/"
+                )
+        return response
 
     def checklist_to_card(self, char):
         try:

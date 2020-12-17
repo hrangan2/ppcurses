@@ -158,7 +158,6 @@ def add_comment(state):
 @key('ak')
 def add_checklist(state):
     """ Add a checklist item """
-    # TODO
     change = ppcurses.memstore['carddetailstate'].add_checklist()
     if change:
         ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
@@ -218,7 +217,6 @@ def change_points(state):
 @key('ek <n>')
 def edit_checklist(state):
     """ Edit a checklist item """
-    # TODO
     k = ppcurses.memstore['statuswin'].getch()
     change = ppcurses.memstore['carddetailstate'].edit_checklist(chr(k))
     if change:
@@ -260,7 +258,6 @@ def delete_comment(state):
 @key('xk <n>')
 def delete_checklist(state):
     """ Delete a checklist item """
-    # TODO
     k = ppcurses.memstore['statuswin'].getch()
     change = ppcurses.memstore['carddetailstate'].delete_checklist(chr(k))
     if change:
@@ -271,7 +268,6 @@ def delete_checklist(state):
 @key('tk <n>')
 def toggle_checklist(state):
     """ Toggle a checklist item """
-    # TODO
     k = ppcurses.memstore['statuswin'].getch()
     change = ppcurses.memstore['carddetailstate'].toggle_checklist(chr(k))
     if change:
