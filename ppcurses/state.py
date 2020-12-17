@@ -445,17 +445,33 @@ class SingleCard(Pager):
             return
         endpoint = f"/api/v1/cards/{self.data.id}"
         data = {'title': title}
-        return ppcurses.put(endpoint, data)
+        response = ppcurses.put(endpoint, data)
+        if response:
+            ppcurses.mkundo(
+                'carddetailstate',
+                ppcurses.put,
+                endpoint,
+                {'title': self.data.title}
+                )
+        return response
 
     def change_description(self):
         if self.data.id is None:
             return False
         description, _ = ppcurses.hover.textbox('change description', self.data.description, newlines=True)
         if description is None:
-            return
+            description = ''
         endpoint = f"/api/v1/cards/{self.data.id}"
         data = {'description': description}
-        return ppcurses.put(endpoint, data)
+        response = ppcurses.put(endpoint, data)
+        if response:
+            ppcurses.mkundo(
+                'carddetailstate',
+                ppcurses.put,
+                endpoint,
+                {'description': self.data.description}
+                )
+        return response
 
     def change_points(self):
         if self.data.id is None:
