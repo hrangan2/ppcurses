@@ -16,10 +16,12 @@ Navigate windows with the arrow keys or hjkl
 ?                   Help
 q                   Quit
 y                   Copy the direct link for a card
-u                   Undo last action
+u                   Undo your last action
 r                   Refresh the current window
 R                   Refresh all windows
 S                   Change the project and board selection
+g                   Go to the top of a list
+G                   Go to the bottom of a list
 cc                  Create a new card
 xx                  Delete a card
 aa                  Add a co-assignee to a card

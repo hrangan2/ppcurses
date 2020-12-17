@@ -112,6 +112,20 @@ def change_project_board(state):
     return state
 
 
+@key('g')
+def goto_first(state):
+    """ Go to the top of a list """
+    state.first()
+    return state
+
+
+@key('G')
+def goto_last(state):
+    """ Go to the bottom of a list """
+    state.last()
+    return state
+
+
 ########################################################################################
 #                                 PROJECTPLACE ACTIONS                                 #
 ########################################################################################
@@ -335,18 +349,6 @@ def navright(state):
     state = getattr(state, 'nstate', state)
     state.activate()
     state.window.draw()
-    return state
-
-
-@key('g')
-def goto_first(state):
-    state.first()
-    return state
-
-
-@key('G')
-def goto_last(state):
-    state.last()
     return state
 
 
