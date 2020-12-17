@@ -37,7 +37,7 @@ def projects(refetch=False):
     endpoint = '/api/v1/user/me/projects'
     data = [{'id': each['id'],
              'name': each['name'],
-             'project_id': each['id']} for each in ppcurses.get(endpoint)]
+             'project_id': each['id']} for each in ppcurses.get(endpoint, refetch=refetch)]
     data.sort(key=lambda x: x['name'])
     return data
 
@@ -49,7 +49,7 @@ def boards(kwargs, refetch=False):
         'name': each['name'],
         'project_id': kwargs['project_id'],
         'board_id': each['id']
-        } for each in ppcurses.get(endpoint)]
+        } for each in ppcurses.get(endpoint, refetch=refetch)]
     data.sort(key=lambda x: x['name'])
     return data
 

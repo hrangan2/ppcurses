@@ -603,7 +603,7 @@ class SingleCard(Pager):
             else:
                 assignee_id = self.data.assignee['id']
             ppcurses.mkundo(
-                'carddetailstate',
+                'cardliststate',
                 ppcurses.put,
                 endpoint,
                 {'assignee_id': assignee_id}
