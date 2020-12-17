@@ -113,8 +113,11 @@ def post_form(endpoint, data):
 
 
 def mkundo(state, action, endpoint, data=None):
-    memstore['undo_action'] = lambda: action(endpoint, data)
-    memstore['undo_state'] = state
+    memstore['undo_args'] = {
+            'action': lambda: action(endpoint, data),
+            'state': state,
+            'timestamp': time.time()
+            }
 
 
 def epoch_to_datetime(epoch_ts):

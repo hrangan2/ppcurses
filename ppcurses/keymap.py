@@ -1,4 +1,5 @@
 import curses
+import time
 import ppcurses.errors
 import ppcurses.hover
 import ppcurses.state
@@ -79,14 +80,12 @@ def yank_card_url(state):
 
 @key('u')
 def undo(state):
-    """ Undo last action """
-    change = ppcurses.memstore.get('undo_action', lambda: None)()
-    if change:
-        undo_state = ppcurses.memstore.get('undo_state', None)
-        if undo_state is not None:
-            ppcurses.memstore[ppcurses.memstore['undo_state']].update(cascade=True, reset_position=False, refetch=True)
-    ppcurses.memstore['undo_action'] = lambda: None
-    ppcurses.memstore['undo_state'] = None
+    """ Undo your last action """
+    undo_args = ppcurses.memstore.get('undo_args', {})
+    if undo_args and (time.time() - undo_args['timestamp'] < 8):  # Undo's expire after a few seconds
+        if undo_args['action']():
+            ppcurses.memstore[undo_args['state']].update(cascade=True, reset_position=False, refetch=True)
+    ppcurses.memstore['undo_args'] = {}
     return state
 
 
