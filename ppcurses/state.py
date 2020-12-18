@@ -790,9 +790,14 @@ class Comments(Pager):
             return False
         if comment.id is None:
             return False
+        if not comment.is_mine():
+            logger.warning('Trying to modify a card that you did not create')
+            return False
+
         comment_text, encoded_text = ppcurses.hover.textbox(
                 'edit a comment', comment.encoded_text, newlines=True,
                 encoded=True, encoder_kwargs={'known_atrefs': comment.at_refs})
+
         if (comment_text is None) or (comment_text == comment.text):
             return
         else:

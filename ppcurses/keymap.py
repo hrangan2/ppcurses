@@ -163,7 +163,7 @@ def add_comment(state):
     """ Add a new comment """
     change = ppcurses.memstore['commentsstate'].add_comment()
     if change:
-        ppcurses.memstore['commentsstate'].update(cascade=False, reset_position=False, refetch=True)
+        ppcurses.memstore['commentsstate'].update(cascade=False, reset_position=True, refetch=True)
     return state
 
 
