@@ -112,6 +112,8 @@ def cards(kwargs, refetch=False):
 
 def comments(kwargs, refetch=False):
     endpoint = f"/api/v3/conversations/comments?item_id={kwargs['card_id']}&item_name=card&count=100&offset=0"
+    if refetch:
+        get_board_members(True)
     return sorted(
             [Comment(each) for each in ppcurses.get(endpoint, refetch=refetch)['data']],
             key=lambda x: x.created_at,
@@ -121,6 +123,8 @@ def comments(kwargs, refetch=False):
 
 def card(kwargs, refetch=False):
     endpoint = f"/api/v1/cards/{kwargs['card_id']}"
+    if refetch:
+        get_board_members(True)
     return Card(ppcurses.get(endpoint, refetch=refetch))
 
 
@@ -200,6 +204,7 @@ class Comment(Serializer):
                 'name': ' '.join([comment['created_by']['first_name'], comment['created_by']['last_name']])
                 }
         self.attachments = [int(each['id']) for each in comment.get('attachments', [])]
+        self.at_refs = {int(key): value for (key, value) in comment['at_refs'].items()}
 
     def is_mine(self):
         return self.created_by['id'] == ppcurses.memstore['user_id']
@@ -230,17 +235,21 @@ class Board(Serializer):
                 })
 
 
-def get_board_members(**kwargs):
+def get_board_members(refetch=False):
     board_id = ppcurses.memstore['board'].id
     project_id = ppcurses.dbstore['project_id']
     endpoint = f"/api/v2/boards/{board_id}/people-with-access"
-    allowed = ppcurses.get(endpoint, refetch=False)['access']
+    allowed = ppcurses.get(endpoint, refetch=refetch)['access']
 
     endpoint = f"/api/v1/projects/{project_id}/members?member_params=include_last_active,include_pending,organisation,description,in_team"
     board_members = [{'id': member['id'],
                       'name': member['name']
-                      } for member in ppcurses.get(endpoint, refetch=False) if member['id'] in allowed]
+                      } for member in ppcurses.get(endpoint, refetch=refetch) if member['id'] in allowed]
     return board_members
+
+
+def get_board_members_with_removal(refetch=False):
+    return [{'id': 'remove', 'name': 'Remove assignee'}] + get_board_members(refetch=refetch)
 
 
 def helper_card_to_checklist(_, data):

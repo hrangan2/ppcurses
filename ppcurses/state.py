@@ -609,9 +609,7 @@ class SingleCard(Pager):
     def change_assignee(self):
         if self.data.id is None:
             return False
-        board_members = ppcurses.data.get_board_members()
-        board_members.insert(0, {'id': 'remove', 'name': 'Remove assignee'})
-        selection = ppcurses.hover.select_one('assignees', lambda **kwargs: board_members)
+        selection = ppcurses.hover.select_one('assignees', ppcurses.data.get_board_members_with_removal)
         if (
                 selection is None
                 or self.data.assignee is not None and self.data.assignee['id'] == selection['id']
@@ -736,7 +734,7 @@ class Comments(Pager):
             if comment.attachments:
                 contents.append('Attachments: %s' % len(comment.attachments))
 
-            for line in comment.text.split('\n'):
+            for line in ppcurses.hover.decode_atref(comment.encoded_text, known_atrefs=comment.at_refs).split('\n'):
                 contents.extend(textwrap.wrap(line, width=self.window.maxx-5))
             if n != (len(self.data) - 1):
                 contents.append(' ')
@@ -792,8 +790,10 @@ class Comments(Pager):
             return False
         if comment.id is None:
             return False
-        comment_text, encoded_text = ppcurses.hover.textbox('edit a comment', comment.encoded_text, newlines=True, encoded=True)
-        if comment_text is None:
+        comment_text, encoded_text = ppcurses.hover.textbox(
+                'edit a comment', comment.encoded_text, newlines=True,
+                encoded=True, encoder_kwargs={'known_atrefs': comment.at_refs})
+        if (comment_text is None) or (comment_text == comment.text):
             return
         else:
             endpoint = f"/api/v3/conversations/comment/{comment.id}"

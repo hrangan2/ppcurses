@@ -90,4 +90,5 @@ def main():
     except ppcurses.errors.GracefulExit:
         pass
     except ppcurses.errors.PPCursesError as err:
+        print("Failed due to %s" % repr(err))
         logger.error("Failed due to %s" % repr(err))

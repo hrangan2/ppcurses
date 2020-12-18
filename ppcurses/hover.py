@@ -92,6 +92,7 @@ def select_one(name, updater):
                 'j', chr(curses.KEY_DOWN),
                 'k', chr(curses.KEY_UP),
                 'l', chr(curses.KEY_RIGHT),
+                'r',
                 'g', 'G',
                 'q'])
         except ppcurses.errors.GracefulExit:
@@ -104,8 +105,10 @@ def select_one(name, updater):
     return selection
 
 
-def decode_atref(text):
-    board_members = {each['id']: each['name'] for each in ppcurses.data.get_board_members()}
+def decode_atref(text, known_atrefs={}):
+    board_members = known_atrefs
+    remote_board_members = {each['id']: each['name'] for each in ppcurses.data.get_board_members()}
+    board_members.update(remote_board_members)
 
     def board_member_replacer(matchobj):
         return '@' + board_members[int(matchobj.groups()[0])]
@@ -122,10 +125,30 @@ def remove_atref(text):
         return None
 
 
-def textbox(name, text='', newlines=False, encoded=False):
+def strip_removed_members(text, known_atrefs={}):
+    board_members = known_atrefs
+    for each in ppcurses.data.get_board_members():
+        try:
+            board_members.pop(each['id'])
+        except KeyError:
+            pass
+
+    def board_member_replacer(matchobj):
+        try:
+            return '@' + board_members[int(matchobj.groups()[0])]
+        except KeyError:
+            return '@[%s]' % int(matchobj.groups()[0])
+
+    return re.sub(r'@\[([0-9]+)\]', board_member_replacer, text)
+
+
+def textbox(name, text='', newlines=False, encoded=False, encoder_kwargs={}):
     original_text = text
     ctrl_confirm = 's'
     ctrl_quit = 'q'
+
+    if encoded:
+        text = strip_removed_members(text, **encoder_kwargs)
 
     def draw_text(window, text):
         window.clear()
@@ -137,7 +160,7 @@ def textbox(name, text='', newlines=False, encoded=False):
             # This is to move the cursor to this location
             window.addstr(2, 3, '')
         lines = []
-        raw_text = decode_atref(text) if encoded else text
+        raw_text = decode_atref(text, **encoder_kwargs) if encoded else text
         for line in raw_text.split('\n'):
             wrapped = textwrap.wrap(line, width=maxx-6, drop_whitespace=False, replace_whitespace=False)
             if not wrapped:
@@ -196,7 +219,8 @@ def textbox(name, text='', newlines=False, encoded=False):
         elif key == ord('@'):
             if encoded:
                 member = select_one('board members', ppcurses.data.get_board_members)
-                text += '@[%s]' % member['id']
+                if member is not None:
+                    text += '@[%s]' % member['id']
             else:
                 text += chr(key)
         elif chr(key) in string.printable+' ':
@@ -209,6 +233,6 @@ def textbox(name, text='', newlines=False, encoded=False):
     if (not text) or (text == original_text):
         return None, None
     if encoded:
-        return decode_atref(text), text
+        return decode_atref(text, **encoder_kwargs), text
     else:
         return text, None
