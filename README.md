@@ -5,7 +5,8 @@ _An ncurses interface to boards and cards with vim style keybindings._
 
 ## Usage
 ```
-$ pip install git+https://github.com/hrangan2/ppcurses.git
+$ git clone git@github.com:hrangan2/ppcurses.git
+$ pip install ./ppcurses
 $ ppcurses
 ```
 
