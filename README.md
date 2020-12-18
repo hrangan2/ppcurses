@@ -43,3 +43,10 @@ pk <n>              Convert a checklist item to a card
 mc                  Move the card to a different column
 mp                  Move the card to a different activity
 ```
+
+## Development
+Add a new section to `~/.ppcurses/config` pointing to a different domain and set the `mode` variable in `ppcurses/__init__.py` to the section name.
+
+Each section gets its own sqlite db for data caching, so you can swap environments by just changing the `mode` variable in `ppcurses/__init__.py`.
+
+If you think the cache is corrupted, you can delete the corresponding `.db` file in `~/.ppcurses`.
