@@ -164,7 +164,7 @@ def add_co_assignee(state):
     """ Add a co-assignee to a card """
     change = ppcurses.memstore['carddetailstate'].add_co_assignee()
     if change:
-        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
+        ppcurses.memstore['carddetailstate'].updatefrom(change)
     return state
 
 
@@ -182,7 +182,7 @@ def add_checklist(state):
     """ Add a checklist item """
     change = ppcurses.memstore['carddetailstate'].add_checklist()
     if change:
-        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
+        ppcurses.memstore['carddetailstate'].updatefrom(change)
     return state
 
 
@@ -200,7 +200,7 @@ def change_description(state):
     """ Change the description of the card """
     change = ppcurses.memstore['carddetailstate'].change_description()
     if change:
-        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
+        ppcurses.memstore['carddetailstate'].updatefrom(change)
     return state
 
 
@@ -209,7 +209,7 @@ def change_assignee(state):
     """ Change the owner/assignee of the card """
     change = ppcurses.memstore['carddetailstate'].change_assignee()
     if change:
-        ppcurses.memstore['cardliststate'].update(cascade=True, reset_position=False, refetch=True)
+        ppcurses.memstore['carddetailstate'].updatefrom(change)
     return state
 
 
@@ -218,7 +218,7 @@ def change_label(state):
     """ Change the label of the card """
     change = ppcurses.memstore['carddetailstate'].change_label()
     if change:
-        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
+        ppcurses.memstore['carddetailstate'].updatefrom(change)
     return state
 
 
@@ -227,7 +227,7 @@ def change_points(state):
     """ Change the points on a card """
     change = ppcurses.memstore['carddetailstate'].change_points()
     if change:
-        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
+        ppcurses.memstore['carddetailstate'].updatefrom(change)
     return state
 
 
@@ -237,7 +237,7 @@ def edit_checklist(state):
     k = ppcurses.memstore['statuswin'].getch()
     change = ppcurses.memstore['carddetailstate'].edit_checklist(chr(k))
     if change:
-        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
+        ppcurses.memstore['carddetailstate'].updatefrom(change)
     return state
 
 
@@ -257,7 +257,7 @@ def remove_co_assignee(state):
     k = ppcurses.memstore['statuswin'].getch()
     change = ppcurses.memstore['carddetailstate'].remove_co_assignee(chr(k))
     if change:
-        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
+        ppcurses.memstore['carddetailstate'].updatefrom(change)
     return state
 
 
@@ -277,7 +277,7 @@ def delete_checklist(state):
     k = ppcurses.memstore['statuswin'].getch()
     change = ppcurses.memstore['carddetailstate'].delete_checklist(chr(k))
     if change:
-        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
+        ppcurses.memstore['carddetailstate'].updatefrom(change)
     return state
 
 
@@ -287,7 +287,7 @@ def toggle_checklist(state):
     k = ppcurses.memstore['statuswin'].getch()
     change = ppcurses.memstore['carddetailstate'].toggle_checklist(chr(k))
     if change:
-        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
+        ppcurses.memstore['carddetailstate'].updatefrom(change)
     return state
 
 

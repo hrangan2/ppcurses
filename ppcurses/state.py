@@ -1,6 +1,7 @@
 import logging
 import ppcurses
 import ppcurses.hover
+import ppcurses.data
 import textwrap
 
 from string import digits, ascii_letters
@@ -260,6 +261,12 @@ class SingleCard(Pager):
     def update(self, cascade=True, reset_position=False, refetch=False):
         super().update(cascade=cascade, reset_position=reset_position, refetch=refetch)
         ppcurses.memstore['card_id'] = self.data.id
+
+    def updatefrom(self, response):
+        self.data = ppcurses.data.Card(response)
+        self.lines_of_text = self.generate_lines_of_text()
+        ppcurses.dbstore[f"/api/v1/cards/{self.data.id}"] = response
+        self.window.draw()
 
     def generate_lines_of_text(self):
         if self.data.id is None:
