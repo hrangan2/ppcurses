@@ -18,6 +18,7 @@ Navigate windows with the arrow keys or hjkl
 q                   Quit
 y                   Copy the direct link for a card
 u                   Undo your last action
+/                   Filter the current list
 r                   Refresh the current window
 R                   Refresh all windows
 S                   Change the project and board selection

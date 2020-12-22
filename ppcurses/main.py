@@ -78,7 +78,7 @@ def interactable(stdscr):
 
     while True:
         key = statuswin.getch()
-        state = ppcurses.keymap.do(state, key, allowed_keys=['*'])
+        state = ppcurses.keymap.do(state, key, allowed_keys=['*'], blocked_keys=['/'])
 
 
 def main():

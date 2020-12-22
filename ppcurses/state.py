@@ -31,6 +31,7 @@ class State:
         self.updater = updater
         self.data = self.zerostate
         self.current_id = self.data[0]['id']
+        self.filter_text = ''
 
     def __repr__(self):
         if hasattr(self, 'name') and self.name:
@@ -57,6 +58,8 @@ class State:
                 self.data = self.updater(prev_args, refetch=refetch) or self.zerostate
         else:
             self.data = self.updater(refetch=refetch) or self.zerostate
+        if self.filter_text:
+            self.data = [each for each in self.data if each['name'].lower().startswith(self.filter_text.lower())] or self.zerostate
         self.ids = [each['id'] for each in self.data]
         if reset_position:
             self.current_id = self.data[0]['id']

@@ -89,6 +89,13 @@ def undo(state):
     return state
 
 
+@key('/')
+def filter(state):
+    """ Filter the current list """
+    state = ppcurses.hover.filter(state)
+    return state
+
+
 @key('r')
 def refresh(state):
     """ Refresh the current window """
@@ -352,17 +359,29 @@ def navright(state):
     return state
 
 
+@key(chr(curses.KEY_RESIZE))
+def resize(state):
+    return state
+
+
 # # Uncomment this to log a command list for the README
 # for key, value in HELP_MSG.items():
 #     assert len(value) == 1
 #     logger.info('{:<20}{}'.format(value[0], key))
 
 
-def do(state, key, allowed_keys=['*'], keymap=REGISTERED):
+def do(state, key, allowed_keys=['*'], blocked_keys=[], keymap=REGISTERED):
+
+    if ('*' in blocked_keys) or (key in [ord(c) for c in blocked_keys]):
+        ppcurses.memstore['statuswin'].unset()
+        logger.info('Skipping blocked key - %s', repr(key))
+        return state
+
     if ('*' not in allowed_keys) and (key not in [ord(c) for c in allowed_keys]):
         ppcurses.memstore['statuswin'].unset()
         logger.info('Skipping blocked key - %s', repr(key))
         return state
+
     if key not in keymap:
         ppcurses.memstore['statuswin'].unset()
         logger.warning('Unregistered key press detected - %s', repr(key))

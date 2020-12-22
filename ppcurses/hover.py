@@ -54,6 +54,7 @@ def select_project_board():
                 'l', chr(curses.KEY_RIGHT),
                 'g', 'G',
                 'r',
+                '/',
                 'q'])
         except ppcurses.errors.GracefulExit:
             # Remove any characters printed by these windows in the gaps
@@ -75,7 +76,6 @@ def select_one(name, updater):
     state.attach_window(
         ppcurses.windows.SimpleList(2*(curses.LINES - 1)//4, (curses.COLS-1)//2, (curses.LINES - 1)//4, (curses.COLS-1)//4)
         )
-
     state.activate()
     state.update()
 
@@ -92,9 +92,7 @@ def select_one(name, updater):
                 'j', chr(curses.KEY_DOWN),
                 'k', chr(curses.KEY_UP),
                 'l', chr(curses.KEY_RIGHT),
-                'r',
-                'g', 'G',
-                'q'])
+                'r', 'g', 'G', 'q', '/'])
         except ppcurses.errors.GracefulExit:
             # Remove any characters printed by these windows in the gaps
             # between existing windows
@@ -236,3 +234,36 @@ def textbox(name, text='', newlines=False, encoded=False, encoder_kwargs={}):
         return decode_atref(text, **encoder_kwargs), text
     else:
         return text, None
+
+
+def filter(state):
+    window = curses.newwin(4, 4*(curses.COLS-1)//8, 3*(curses.LINES - 1)//4-4, 2*(curses.COLS-1)//8)
+    window.border()
+    maxy, maxx = window.getmaxyx()
+    window.touchwin()
+    window.keypad(True)
+    curses.curs_set(1)
+    logger.error(state)
+
+    while True:
+        state.update()
+        window.clear()
+        window.border(*ppcurses.windows.ACTIVE_WINDOW)
+        window.addstr(maxy-2, 2, 'enter to confirm')
+        window.addstr(1, 2, state.filter_text)
+        window.refresh()
+        key = ppcurses.memstore['statuswin'].window.getch()
+        if key == curses.ascii.DEL:
+            state.filter_text = state.filter_text[:-1]
+        elif key == curses.ascii.NL:
+            if state.current_item['id'] is None:
+                state.filter_text = ''
+            break
+        elif chr(key) in string.printable+' ':
+            state.filter_text += chr(key)
+
+    window.clear()
+    window.refresh()
+    state.update()
+    curses.curs_set(0)
+    return state
