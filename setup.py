@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setup(name='ppcurses',
       url='https://github.com/hrangan2/ppcurses',
-      version='0.9',
+      version='0.10',
       description='An ncurses interface to Projectplace',
       long_description='An ncurses interface to Projectplace',
       author='Harshavardhan Rangan',
