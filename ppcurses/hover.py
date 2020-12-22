@@ -169,13 +169,13 @@ def textbox(name, text='', newlines=False, encoded=False, encoder_kwargs={}):
             window.addstr(n+2, 3, line)
         window.refresh()
 
-    curses.curs_set(1)
     window = curses.newwin(2*(curses.LINES - 1)//4, 6*(curses.COLS-1)//8, (curses.LINES - 1)//4, (curses.COLS-1)//8)
     maxy, maxx = window.getmaxyx()
     window.touchwin()
     window.keypad(True)
 
     while True:
+        curses.curs_set(1)  # Child windows sometimes unset the cursor
         draw_text(window, text)
         key = ppcurses.memstore['statuswin'].window.getch()
 
@@ -245,7 +245,6 @@ def filter(state):
     window.touchwin()
     window.keypad(True)
     curses.curs_set(1)
-    logger.error(state)
 
     while True:
         state.update()
