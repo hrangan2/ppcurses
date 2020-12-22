@@ -74,8 +74,6 @@ class State:
             return
         self.current_id = self.data[0]['id']
         self.window.draw()
-        if hasattr(self, 'nstate'):
-            self.nstate.update()
 
     def prev(self):
         if self.index == 0:
@@ -215,6 +213,14 @@ class Pager:
     @property
     def lines_needed(self):
         return len(self.lines_of_text)
+
+    def first(self):
+        self.index = 0
+        self.window.draw()
+
+    def last(self):
+        self.index = self.lines_needed - self.window.maxy + 2
+        self.window.draw()
 
     def surrounding(self):
         if self.lines_needed > self.window.maxy-2:

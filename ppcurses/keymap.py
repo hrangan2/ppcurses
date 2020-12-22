@@ -143,8 +143,11 @@ def create_card(state):
     """ Create a new card """
     change = ppcurses.memstore['carddetailstate'].create_card()
     if change:
+        state.deactivate()
+        ppcurses.memstore['carddetailstate'].activate()
+        ppcurses.memstore['cardliststate'].current_id = change['id']
         ppcurses.memstore['cardliststate'].update(cascade=True, reset_position=False, refetch=True)
-    return state
+    return ppcurses.memstore['carddetailstate']
 
 
 @key('xx')
