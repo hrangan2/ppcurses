@@ -46,7 +46,9 @@ mp                  Move the card to a different activity
 ```
 
 ## Development
-Add a new section to `~/.ppcurses/config` pointing to a different domain and set the `mode` variable in `ppcurses/__init__.py` to the section name.
+Add a new section to `~/.ppcurses/config` pointing to a different domain and set the `mode` variable in `ppcurses/__init__.py` to the section suffix.
+
+For example if you want a development configuration, add a section named `ppcurses_dev` to `~/.ppcurses/config` and set `mode = 'dev'` in `ppcurses/__init__.py`
 
 Each section gets its own sqlite db for data caching, so you can swap environments by just changing the `mode` variable in `ppcurses/__init__.py`.
 

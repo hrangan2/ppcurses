@@ -64,6 +64,11 @@ def help(state):
 @key('q')
 def quit(state):
     """ Quit """
+    raise ppcurses.errors.ApplicationExit
+
+
+@key(chr(curses.ascii.ESC))
+def graceful_exit(state):
     raise ppcurses.errors.GracefulExit
 
 

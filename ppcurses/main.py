@@ -1,4 +1,5 @@
 import curses
+import curses.ascii
 import ppcurses
 import ppcurses.state
 import ppcurses.windows
@@ -78,7 +79,7 @@ def interactable(stdscr):
 
     while True:
         key = statuswin.getch()
-        state = ppcurses.keymap.do(state, key, allowed_keys=['*'], blocked_keys=['/'])
+        state = ppcurses.keymap.do(state, key, allowed_keys=['*'], blocked_keys=['/', chr(curses.ascii.ESC)])
 
 
 def main():
@@ -87,7 +88,7 @@ def main():
     logger.info('')
     try:
         curses.wrapper(interactable)
-    except ppcurses.errors.GracefulExit:
+    except ppcurses.errors.ApplicationExit:
         pass
     except ppcurses.errors.PPCursesError as err:
         print("Failed due to %s" % repr(err))

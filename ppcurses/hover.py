@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 def select_project_board():
     win = curses.newwin(curses.LINES-1, curses.COLS-1, 0, 0)
     win.clear()
-    win.addstr(2, 6, 'Choose a project and a board:')
+    win.addstr(2, 6, 'Choose a project and a board (press ESC to quit):')
     win.refresh()
     border = 5
 
@@ -55,12 +55,12 @@ def select_project_board():
                 'g', 'G',
                 'r',
                 '/',
-                'q'])
+                chr(curses.ascii.ESC)])
         except ppcurses.errors.GracefulExit:
             # Remove any characters printed by these windows in the gaps
             # between existing windows
             if ppcurses.dbstore['project_id'] is None or ppcurses.dbstore['board_id'] is None:
-                exit()
+                raise ppcurses.errors.ApplicationExit
             else:
                 break
     projects.window.clear()
@@ -92,7 +92,7 @@ def select_one(name, updater):
                 'j', chr(curses.KEY_DOWN),
                 'k', chr(curses.KEY_UP),
                 'l', chr(curses.KEY_RIGHT),
-                'r', 'g', 'G', 'q', '/'])
+                chr(curses.ascii.ESC), 'r', 'g', 'G', '/'])
         except ppcurses.errors.GracefulExit:
             # Remove any characters printed by these windows in the gaps
             # between existing windows
@@ -142,8 +142,6 @@ def strip_removed_members(text, known_atrefs={}):
 
 def textbox(name, text='', newlines=False, encoded=False, encoder_kwargs={}):
     original_text = text
-    ctrl_confirm = 's'
-    ctrl_quit = 'q'
 
     if encoded:
         text = strip_removed_members(text, **encoder_kwargs)
@@ -152,7 +150,10 @@ def textbox(name, text='', newlines=False, encoded=False, encoder_kwargs={}):
         window.clear()
         window.border(*ppcurses.windows.ACTIVE_WINDOW)
         window.addstr(0, 2, name)
-        window.addstr(maxy-2, 2, 'ctrl-%s to confirm, ctrl-%s to cancel' % (ctrl_confirm, ctrl_quit))
+        if newlines:
+            window.addstr(maxy-2, 2, 'ctrl-s to confirm, esc to cancel')
+        else:
+            window.addstr(maxy-2, 2, 'enter to confirm, esc to cancel')
 
         if not text:
             # This is to move the cursor to this location
@@ -181,9 +182,10 @@ def textbox(name, text='', newlines=False, encoded=False, encoder_kwargs={}):
 
         if (key == -1) or (key == curses.KEY_RESIZE):
             continue
-        elif key == curses.ascii.ctrl(ord(ctrl_confirm)):
-            break
-        elif key == curses.ascii.ctrl(ord(ctrl_quit)):
+        elif key == curses.ascii.ctrl(ord('s')):
+            if newlines:
+                break
+        elif key == curses.ascii.ESC:
             text = None
             break
         elif key == curses.ascii.ctrl(ord('v')):
@@ -207,6 +209,8 @@ def textbox(name, text='', newlines=False, encoded=False, encoder_kwargs={}):
         elif key == curses.ascii.NL:
             if newlines:
                 text += '\n'
+            else:
+                break
         elif key == curses.ascii.DEL:
             if text.endswith(']'):
                 removal_chars = remove_atref(text)
@@ -245,12 +249,13 @@ def filter(state):
     window.touchwin()
     window.keypad(True)
     curses.curs_set(1)
+    prev_filter_text = state.filter_text
 
     while True:
         state.update()
         window.clear()
         window.border(*ppcurses.windows.ACTIVE_WINDOW)
-        window.addstr(maxy-2, 2, 'enter to confirm')
+        window.addstr(maxy-2, 2, 'enter to confirm, esc to cancel')
         window.addstr(1, 2, state.filter_text)
         window.refresh()
         key = ppcurses.memstore['statuswin'].window.getch()
@@ -261,6 +266,9 @@ def filter(state):
         elif key == curses.ascii.NL:
             if state.current_item['id'] is None:
                 state.filter_text = ''
+            break
+        elif key == curses.ascii.ESC:
+            state.filter_text = prev_filter_text
             break
         elif chr(key) in string.printable+' ':
             state.filter_text += chr(key)

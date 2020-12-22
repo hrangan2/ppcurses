@@ -16,3 +16,7 @@ class DuplicateKeyDefined(PPCursesError):
 
 class RootKeyExists(PPCursesError):
     pass
+
+
+class ApplicationExit(PPCursesError):
+    pass
