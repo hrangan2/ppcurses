@@ -362,11 +362,6 @@ def navright(state):
     return state
 
 
-@key(chr(curses.KEY_RESIZE))
-def resize(state):
-    return state
-
-
 # # Uncomment this to log a command list for the README
 # for key, value in HELP_MSG.items():
 #     assert len(value) == 1
@@ -374,6 +369,8 @@ def resize(state):
 
 
 def do(state, key, allowed_keys=['*'], blocked_keys=[], keymap=REGISTERED):
+    if (key == -1) or (key == curses.KEY_RESIZE):
+        return state
 
     if ('*' in blocked_keys) or (key in [ord(c) for c in blocked_keys]):
         ppcurses.memstore['statuswin'].unset()

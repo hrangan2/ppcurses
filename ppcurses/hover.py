@@ -179,7 +179,9 @@ def textbox(name, text='', newlines=False, encoded=False, encoder_kwargs={}):
         draw_text(window, text)
         key = ppcurses.memstore['statuswin'].window.getch()
 
-        if key == curses.ascii.ctrl(ord(ctrl_confirm)):
+        if (key == -1) or (key == curses.KEY_RESIZE):
+            continue
+        elif key == curses.ascii.ctrl(ord(ctrl_confirm)):
             break
         elif key == curses.ascii.ctrl(ord(ctrl_quit)):
             text = None
@@ -253,7 +255,9 @@ def filter(state):
         window.addstr(1, 2, state.filter_text)
         window.refresh()
         key = ppcurses.memstore['statuswin'].window.getch()
-        if key == curses.ascii.DEL:
+        if (key == -1) or (key == curses.KEY_RESIZE):
+            continue
+        elif key == curses.ascii.DEL:
             state.filter_text = state.filter_text[:-1]
         elif key == curses.ascii.NL:
             if state.current_item['id'] is None:
