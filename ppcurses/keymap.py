@@ -152,7 +152,8 @@ def create_card(state):
         ppcurses.memstore['carddetailstate'].activate()
         ppcurses.memstore['cardliststate'].current_id = change['id']
         ppcurses.memstore['cardliststate'].update(cascade=True, reset_position=False, refetch=True)
-    return ppcurses.memstore['carddetailstate']
+        state = ppcurses.memstore['carddetailstate']
+    return state
 
 
 @key('xx')
