@@ -14,10 +14,10 @@ mode = ''
 configname = f'ppcurses_{mode}' if mode else 'ppcurses'
 os.environ.setdefault('ESCDELAY', '25')
 
-logging.basicConfig(filename='ppcurses.log', level=logging.INFO)
+internaldir = os.path.join(os.path.expanduser('~'), '.ppcurses')
+logging.basicConfig(filename=os.path.join(internaldir, 'ppcurses.log'), level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-internaldir = os.path.join(os.path.expanduser('~'), '.ppcurses')
 
 configfile = os.path.join(internaldir, 'config')
 if not os.path.exists(internaldir):
