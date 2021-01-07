@@ -13,7 +13,6 @@ logging.basicConfig(filename='ppcurses.log', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 locale.setlocale(locale.LC_ALL, '')
-code = locale.getpreferredencoding()
 
 
 def interactable(stdscr):
@@ -83,13 +82,17 @@ def interactable(stdscr):
 
 
 def main():
-    logger.info('')
-    logger.critical('#'*25 + '  Restarting ppcurses  ' + '#'*25)
-    logger.info('')
-    try:
-        curses.wrapper(interactable)
-    except ppcurses.errors.ApplicationExit:
-        pass
-    except ppcurses.errors.PPCursesError as err:
-        print("Failed due to %s" % repr(err))
-        logger.error("Failed due to %s" % repr(err))
+    while True:
+        try:
+            logger.info('')
+            logger.critical('#'*25 + '  Restarting ppcurses  ' + '#'*25)
+            logger.info('')
+            curses.wrapper(interactable)
+        except ppcurses.errors.TerminalResize:
+            continue
+        except ppcurses.errors.ApplicationExit:
+            break
+        except ppcurses.errors.PPCursesError as err:
+            print("Failed due to %s" % repr(err))
+            logger.error("Failed due to %s" % repr(err))
+            break

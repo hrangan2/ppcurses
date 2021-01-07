@@ -20,3 +20,7 @@ class RootKeyExists(PPCursesError):
 
 class ApplicationExit(PPCursesError):
     pass
+
+
+class TerminalResize(PPCursesError):
+    pass

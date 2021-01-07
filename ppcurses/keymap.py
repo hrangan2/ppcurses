@@ -376,7 +376,7 @@ def navright(state):
 
 def do(state, key, allowed_keys=['*'], blocked_keys=[], keymap=REGISTERED):
     if (key == -1) or (key == curses.KEY_RESIZE):
-        return state
+        raise ppcurses.errors.TerminalResize
 
     if ('*' in blocked_keys) or (key in [ord(c) for c in blocked_keys]):
         ppcurses.memstore['statuswin'].unset()
