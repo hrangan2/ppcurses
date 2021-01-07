@@ -197,7 +197,8 @@ def change_title(state):
     """ Change the title of the card """
     change = ppcurses.memstore['carddetailstate'].change_title()
     if change:
-        ppcurses.memstore['carddetailstate'].update(cascade=False, reset_position=False, refetch=True)
+        ppcurses.memstore['carddetailstate'].updatefrom(change)
+        ppcurses.memstore['cardliststate'].update(cascade=False, reset_position=False, refetch=True)
     return state
 
 
