@@ -216,6 +216,7 @@ def change_assignee(state):
     """ Change the owner/assignee of the card """
     change = ppcurses.memstore['carddetailstate'].change_assignee()
     if change:
+        ppcurses.memstore['cardliststate'].update(cascade=False, reset_position=True, refetch=True)
         ppcurses.memstore['carddetailstate'].updatefrom(change)
     return state
 
