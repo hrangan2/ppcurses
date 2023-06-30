@@ -7,6 +7,7 @@ import requests
 from datetime import datetime
 from dateutil import tz
 from ppcurses.errors import CallFailure
+import ppcurses.auth
 import logging
 import configparser
 
@@ -32,10 +33,10 @@ domain=service.projectplace.com
 
 parser = configparser.ConfigParser()
 parser.read_file(open(configfile))
-token = parser.get(configname, 'token')
-if token == 'ADD_USER_TOKEN':
-    print('Add your projectplace token to %s' % configfile)
-    exit()
+token = parser.get(configname, 'token', None)
+if not ppcurses.auth.validate_token(token):
+    input('Press any button to authenticate ppcurses through the browser')
+    ppcurses.auth.login()
 domain = parser.get(configname, 'domain')
 
 
@@ -46,7 +47,9 @@ def _get(endpoint):
     r = requests.get(url, headers={'Authorization': 'Bearer ' + token})
     memstore['statuswin'].unset()
 
-    if not r.ok:
+    if r.status_code in (401, 403):
+        ppcurses.auth.refresh_token()
+    elif not r.ok:
         logger.error("Failed calling %s, [%s]", (endpoint, r.status_code))
         raise CallFailure(r.status_code, endpoint)
     else:

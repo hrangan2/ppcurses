@@ -20,6 +20,7 @@ setup(name='ppcurses',
           'requests',
           'python-dateutil',
           'pyperclip',
+          'flask'
           ],
       classifiers=[
           'Environment :: Console :: Curses',
