@@ -1,45 +1,30 @@
+#!/usr/bin/env python
 import logging
 import uuid
 import requests
-import ulimi.config
-import ulimi.exceptions
-from urllib.parse import urlencode, urlparse, urlunparse
 from flask import Flask, request, abort, session, url_for, redirect
-import ulimi.db
 try:
-    import ulimi.secrets
+    import config
 except ImportError:
-    ulimi.secrets = None
+    print_oauth_instructions()
+    exit()
 
 
 logger = logging.getLogger(__name__)
 
 
 app = Flask.app(__name__)
-# app.run(host="0.0.0.0", port=4987)
+state = None
+
+
+def print_oauth_instructios():
+    pass
 
 
 def build_query(url, params):
-    url_parts = list(urlparse(url))
-    url_parts[4] = urlencode(params)
-    return urlunparse(url_parts)
-
-
-def get_github_user_from_token(token):
-    headers = {"Authorization": f"token {token}"}
-    r = requests.get("https://api.github.com/user""", headers=headers)
-    if r.status_code == 401:
-        raise ulimi.exceptions.Github401
-    return r.json()['login']
-
-
-def validate_token(token):
-    if token in ('ADD_USER_TOKEN', None):
-        return False
-
-
-def refresh_token(token):
-    pass
+    request = requests.models.PreparedRequest()
+    request.prepare_url(url, params)
+    return request.url
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -47,19 +32,15 @@ def login():
     global state
     state = uuid.uuid4().hex
     body = {
-        "client_id": ulimi.secrets.github_client_id,
-        "redirect_uri": login_redirect,
-        "scope": "repo user:email",
+        "client_id": config.CLIENT_ID,
+        "redirect_uri": "http://localhost:4987/callback",
         "state": state,
-        "allow_signup": False
     }
-    url = ulimi.config.github_authorize_url
     return redirect(build_query(url, body))
 
 
-@routes.route('/callback')
+@app.route('/callback')
 def login_callback():
-    global state
     if state != request.args.get("state"):
         abort(401, "State mismatch")
 
@@ -82,9 +63,12 @@ def login_callback():
         abort(401, "Failed to swap auth code for the access token")
 
 
-@routes.route('/logout', methods=['GET', 'POST'])
+@app.route('/logout', methods=['GET', 'POST'])
 def logout():
     username = session.pop('username', None)
     if username:
         ulimi.db.delete_github_token(username)
     return redirect(url_for('index'))
+
+
+app.run(host="0.0.0.0", port=4987)
